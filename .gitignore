@@ -1,4 +1,5 @@
 /push
+application.secret.conf
 
 # bloop and metals
 .bloop
