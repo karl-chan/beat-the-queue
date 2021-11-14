@@ -30,3 +30,5 @@ lazy val root = project
       "com.github.pureconfig" %% "pureconfig" % "0.17.0"
     ).map(_.cross(CrossVersion.for3Use2_13))
   )
+
+enablePlugins(JavaAppPackaging)
