@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers.all
 
 import java.time.LocalDate
 
-class CineworldCralwerTest
+class CineworldCrawlerTest
     extends AsyncFlatSpec
     with AsyncIOSpec
     with should.Matchers:
