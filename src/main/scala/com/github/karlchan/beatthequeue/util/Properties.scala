@@ -14,7 +14,11 @@ object Properties:
 
   private def getFromFile(path: String): Either[Throwable, String] =
     ConfigSource
-      .resources("application.conf")
+      .resources("application.secret.conf")
+      .withFallback(
+        ConfigSource
+          .resources("application.conf")
+      )
       .config
       .map(_.getString(path))
       .left
