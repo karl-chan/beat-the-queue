@@ -54,9 +54,21 @@ class CineworldCrawler(
           name = filmsById(ev.filmId).name,
           time = LocalDateTime.parse(ev.eventDateTime),
           venue = cinema.displayName,
-          screenType = ev.attributeIds.mkString(" ")
+          screenType = toScreenType(ev.attributeIds.toSet).toUpperCase
         )
       )
+
+    def toScreenType(attributeIds: Set[String]): String =
+      for
+        format <- SpecialFormats
+        if attributeIds.contains(format)
+      do return s"${format} ${toScreenType(attributeIds - format)}"
+
+      for
+        format <- BaseFormats
+        if attributeIds.contains(format)
+      do return format
+      throw IllegalArgumentException(s"Unknown screen type: ${attributeIds}")
 
     for {
       cinemaDates <- listCinemaDates()
@@ -152,3 +164,6 @@ private[cineworld] object FilmEventsResponse:
       videoLink: Option[String],
       weight: Int
   )
+
+private val BaseFormats = List("2d", "3d")
+private val SpecialFormats = List("imax", "4dx", "superscreen")
