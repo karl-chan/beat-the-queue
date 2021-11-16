@@ -2,6 +2,7 @@ val scala3Version = "3.1.0"
 
 val circeVersion = "0.14.1"
 val http4sVersion = "0.23.0"
+val mongo4catsVersion = "0.4.2"
 
 lazy val root = project
   .in(file("."))
@@ -16,6 +17,8 @@ lazy val root = project
       // scala 3 dependencies
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
+      "io.github.kirill5k" %% "mongo4cats-circe" % mongo4catsVersion,
+      "io.github.kirill5k" %% "mongo4cats-core" % mongo4catsVersion,
       "org.http4s" %% "http4s-blaze-client" % http4sVersion,
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
