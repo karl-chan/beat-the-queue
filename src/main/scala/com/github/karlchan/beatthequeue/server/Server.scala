@@ -30,7 +30,7 @@ object Server extends IOApp:
 
   override def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO](global)
-      .bindHttp(Port, "localhost")
+      .bindHttp(Port, "0.0.0.0")
       .withHttpApp(app)
       .resource
       .use(_ => IO.never)
