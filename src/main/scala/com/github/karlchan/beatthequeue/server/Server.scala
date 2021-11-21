@@ -3,8 +3,12 @@ package com.github.karlchan.beatthequeue.server
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
+import com.github.karlchan.beatthequeue.server.routes.userRoutes
 import com.github.karlchan.beatthequeue.util.Properties
+import org.http4s.HttpRoutes
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.implicits._
+import org.http4s.server.Router
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -16,9 +20,16 @@ object Server extends IOApp:
       .map(_.toInt)
       .getOrElse(Properties.getInt("server.port"))
 
+  private val app = Router(
+    "/api" -> Router(
+      "/user" -> userRoutes
+    )
+  ).orNotFound
+
   override def run(args: List[String]): IO[ExitCode] =
     BlazeServerBuilder[IO](global)
       .bindHttp(Port, "localhost")
+      .withHttpApp(app)
       .resource
       .use(_ => IO.never)
       .as(ExitCode.Success)
