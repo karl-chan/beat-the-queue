@@ -30,7 +30,8 @@ lazy val root = project
       "org.typelevel" %% "log4cats-slf4j" % "2.1.1"
     ) ++ Seq(
       // scala 2 dependencies
-      "com.github.pureconfig" %% "pureconfig" % "0.17.0"
+      "com.github.pureconfig" %% "pureconfig" % "0.17.0",
+      "com.lihaoyi" %% "scalatags" % "0.10.0"
     ).map(_.cross(CrossVersion.for3Use2_13))
   )
 

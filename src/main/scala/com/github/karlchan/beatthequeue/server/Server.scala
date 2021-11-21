@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue.server
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
+import com.github.karlchan.beatthequeue.server.routes.htmlRoutes
 import com.github.karlchan.beatthequeue.server.routes.userRoutes
 import com.github.karlchan.beatthequeue.util.Properties
 import org.http4s.HttpRoutes
@@ -23,7 +24,8 @@ object Server extends IOApp:
   private val app = Router(
     "/api" -> Router(
       "/user" -> userRoutes
-    )
+    ),
+    "" -> htmlRoutes
   ).orNotFound
 
   override def run(args: List[String]): IO[ExitCode] =
