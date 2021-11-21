@@ -27,4 +27,4 @@ class Db:
     db.getCollectionWithCodec[Models.User]("users")
 
 object Models:
-  final case class User(_id: ObjectId)
+  final case class User(_id: ObjectId, id: String)
