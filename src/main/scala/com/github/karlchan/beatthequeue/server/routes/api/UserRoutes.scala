@@ -1,4 +1,4 @@
-package com.github.karlchan.beatthequeue.server.routes
+package com.github.karlchan.beatthequeue.server.routes.api
 
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.util.Db
