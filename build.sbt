@@ -32,7 +32,10 @@ lazy val root = project
       // scala 2 dependencies
       "com.github.pureconfig" %% "pureconfig" % "0.17.0",
       "com.lihaoyi" %% "scalatags" % "0.10.0"
-    ).map(_.cross(CrossVersion.for3Use2_13))
+    ).map(_.cross(CrossVersion.for3Use2_13)),
+    // plugin configurations
+    reStart / mainClass := Some(
+      "com.github.karlchan.beatthequeue.server.Server"
+    )
   )
-
-enablePlugins(JavaAppPackaging)
+  .enablePlugins(JavaAppPackaging)
