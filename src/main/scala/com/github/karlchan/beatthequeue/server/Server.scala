@@ -3,8 +3,8 @@ package com.github.karlchan.beatthequeue.server
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
+import com.github.karlchan.beatthequeue.server.routes.api.userRoutes
 import com.github.karlchan.beatthequeue.server.routes.htmlRoutes
-import com.github.karlchan.beatthequeue.server.routes.userRoutes
 import com.github.karlchan.beatthequeue.util.Properties
 import org.http4s.HttpRoutes
 import org.http4s.blaze.server.BlazeServerBuilder
