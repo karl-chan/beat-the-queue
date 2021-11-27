@@ -5,8 +5,10 @@ import com.github.karlchan.beatthequeue.server.routes.pages.Widget._
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
+type Html = TypedTag[String]
+
 object Template:
-  def styledPage(contents: TypedTag[String]*): TypedTag[String] =
+  def styledPage(contents: TypedTag[String]*): Html =
     html(
       head(
         meta(charset := "UTF-8"),

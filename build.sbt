@@ -17,6 +17,7 @@ lazy val root = project
       // scala 3 dependencies
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
+      "io.github.jmcardon" %% "tsec-http4s" % "0.4.0",
       "io.github.kirill5k" %% "mongo4cats-circe" % mongo4catsVersion,
       "io.github.kirill5k" %% "mongo4cats-core" % mongo4catsVersion,
       "org.http4s" %% "http4s-blaze-client" % http4sVersion,
