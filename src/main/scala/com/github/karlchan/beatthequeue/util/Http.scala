@@ -19,15 +19,15 @@ import org.http4s.client.middleware.GZip
 import org.http4s.client.middleware.RequestLogger
 import org.http4s.client.middleware.Retry
 
-import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.FiniteDuration
+
+import concurrent.duration.DurationInt
 
 class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRedirects: Int = Properties.getInt("http.max.redirects"),
     maxRetries: Int = Properties.getInt("http.max.retries"),
-    retryDelayMs: Int = Properties.getInt("http.retry.delay.ms")
+    retryDelay: Int = Properties.getInt("http.retry.delay.ms")
 ):
 
   def get[R](s: String)(using d: EntityDecoder[IO, R]): IO[R] =
@@ -50,7 +50,7 @@ class Http(
     FollowRedirect[IO](maxRedirects) andThen
       Retry[IO]((req, res, numTries) =>
         if res.isLeft && numTries < maxRedirects then
-          Some(FiniteDuration(retryDelayMs, TimeUnit.MILLISECONDS))
+          Some(retryDelay.milliseconds)
         else None
       ) andThen
       Throttle(Semaphore[IO](maxParallelism)) andThen
