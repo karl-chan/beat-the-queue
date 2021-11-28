@@ -11,9 +11,11 @@ import com.github.karlchan.beatthequeue.util.given_Db
 import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
 import org.http4s.HttpRoutes
+import org.http4s.Request
 import org.http4s.Response
 import tsec.authentication.AuthenticatedCookie
 import tsec.authentication.BackingStore
+import tsec.authentication.SecuredRequest
 import tsec.authentication.SecuredRequestHandler
 import tsec.authentication.SignedCookieAuthenticator
 import tsec.authentication.TSecAuthService
@@ -23,6 +25,7 @@ import tsec.mac.jca.MacSigningKey
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.HardenedSCrypt
 
+import java.time.Instant
 import java.util.UUID
 import scala.collection.mutable
 
@@ -31,11 +34,12 @@ import concurrent.duration.DurationInt
 case class AuthUser(id: String)
 
 type AuthService =
-  TSecAuthService[AuthUser, AuthenticatedCookie[HMACSHA256, String], IO]
+  TSecAuthService[AuthUser, AuthCookie, IO]
+private type AuthCookie = AuthenticatedCookie[HMACSHA256, String]
 
 object Auth:
   def service(service: AuthService): HttpRoutes[IO] =
-    handler.liftService(service)
+    handler.liftWithFallthrough(service)
 
   def register(
       username: String,
@@ -55,11 +59,13 @@ object Auth:
           case None =>
             for {
               hash <- HardenedSCrypt.hashpw[IO](password)
+              userId = ObjectId()
               _ <- usersCollection.insertOne(
-                Models.User(_id = ObjectId(), username = username, hash = hash)
+                Models.User(_id = userId, username = username, hash = hash)
               )
-              cookie <- authenticator.create(username)
+              cookie <- authenticator.create(userId.toString)
               successResponse <- onSuccess
+              _ <- idStore.update(AuthUser(userId.toString))
             } yield authenticator.embed(successResponse, cookie)
         }
       } yield response
@@ -84,30 +90,42 @@ object Auth:
             response <-
               if success then
                 for {
-                  cookie <- authenticator.create(username)
+                  cookie <- authenticator.create(dbUser._id.toString)
                   successResponse <- onSuccess
+                  _ <- idStore.update(AuthUser(dbUser._id.toString))
                 } yield authenticator.embed(successResponse, cookie)
               else onFailure
           } yield response
       }
     } yield response
 
+  def logout(
+      securedRequest: SecuredRequest[IO, AuthUser, AuthCookie],
+      onSuccess: IO[Response[IO]]
+  ): IO[Response[IO]] =
+    val SecuredRequest(_, user, cookie) = securedRequest
+    for {
+      _ <- authenticator.discard(cookie)
+      _ <- idStore.delete(user.id)
+    } yield ()
+    onSuccess.map(_.removeCookie(CookieName))
+
+  private val CookieName = "authCookie"
+  private val idStore = InMemoryBackingStore[IO, String, AuthUser](_.id)
   private val authenticator =
     SignedCookieAuthenticator(
       settings = TSecCookieSettings(
-        cookieName = "authCookie",
+        cookieName = CookieName,
         secure = false,
         expiryDuration = 30.days,
         maxIdle = None
       ),
-      tokenStore =
-        InMemoryBackingStore[IO, UUID, AuthenticatedCookie[HMACSHA256, String]](
-          _.id
-        ),
-      idStore = InMemoryBackingStore[IO, String, AuthUser](_.id),
+      tokenStore = InMemoryBackingStore[IO, UUID, AuthCookie](
+        _.id
+      ),
+      idStore = idStore,
       key = HMACSHA256.generateKey[Id]
     )
-
   private val handler = SecuredRequestHandler(authenticator)
 
 private class InMemoryBackingStore[F[_], I, V](getId: V => I)(implicit
