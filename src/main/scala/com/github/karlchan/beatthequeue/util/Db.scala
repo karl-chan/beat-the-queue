@@ -29,7 +29,6 @@ class Db:
 object Models:
   final case class User(
       _id: ObjectId,
-      id: String,
       username: String,
       hash: String
   )
