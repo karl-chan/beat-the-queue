@@ -37,6 +37,7 @@ lazy val root = project
     // plugin configurations
     reStart / mainClass := Some(
       "com.github.karlchan.beatthequeue.server.Server"
-    )
+    ),
+    Revolver.enableDebugging()
   )
   .enablePlugins(JavaAppPackaging)
