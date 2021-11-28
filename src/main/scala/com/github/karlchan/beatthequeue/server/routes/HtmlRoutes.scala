@@ -25,8 +25,9 @@ import tsec.authentication.asAuthed
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
-    case GET -> Root / "home" asAuthed user   => Ok(homePage)
-    case GET -> Root / "logout" asAuthed user => redirectTo("/")
+    case GET -> Root asAuthed user => Ok(homePage)
+    case req @ GET -> Root / "logout" asAuthed user =>
+      Auth.logout(req, onSuccess = redirectTo("/"))
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
@@ -40,7 +41,7 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
           Auth.login(
             username,
             password,
-            onSuccess = redirectTo("/home"),
+            onSuccess = redirectTo("/"),
             onFailure = Ok(loginFailedPage)
           )
         case _ => Ok(loginFailedPage)
@@ -69,7 +70,7 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
     }
 }
 
-val htmlRoutes: HttpRoutes[IO] = publicRoutes <+> privateRoutes
+val htmlRoutes: HttpRoutes[IO] = privateRoutes <+> publicRoutes
 
 // TODO: Migrate to http4s-scalatags when Scala 3 pom is available.
 given EntityEncoder[IO, TypedTag[String]] =
