@@ -17,7 +17,7 @@ private def findUser(userId: String)(using db: Db): Stream[IO, String] =
   Stream
     .eval(
       db.users
-        .map(_.find(Filter.eq("id", userId)).stream)
+        .map(_.find.filter(Filter.eq("id", userId)).stream)
     )
     .flatten
-    .map(_.id)
+    .map(_._id.toString)

@@ -18,8 +18,12 @@ private def loginPage(errorMessage: Option[String]): Html =
         cls := "flex flex-col bg-gray-200 place-items-center shadow-2xl ring-2 ring-gray-400 p-8 space-y-4",
         h1(cls := "font-mono text-4xl text-gray-600", "Welcome"),
         span(cls := "text-red-500", errorMessage),
-        input(`type` := "text", placeholder := "Username"),
-        input(`type` := "text", placeholder := "Password"),
+        input(`type` := "text", name := "username", placeholder := "Username"),
+        input(
+          `type` := "password",
+          name := "password",
+          placeholder := "Password"
+        ),
         styledButton(
           "Login",
           buttonType = "submit",
@@ -31,11 +35,6 @@ private def loginPage(errorMessage: Option[String]): Html =
             "Register new user",
             href := "/register",
             cls := "text-blue-900 underline"
-          ),
-          a(
-            "Forgot password?",
-            href := "/forgot-password",
-            cls := "text-red-700 underline"
           )
         )
       )

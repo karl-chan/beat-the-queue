@@ -1,11 +1,14 @@
 package com.github.karlchan.beatthequeue.server.auth
 
 import cats.Id
+import cats.data.Kleisli
 import cats.data.OptionT
 import cats.effect.IO
 import cats.effect.kernel.Sync
 import com.github.karlchan.beatthequeue.util.Db
+import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
+import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
 import org.http4s.HttpRoutes
 import org.http4s.Response
@@ -31,8 +34,35 @@ type AuthService =
   TSecAuthService[AuthUser, AuthenticatedCookie[HMACSHA256, String], IO]
 
 object Auth:
-  def withFallThrough(service: AuthService): HttpRoutes[IO] =
-    handler.liftWithFallthrough(service)
+  def service(service: AuthService): HttpRoutes[IO] =
+    handler.liftService(service)
+
+  def register(
+      username: String,
+      password: String,
+      onSuccess: IO[Response[IO]],
+      onFailure: Kleisli[IO, String, Response[IO]]
+  )(using db: Db): IO[Response[IO]] =
+    if password.length < 8 then onFailure("Password too short")
+    else
+      for {
+        usersCollection <- db.users
+        maybeExistingUser <- usersCollection.find
+          .filter(Filter.eq("username", username))
+          .first
+        response <- maybeExistingUser match {
+          case Some(_) => onFailure("Username already taken")
+          case None =>
+            for {
+              hash <- HardenedSCrypt.hashpw[IO](password)
+              _ <- usersCollection.insertOne(
+                Models.User(_id = ObjectId(), username = username, hash = hash)
+              )
+              cookie <- authenticator.create(username)
+              successResponse <- onSuccess
+            } yield authenticator.embed(successResponse, cookie)
+        }
+      } yield response
 
   def login(
       username: String,
@@ -42,7 +72,9 @@ object Auth:
   )(using db: Db): IO[Response[IO]] =
     for {
       usersCollection <- db.users
-      maybeDbUser <- usersCollection.find(Filter.eq("username", username)).first
+      maybeDbUser <- usersCollection.find
+        .filter(Filter.eq("username", username))
+        .first
       response <- maybeDbUser match {
         case None => onFailure
         case Some(dbUser) =>
