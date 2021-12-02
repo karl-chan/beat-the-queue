@@ -1,7 +1,7 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.auth
 
-import com.github.karlchan.beatthequeue.server.routes.pages.Widget._
 import com.github.karlchan.beatthequeue.server.routes.pages._
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import scalatags.Text.all._
 
 def loginPage: Html = loginPage(errorMessage = None)
@@ -25,9 +25,9 @@ private def loginPage(errorMessage: Option[String]): Html =
           placeholder := "Password"
         ),
         styledButton(
-          "Login",
-          buttonType = "submit",
-          color = "green"
+          color = "green",
+          `type` := "submit",
+          "Login"
         ),
         div(
           cls := "flex space-x-2",
