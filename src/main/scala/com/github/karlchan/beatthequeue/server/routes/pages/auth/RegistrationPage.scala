@@ -1,7 +1,7 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.auth
 
-import com.github.karlchan.beatthequeue.server.routes.pages.Widget._
 import com.github.karlchan.beatthequeue.server.routes.pages._
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import scalatags.Text.all._
 
 def registrationPage: Html = registrationPage(errorMessage = None)
@@ -36,9 +36,9 @@ private def registrationPage(errorMessage: Option[String]): Html =
           placeholder := "Confirm password"
         ),
         styledButton(
-          "Submit",
-          buttonType = "submit",
-          color = "yellow"
+          color = "yellow",
+          `type` := "submit",
+          "Submit"
         ),
         div(
           cls := "flex space-x-2",
