@@ -8,6 +8,8 @@ object Properties:
       case Left(err)    => throw err
       case Right(value) => value
 
+  def getBoolean(path: String): Boolean = get(path).toBoolean
+
   def getInt(path: String): Int = get(path).toInt
 
   def getDouble(path: String): Double = get(path).toDouble
