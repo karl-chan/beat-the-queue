@@ -10,6 +10,8 @@ import com.github.karlchan.beatthequeue.server.routes.pages.auth.loginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.registrationFailedPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.registrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.homePage
+import com.github.karlchan.beatthequeue.server.routes.pages.testPage
+import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
 import org.http4s.Response
 import org.http4s._
@@ -70,7 +72,13 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
     }
 }
 
-val htmlRoutes: HttpRoutes[IO] = privateRoutes <+> publicRoutes
+private val testRoutes: HttpRoutes[IO] = HttpRoutes.of {
+  case GET -> Root / "test" => Ok(testPage)
+}
+
+val htmlRoutes: HttpRoutes[IO] =
+  if Properties.getBoolean("is.production") then privateRoutes <+> publicRoutes
+  else privateRoutes <+> publicRoutes <+> testRoutes
 
 // TODO: Migrate to http4s-scalatags when Scala 3 pom is available.
 given EntityEncoder[IO, TypedTag[String]] =
