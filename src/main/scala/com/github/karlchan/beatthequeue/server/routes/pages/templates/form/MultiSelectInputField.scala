@@ -8,8 +8,9 @@ import scalatags.Text.all._
 import java.util.UUID
 
 case class MultiSelectInputField(
-    options: Seq[String],
-    override val value: Option[Seq[String]] = None
+    override val label: String,
+    override val value: Option[Seq[String]] = None,
+    options: Seq[String]
 ) extends InputField[Seq[String]]:
   override def render(name: String): Html =
     div(
@@ -22,6 +23,11 @@ case class MultiSelectInputField(
         inputText: ''
       }""",
       cls := "relative inline-block",
+      // Label
+      div(
+        cls := "text-xs text-gray-600 font-bold mb-2",
+        label
+      ),
       // User input field
       input(
         `type` := "text",
@@ -53,7 +59,7 @@ case class MultiSelectInputField(
           )
         )
       ),
-      // Labels
+      // Selected options as text
       div(
         cls := "text-xs text-gray-600 italic",
         xText := "Object.keys(selectedOptions).join(', ')"
