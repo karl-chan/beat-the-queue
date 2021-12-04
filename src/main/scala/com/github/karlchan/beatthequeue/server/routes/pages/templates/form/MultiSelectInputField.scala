@@ -13,13 +13,21 @@ case class MultiSelectInputField(
 ) extends InputField[Seq[String]]:
   override def render(name: String): Html =
     div(
-      xData := s"{ show: false, options: ${options.asJson}, selectedOptions: {}, inputText: ''}",
+      xData := s"""{
+        show: false,
+        options: ${options.asJson},
+        selectedOptions: ${value
+        .getOrElse(Seq.empty)
+        .asJson}.reduce((acc,curr)=> (acc[curr]=true,acc),{}),
+        inputText: ''
+      }""",
       cls := "relative inline-block",
       // User input field
       input(
         `type` := "text",
-        cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none z-0",
+        cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
         xModel := "inputText",
+        placeholder := "Click to change",
         attr("x-on:click") := "show = true",
         attr("x-on:click.outside") := "show = false; inputText = ''"
       ),
