@@ -7,7 +7,7 @@ import scalatags.Text.all._
 type Html = TypedTag[String]
 
 object Template:
-  def styledPage(contents: TypedTag[String]*): Html =
+  def styledPage(contents: Html*): Html =
     html(
       head(
         meta(charset := "UTF-8"),
