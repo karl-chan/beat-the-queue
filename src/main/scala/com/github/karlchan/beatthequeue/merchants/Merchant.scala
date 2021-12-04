@@ -5,12 +5,12 @@ import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 
 trait Merchant[M]:
-  def name: String
-  def eventFinder: EventFinder[M]
-  def matcher: Matcher[M]
+  val name: String
+  val eventFinder: EventFinder[M]
+  val matcher: Matcher[M]
 
 trait Event[M]:
-  def name: String
+  val name: String
 
 trait EventFinder[M]:
   def run(): IO[Seq[Event[M]]]
