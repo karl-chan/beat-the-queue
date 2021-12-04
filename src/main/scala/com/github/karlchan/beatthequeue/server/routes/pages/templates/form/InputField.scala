@@ -1,4 +1,4 @@
-package com.github.karlchan.beatthequeue.server.routes.pages.templates.inputfields
+package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 

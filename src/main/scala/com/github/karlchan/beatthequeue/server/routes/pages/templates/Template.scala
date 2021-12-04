@@ -22,6 +22,10 @@ object Template:
         link(
           href := "https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css",
           rel := "stylesheet"
+        ),
+        script(
+          defer := true,
+          src := "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
         )
       ),
       body(
