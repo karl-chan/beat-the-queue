@@ -1,6 +1,6 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
-import com.github.karlchan.beatthequeue.merchants.Criteria
+import com.github.karlchan.beatthequeue.merchants.CriteriaBuilder
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateTimeInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
@@ -8,12 +8,11 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.Multi
 import java.time.LocalDateTime
 import java.util.UUID
 
-class CineworldCriteria(
+class CineworldCriteriaBuilder(
     names: Seq[String],
-    override val id: String = UUID.randomUUID.toString,
     venues: Seq[String],
     screenTypes: Seq[String]
-) extends Criteria[Cineworld]:
+) extends CriteriaBuilder[Cineworld]:
   val fields = Map(
     "names" -> MultiSelectInputField(label = "Film name", options = names),
     "startTime" -> DateTimeInputField(label = "Start time"),
