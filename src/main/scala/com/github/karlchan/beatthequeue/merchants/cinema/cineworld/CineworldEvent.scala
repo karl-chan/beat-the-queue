@@ -4,7 +4,7 @@ import com.github.karlchan.beatthequeue.merchants.Event
 
 import java.time.LocalDateTime
 
-case class CineworldEvent(
+final case class CineworldEvent(
     name: String,
     time: LocalDateTime,
     venue: String,

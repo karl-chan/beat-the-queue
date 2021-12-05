@@ -5,11 +5,12 @@ import scalatags.Text.all._
 
 import java.time.LocalDateTime
 
-case class DateTimeInputField(
+final case class DateTimeInputField(
     override val label: String,
+    override val name: String,
     override val value: Option[LocalDateTime] = None
 ) extends InputField[LocalDateTime]:
-  override def render(name: String): Html =
+  override def render: Html =
     div(
       // Label
       div(

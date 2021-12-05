@@ -23,7 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import concurrent.duration.DurationInt
 
-class Http(
+final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRedirects: Int = Properties.getInt("http.max.redirects"),
     maxRetries: Int = Properties.getInt("http.max.retries"),

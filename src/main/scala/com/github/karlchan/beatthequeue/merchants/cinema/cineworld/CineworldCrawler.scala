@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 
-class CineworldCrawler(
+final class CineworldCrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
 ) extends EventFinder[Cineworld]:
   private val http =
@@ -75,6 +75,25 @@ class CineworldCrawler(
       cinemaEvents <- cinemaDates.parFlatTraverse(listEvents.tupled)
     } yield cinemaEvents.flatMap(mergeCinemaEvents.tupled)
 
+  final case class Info(
+      names: Seq[String],
+      venues: Seq[String],
+      screenTypes: Seq[String]
+  )
+  def getInfo(): IO[Info] =
+    for {
+      cinemasRes <- getCinemas()
+      res <- Seq(getNowPlaying(), getComingSoon()).parSequence
+      Seq(nowPlayingRes, comingSoonRes) = res
+      posters = nowPlayingRes.body.posters ::: comingSoonRes.body.posters
+      names = posters.map(_.featureTitle)
+      venues = cinemasRes.body.cinemas.map(_.displayName)
+    } yield Info(
+      names = names,
+      venues = venues,
+      screenTypes = BaseFormats ::: SpecialFormats
+    )
+
   private[cineworld] def getCinemas(): IO[CinemasResponse.Cinemas] =
     http.get[CinemasResponse.Cinemas](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
@@ -106,13 +125,13 @@ class CineworldCrawler(
     )(using jsonOf[IO, FeedResponse.Feed])
 
 private[cineworld] object CinemasResponse:
-  case class Cinemas(
+  final case class Cinemas(
       body: Body
   )
-  case class Body(
+  final case class Body(
       cinemas: List[Cinema]
   )
-  case class Cinema(
+  final case class Cinema(
       address: String,
       addressInfo: AddressInfo,
       blockOnlineSales: Boolean,
@@ -124,7 +143,7 @@ private[cineworld] object CinemasResponse:
       link: String,
       longitude: Double
   )
-  case class AddressInfo(
+  final case class AddressInfo(
       address1: Option[String],
       address2: Option[String],
       address3: Option[String],
@@ -135,22 +154,22 @@ private[cineworld] object CinemasResponse:
   )
 
 private[cineworld] object BookableDatesResponse:
-  case class Dates(
+  final case class Dates(
       body: Body
   )
-  case class Body(
+  final case class Body(
       dates: List[String]
   )
 
 private[cineworld] object FilmEventsResponse:
-  case class FilmEvents(
+  final case class FilmEvents(
       body: Body
   )
-  case class Body(
+  final case class Body(
       events: List[Event],
       films: List[Film]
   )
-  case class Event(
+  final case class Event(
       attributeIds: List[String],
       auditorium: String,
       auditoriumTinyName: String,
@@ -163,7 +182,7 @@ private[cineworld] object FilmEventsResponse:
       soldOut: Boolean
   )
 
-  case class Film(
+  final case class Film(
       attributeIds: List[String],
       id: String,
       length: Int, // in minutes
@@ -176,15 +195,15 @@ private[cineworld] object FilmEventsResponse:
   )
 
 private[cineworld] object FeedResponse:
-  case class Feed(
+  final case class Feed(
       body: Body
   )
 
-  case class Body(
+  final case class Body(
       posters: List[Poster]
   )
 
-  case class Poster(
+  final case class Poster(
       attributes: List[String],
       code: String,
       dateStarted: String,
@@ -195,7 +214,7 @@ private[cineworld] object FeedResponse:
       weight: Int
   )
 
-  case class Media(
+  final case class Media(
       dimensionHeight: Option[Int],
       dimensionWidth: Option[Int],
       subType: String,
