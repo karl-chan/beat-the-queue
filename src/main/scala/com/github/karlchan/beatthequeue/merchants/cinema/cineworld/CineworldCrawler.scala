@@ -75,6 +75,25 @@ final class CineworldCrawler(
       cinemaEvents <- cinemaDates.parFlatTraverse(listEvents.tupled)
     } yield cinemaEvents.flatMap(mergeCinemaEvents.tupled)
 
+  final case class Info(
+      names: Seq[String],
+      venues: Seq[String],
+      screenTypes: Seq[String]
+  )
+  def getInfo(): IO[Info] =
+    for {
+      cinemasRes <- getCinemas()
+      res <- Seq(getNowPlaying(), getComingSoon()).parSequence
+      Seq(nowPlayingRes, comingSoonRes) = res
+      posters = nowPlayingRes.body.posters ::: comingSoonRes.body.posters
+      names = posters.map(_.featureTitle)
+      venues = cinemasRes.body.cinemas.map(_.displayName)
+    } yield Info(
+      names = names,
+      venues = venues,
+      screenTypes = BaseFormats ::: SpecialFormats
+    )
+
   private[cineworld] def getCinemas(): IO[CinemasResponse.Cinemas] =
     http.get[CinemasResponse.Cinemas](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"

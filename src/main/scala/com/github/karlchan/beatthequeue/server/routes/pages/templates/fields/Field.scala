@@ -1,9 +1,8 @@
-package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
+package com.github.karlchan.beatthequeue.server.routes.pages.templates.fields
 
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 
-trait InputField[V]:
+trait Field[V]:
   val label: String
-  val name: String
   val value: Option[V]
   def render: Html
