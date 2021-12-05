@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.implicits._
 import com.github.karlchan.beatthequeue.merchants.Merchant
 
-class Cineworld extends Merchant[Cineworld]:
+final class Cineworld extends Merchant[Cineworld]:
   private val crawler = CineworldCrawler()
   override val name = "cineworld"
   override val eventFinder = crawler

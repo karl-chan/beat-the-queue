@@ -8,7 +8,7 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.Multi
 import java.time.LocalDateTime
 import java.util.UUID
 
-class CineworldCriteriaBuilder(
+final class CineworldCriteriaBuilder(
     names: Seq[String],
     venues: Seq[String],
     screenTypes: Seq[String]

@@ -7,7 +7,7 @@ import scalatags.Text.all._
 
 import java.util.UUID
 
-case class MultiSelectInputField(
+final case class MultiSelectInputField(
     override val label: String,
     override val value: Option[Seq[String]] = None,
     options: Seq[String]

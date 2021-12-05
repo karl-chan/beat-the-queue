@@ -10,7 +10,7 @@ import mongo4cats.collection.MongoCollection
 
 given Db = Db()
 
-class Db:
+final class Db:
   private val (client, shutdownHook): (MongoClient[IO], IO[Unit]) =
     MongoClient
       .fromConnectionString[IO](

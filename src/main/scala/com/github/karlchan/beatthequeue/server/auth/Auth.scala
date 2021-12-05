@@ -31,7 +31,7 @@ import scala.collection.mutable
 
 import concurrent.duration.DurationInt
 
-case class AuthUser(id: String)
+final case class AuthUser(id: String)
 
 type AuthService =
   TSecAuthService[AuthUser, AuthCookie, IO]
