@@ -8,6 +8,7 @@ trait Merchant[M]:
   val name: String
   val eventFinder: EventFinder[M]
   val matcher: Matcher[M]
+  def criteriaTemplate(): IO[Criteria[M]]
 
 trait Event[M]:
   val name: String

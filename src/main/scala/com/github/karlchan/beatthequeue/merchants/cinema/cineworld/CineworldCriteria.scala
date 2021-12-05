@@ -6,9 +6,11 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateT
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 class CineworldCriteria(
     names: Seq[String],
+    override val id: String = UUID.randomUUID.toString,
     venues: Seq[String],
     screenTypes: Seq[String]
 ) extends Criteria[Cineworld]:

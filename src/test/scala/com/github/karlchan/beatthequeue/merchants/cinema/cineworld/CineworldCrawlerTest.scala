@@ -38,3 +38,13 @@ class CineworldCrawlerTest
     )
     res.asserting(res => all(res.body.events.map(_.cinemaId)) should be("103"))
   }
+
+  "getNowPlaying" should "return non-empty list of films" in {
+    val res = CineworldCrawler().getNowPlaying()
+    res.asserting(_.body.posters should not be empty)
+  }
+
+  "getComingSoon" should "return non-empty list of films" in {
+    val res = CineworldCrawler().getComingSoon()
+    res.asserting(_.body.posters should not be empty)
+  }
