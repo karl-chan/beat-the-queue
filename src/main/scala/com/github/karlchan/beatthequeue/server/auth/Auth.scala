@@ -61,7 +61,12 @@ object Auth:
               hash <- HardenedSCrypt.hashpw[IO](password)
               userId = ObjectId()
               _ <- usersCollection.insertOne(
-                Models.User(_id = userId, username = username, hash = hash)
+                Models.User(
+                  _id = userId,
+                  username = username,
+                  hash = hash,
+                  criteria = Seq.empty
+                )
               )
               cookie <- authenticator.create(userId.toString)
               successResponse <- onSuccess

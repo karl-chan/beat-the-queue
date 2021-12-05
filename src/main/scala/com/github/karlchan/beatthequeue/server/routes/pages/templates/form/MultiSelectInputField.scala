@@ -9,10 +9,11 @@ import java.util.UUID
 
 final case class MultiSelectInputField(
     override val label: String,
+    override val name: String,
     override val value: Option[Seq[String]] = None,
-    options: Seq[String]
+    val options: Seq[String]
 ) extends InputField[Seq[String]]:
-  override def render(name: String): Html =
+  override def render: Html =
     div(
       xData := s"""{
         show: false,

@@ -2,6 +2,13 @@ package com.github.karlchan.beatthequeue.util
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import com.github.karlchan.beatthequeue.merchants.Criteria
+import com.github.karlchan.beatthequeue.merchants.Merchant
+import com.github.karlchan.beatthequeue.merchants.Merchants
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.HCursor
+import io.circe.Json
 import io.circe.generic.auto._
 import mongo4cats.bson.ObjectId
 import mongo4cats.circe._
@@ -30,5 +37,24 @@ object Models:
   final case class User(
       _id: ObjectId,
       username: String,
-      hash: String
+      hash: String,
+      criteria: Seq[Criteria[_]]
   )
+
+private given [M]: Encoder[Criteria[M]] = new {
+  final def apply(criteria: Criteria[M]): Json =
+    val merchant = Merchants
+      .AllByName(criteria.merchant)
+      .asInstanceOf[Merchant[M]]
+    merchant.codecs.criteriaEncoder
+      .apply(criteria)
+}
+
+private given Decoder[Criteria[_]] = new {
+  final def apply(c: HCursor): Decoder.Result[Criteria[_]] =
+    for {
+      name <- c.get[String]("merchant")
+      merchant = Merchants.AllByName(name)
+      result <- merchant.codecs.criteriaDecoder.apply(c)
+    } yield result
+}

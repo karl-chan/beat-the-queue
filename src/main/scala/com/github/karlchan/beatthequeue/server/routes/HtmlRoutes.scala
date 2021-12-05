@@ -29,7 +29,7 @@ private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
     case GET -> Root asAuthed user => Ok(homePage)
     case req @ GET -> Root / "logout" asAuthed user =>
-      Auth.logout(req, onSuccess = redirectTo("/"))
+      Auth.logout(req, onSuccess = redirectTo("/")),
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
