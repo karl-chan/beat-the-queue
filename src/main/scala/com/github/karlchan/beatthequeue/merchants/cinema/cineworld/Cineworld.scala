@@ -2,7 +2,6 @@ package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
 import cats.effect.IO
 import cats.implicits._
-import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Merchant
 
 class Cineworld extends Merchant[Cineworld]:
@@ -10,7 +9,7 @@ class Cineworld extends Merchant[Cineworld]:
   override val name = "cineworld"
   override val eventFinder = crawler
   override val matcher = CineworldMatcher()
-  override def criteriaTemplate() =
+  override def criteriaBuilder() =
     for {
       cinemasRes <- crawler.getCinemas()
       res <- Seq(crawler.getNowPlaying(), crawler.getComingSoon()).parSequence
@@ -18,7 +17,7 @@ class Cineworld extends Merchant[Cineworld]:
       posters = nowPlayingRes.body.posters ::: comingSoonRes.body.posters
       names = posters.map(_.featureTitle)
       venues = cinemasRes.body.cinemas.map(_.displayName)
-    } yield CineworldCriteria(
+    } yield CineworldCriteriaBuilder(
       names = names,
       venues = venues,
       screenTypes = BaseFormats ::: SpecialFormats

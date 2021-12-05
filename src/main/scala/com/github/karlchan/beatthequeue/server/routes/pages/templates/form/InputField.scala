@@ -1,5 +1,6 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import cats.effect.IO
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 
 trait InputField[V]:
