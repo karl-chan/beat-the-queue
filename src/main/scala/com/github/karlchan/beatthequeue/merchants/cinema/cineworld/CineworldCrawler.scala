@@ -95,6 +95,16 @@ class CineworldCrawler(
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/film-events/in-cinema/${cinemaId}/at-date/${date.shortFormat}"
     )(using jsonOf[IO, FilmEventsResponse.FilmEvents])
 
+  private[cineworld] def getNowPlaying(): IO[FeedResponse.Feed] =
+    http.get[FeedResponse.Feed](
+      "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/now-playing"
+    )(using jsonOf[IO, FeedResponse.Feed])
+
+  private[cineworld] def getComingSoon(): IO[FeedResponse.Feed] =
+    http.get[FeedResponse.Feed](
+      "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/coming-soon"
+    )(using jsonOf[IO, FeedResponse.Feed])
+
 private[cineworld] object CinemasResponse:
   case class Cinemas(
       body: Body
@@ -165,5 +175,33 @@ private[cineworld] object FilmEventsResponse:
       weight: Int
   )
 
-private val BaseFormats = List("2d", "3d")
-private val SpecialFormats = List("imax", "4dx", "superscreen")
+private[cineworld] object FeedResponse:
+  case class Feed(
+      body: Body
+  )
+
+  case class Body(
+      posters: List[Poster]
+  )
+
+  case class Poster(
+      attributes: List[String],
+      code: String,
+      dateStarted: String,
+      featureTitle: String,
+      mediaList: List[Media],
+      posterSrc: String,
+      url: String,
+      weight: Int
+  )
+
+  case class Media(
+      dimensionHeight: Option[Int],
+      dimensionWidth: Option[Int],
+      subType: String,
+      `type`: String,
+      url: String
+  )
+
+private[this] val BaseFormats = List("2d", "3d")
+private[this] val SpecialFormats = List("imax", "4dx", "superscreen")
