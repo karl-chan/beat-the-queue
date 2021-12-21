@@ -11,7 +11,7 @@ import java.util.UUID
 trait Merchant[M]:
   val name: String
   val eventFinder: EventFinder[M]
-  val codecs: Codecs[M]
+  val codecs: Codecs[M, _]
 
 trait Event[M]:
   val name: String
@@ -24,6 +24,9 @@ trait Criteria[M]:
   val merchant: String
   def matches(event: Event[M]): Boolean
 
-trait Codecs[M]:
-  val criteriaEncoder: Encoder[Criteria[M]]
-  val criteriaDecoder: Decoder[Criteria[M]]
+class Codecs[M, C <: Criteria[M]](using
+    childEncoder: Encoder[C],
+    childDecoder: Decoder[C]
+):
+  val encoder = childEncoder.contramap(_.asInstanceOf[C])
+  val decoder = childDecoder.map(identity)

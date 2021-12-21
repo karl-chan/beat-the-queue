@@ -46,8 +46,7 @@ private given [M]: Encoder[Criteria[M]] = new {
     val merchant = Merchants
       .AllByName(criteria.merchant)
       .asInstanceOf[Merchant[M]]
-    merchant.codecs.criteriaEncoder
-      .apply(criteria)
+    merchant.codecs.encoder.apply(criteria)
 }
 
 private given Decoder[Criteria[_]] = new {
@@ -55,6 +54,6 @@ private given Decoder[Criteria[_]] = new {
     for {
       name <- c.get[String]("merchant")
       merchant = Merchants.AllByName(name)
-      result <- merchant.codecs.criteriaDecoder.apply(c)
+      result <- merchant.codecs.decoder.apply(c)
     } yield result
 }
