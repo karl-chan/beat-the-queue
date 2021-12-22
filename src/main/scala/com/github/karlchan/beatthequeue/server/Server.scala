@@ -5,7 +5,6 @@ import cats.effect.IO
 import cats.effect.IOApp
 import com.github.karlchan.beatthequeue.server.routes.api.userRoutes
 import com.github.karlchan.beatthequeue.server.routes.htmlRoutes
-import com.github.karlchan.beatthequeue.server.routes.pages.merchants.merchantsRoutes
 import com.github.karlchan.beatthequeue.util.Properties
 import org.http4s.HttpApp
 import org.http4s.HttpRoutes
@@ -28,7 +27,6 @@ object Server extends IOApp:
     "/api" -> Router(
       "/user" -> userRoutes
     ),
-    "/merchants" -> merchantsRoutes,
     "" -> htmlRoutes
   ).orNotFound
 

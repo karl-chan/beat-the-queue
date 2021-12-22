@@ -6,6 +6,7 @@ import cats.data.OptionT
 import cats.effect.IO
 import cats.effect.kernel.Sync
 import com.github.karlchan.beatthequeue.util.Db
+import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
 import mongo4cats.bson.ObjectId
@@ -52,7 +53,7 @@ object Auth:
       for {
         usersCollection <- db.users
         maybeExistingUser <- usersCollection.find
-          .filter(Filter.eq("username", username))
+          .filter(Filter.eq(Fields.Username, username))
           .first
         response <- maybeExistingUser match {
           case Some(_) => onFailure("Username already taken")
@@ -84,7 +85,7 @@ object Auth:
     for {
       usersCollection <- db.users
       maybeDbUser <- usersCollection.find
-        .filter(Filter.eq("username", username))
+        .filter(Filter.eq(Fields.Username, username))
         .first
       response <- maybeDbUser match {
         case None => onFailure

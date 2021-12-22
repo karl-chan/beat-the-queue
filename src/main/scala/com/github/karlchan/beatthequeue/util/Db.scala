@@ -41,6 +41,10 @@ object Models:
       criteria: Seq[Criteria[_]]
   )
 
+object Fields:
+  val Id = "_id"
+  val Username = "username"
+
 private given [M]: Encoder[Criteria[M]] = new {
   final def apply(criteria: Criteria[M]): Json =
     val merchant = Merchants
