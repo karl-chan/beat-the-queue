@@ -23,7 +23,7 @@ final class ReflectionTest extends AnyFlatSpec with should.Matchers:
     )
   }
 
-  "extractFields" should "work for inherited hierarchy" in {
+  "extractFields" should "work for inheritance hierarchy" in {
     val foo: Foo = FooImpl(1, "foo", LocalDate.now)
     Reflection.extractFields(foo) should contain theSameElementsAs Seq(
       Reflection.Field(name = "intField", descriptor = "I", value = 1),
