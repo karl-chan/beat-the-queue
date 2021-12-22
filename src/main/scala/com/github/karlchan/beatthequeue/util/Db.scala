@@ -49,8 +49,8 @@ private given [M]: Encoder[Criteria[M]] = new {
   final def apply(criteria: Criteria[M]): Json =
     val merchant = Merchants
       .AllByName(criteria.merchant)
-      .asInstanceOf[Merchant[M]]
-    merchant.codecs.encoder.apply(criteria)
+      .asInstanceOf[Merchant[M, _]]
+    merchant.criteriaEncoder.apply(criteria)
 }
 
 private given Decoder[Criteria[_]] = new {
@@ -58,6 +58,6 @@ private given Decoder[Criteria[_]] = new {
     for {
       name <- c.get[String]("merchant")
       merchant = Merchants.AllByName(name)
-      result <- merchant.codecs.decoder.apply(c)
+      result <- merchant.criteriaDecoder.apply(c)
     } yield result
 }

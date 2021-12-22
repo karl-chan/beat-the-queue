@@ -8,10 +8,16 @@ import io.circe.Encoder
 
 import java.util.UUID
 
-trait Merchant[M]:
+abstract class Merchant[M, C <: Criteria[M]](using
+    childEncoder: Encoder[C],
+    childDecoder: Decoder[C]
+):
   val name: String
   val eventFinder: EventFinder[M]
-  val codecs: Codecs[M, _]
+  val defaultCriteria: C
+
+  final val criteriaEncoder = childEncoder.contramap(_.asInstanceOf[C])
+  final val criteriaDecoder = childDecoder.map(identity)
 
 trait Event[M]:
   val name: String
@@ -23,10 +29,3 @@ trait Criteria[M]:
   val id: String
   val merchant: String
   def matches(event: Event[M]): Boolean
-
-class Codecs[M, C <: Criteria[M]](using
-    childEncoder: Encoder[C],
-    childDecoder: Decoder[C]
-):
-  val encoder = childEncoder.contramap(_.asInstanceOf[C])
-  val decoder = childDecoder.map(identity)

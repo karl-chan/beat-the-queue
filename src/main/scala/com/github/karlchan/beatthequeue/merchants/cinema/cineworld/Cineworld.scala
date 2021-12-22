@@ -7,10 +7,10 @@ import com.github.karlchan.beatthequeue.merchants.Merchant
 import io.circe.generic.auto._
 import io.circe.syntax._
 
-final class Cineworld extends Merchant[Cineworld]:
+final class Cineworld extends Merchant[Cineworld, CineworldCriteria]:
   override val name = Cineworld.Name
   override val eventFinder = CineworldCrawler()
-  override val codecs = Codecs[Cineworld, CineworldCriteria]()
+  override val defaultCriteria = CineworldCriteria()
 
 object Cineworld:
   val Name = "cineworld"
