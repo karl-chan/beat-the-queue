@@ -4,9 +4,12 @@ import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 final case class CineworldCriteria(
-    names: Option[Seq[String]],
+    override val id: String = UUID.randomUUID.toString,
+    override val merchant: String = Cineworld.Name,
+    filmNames: Option[Seq[String]],
     startTime: Option[LocalDateTime],
     endTime: Option[LocalDateTime],
     venues: Option[Seq[String]],

@@ -12,7 +12,11 @@ def navigationBar =
       span(cls := "material-icons", "menu")
     ),
     horizontalGap(8),
-    linkButton(color = "red", href := "#", "Create alert"),
+    linkButton(
+      color = "red",
+      href := "/merchants/criteria/builder",
+      "Create alert"
+    ),
     div(cls := "flex-grow"),
     linkButton(color = "gray", href := "/logout", "Logout"),
     horizontalGap(8)
