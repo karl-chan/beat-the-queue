@@ -14,7 +14,7 @@ def navigationBar =
     horizontalGap(8),
     linkButton(
       color = "red",
-      href := "/merchants/criteria/builder",
+      href := "/criteria/catalog",
       "Create alert"
     ),
     div(cls := "flex-grow"),

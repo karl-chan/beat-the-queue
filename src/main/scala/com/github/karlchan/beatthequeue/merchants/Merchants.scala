@@ -15,3 +15,8 @@ object Merchants:
 
   val AllByName: Map[String, Merchant[_, _]] =
     AllList.collect(merchant => (merchant.name, merchant)).toMap
+
+  def findMerchantFor[M](
+      criteria: Criteria[M]
+  ): Merchant[M, Criteria[M]] =
+    AllByName(criteria.merchant).asInstanceOf[Merchant[M, Criteria[M]]]

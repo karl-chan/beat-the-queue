@@ -3,14 +3,13 @@ package com.github.karlchan.beatthequeue.server.routes.pages
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Merchants
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
-import com.github.karlchan.beatthequeue.server.routes.pages.merchants.CriteriaRenderer
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.given_Db
-import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
 import scalatags.Text.all._
+import mongo4cats.bson.ObjectId
 
 object HomePage:
   def render(authUser: AuthUser): IO[Html] =
@@ -39,12 +38,19 @@ object HomePage:
     } yield div(
       cls := "flex flex-col space-y-2",
       criteriaByCategory
-        .map((category, criteria) =>
+        .map((category, criteriaSeq) =>
           div(
             h1(category),
             div(
               cls := "flex flex-wrap space-x-1",
-              criteria.map(CriteriaRenderer.render).toSeq
+              criteriaSeq
+                .map(criteria =>
+                  Merchants
+                    .findMerchantFor(criteria)
+                    .renderer
+                    .render(criteria)
+                )
+                .toSeq
             )
           )
         )

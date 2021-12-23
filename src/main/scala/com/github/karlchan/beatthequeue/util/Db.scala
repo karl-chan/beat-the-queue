@@ -16,6 +16,7 @@ import mongo4cats.bson.ObjectId
 import mongo4cats.circe._
 import mongo4cats.client.MongoClient
 import mongo4cats.collection.MongoCollection
+import mongo4cats.collection.operations.Filter
 
 given Db = Db()
 
@@ -46,3 +47,5 @@ object Models:
 object Fields:
   val Id = "_id"
   val Username = "username"
+  val Criteria = "criteria"
+  val CriteriaId = "id"

@@ -5,6 +5,7 @@ import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.server.auth.Auth
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
+import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaPage
 import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
@@ -30,7 +31,11 @@ private val privateRoutes: HttpRoutes[IO] =
         .render(user)
         .flatMap(Ok(_))
     case req @ GET -> Root / "logout" asAuthed user =>
-      Auth.logout(req, onSuccess = redirectTo("/")),
+      Auth.logout(req, onSuccess = redirectTo("/"))
+
+    // Merchant routes
+    case GET -> Root / "criteria" / "edit" asAuthed user =>
+      Ok(CriteriaPage.catalog)
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {

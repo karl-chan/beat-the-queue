@@ -15,14 +15,17 @@ final case class MultiSelectInputField(
 ) extends InputField[Seq[String]]:
   override def render: Html =
     div(
-      xData := s"""{
+      xData := s"""
+      {
         show: false,
         options: ${options.asJson},
         selectedOptions: ${value
         .getOrElse(Seq.empty)
         .asJson}.reduce((acc,curr)=> (acc[curr]=true,acc),{}),
         inputText: ''
-      }""",
+      }
+      """,
+      xInit := s"watch('selectedOptions', value => formData.$name = value)",
       cls := "relative inline-block",
       // Label
       div(
