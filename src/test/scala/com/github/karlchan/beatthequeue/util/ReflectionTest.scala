@@ -9,34 +9,18 @@ final class ReflectionTest extends AnyFlatSpec with should.Matchers:
   "extractFields" should "work extract case class fields correctly" in {
     val fooImpl = FooImpl(1, "foo", LocalDate.now)
     Reflection.extractFields(fooImpl) should contain theSameElementsAs Seq(
-      Reflection.Field(name = "intField", descriptor = "I", value = 1),
-      Reflection.Field(
-        name = "stringField",
-        descriptor = "Ljava/lang/String;",
-        value = "foo"
-      ),
-      Reflection.Field(
-        name = "dateField",
-        descriptor = "Ljava/time/LocalDate;",
-        value = LocalDate.now
-      )
+      Reflection.Field(name = "intField", value = 1),
+      Reflection.Field(name = "stringField", value = "foo"),
+      Reflection.Field(name = "dateField", value = LocalDate.now)
     )
   }
 
-  "extractFields" should "work for inherited hierarchy" in {
+  "extractFields" should "work for inheritance hierarchy" in {
     val foo: Foo = FooImpl(1, "foo", LocalDate.now)
     Reflection.extractFields(foo) should contain theSameElementsAs Seq(
-      Reflection.Field(name = "intField", descriptor = "I", value = 1),
-      Reflection.Field(
-        name = "stringField",
-        descriptor = "Ljava/lang/String;",
-        value = "foo"
-      ),
-      Reflection.Field(
-        name = "dateField",
-        descriptor = "Ljava/time/LocalDate;",
-        value = LocalDate.now
-      )
+      Reflection.Field(name = "intField", value = 1),
+      Reflection.Field(name = "stringField", value = "foo"),
+      Reflection.Field(name = "dateField", value = LocalDate.now)
     )
   }
 
@@ -47,20 +31,12 @@ final class ReflectionTest extends AnyFlatSpec with should.Matchers:
 
     val actual = collection.map(Reflection.extractFields)
     actual(0) should contain theSameElementsAs Seq(
-      Reflection.Field(name = "intField", descriptor = "I", value = 1),
-      Reflection.Field(
-        name = "stringField",
-        descriptor = "Ljava/lang/String;",
-        value = "foo"
-      ),
-      Reflection.Field(
-        name = "dateField",
-        descriptor = "Ljava/time/LocalDate;",
-        value = LocalDate.now
-      )
+      Reflection.Field(name = "intField", value = 1),
+      Reflection.Field(name = "stringField", value = "foo"),
+      Reflection.Field(name = "dateField", value = LocalDate.now)
     )
     actual(1) should contain only
-      Reflection.Field(name = "longField", descriptor = "J", value = 1L)
+      Reflection.Field(name = "longField", value = 1L)
   }
 
 private trait Foo

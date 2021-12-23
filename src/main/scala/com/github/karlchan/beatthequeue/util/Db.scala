@@ -8,6 +8,8 @@ import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldCrit
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Merchant
 import com.github.karlchan.beatthequeue.merchants.Merchants
+import com.github.karlchan.beatthequeue.merchants.given_Decoder_Criteria
+import com.github.karlchan.beatthequeue.merchants.given_Encoder_Criteria
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.HCursor
@@ -18,6 +20,7 @@ import mongo4cats.bson.ObjectId
 import mongo4cats.circe._
 import mongo4cats.client.MongoClient
 import mongo4cats.collection.MongoCollection
+import mongo4cats.collection.operations.Filter
 
 given Db = Db()
 
@@ -48,20 +51,5 @@ object Models:
 object Fields:
   val Id = "_id"
   val Username = "username"
-
-private given [M]: Encoder[Criteria[M]] = new {
-  final def apply(criteria: Criteria[M]): Json =
-    val merchant = Merchants
-      .AllByName(criteria.merchant)
-      .asInstanceOf[Merchant[M]]
-    merchant.codecs.encoder.apply(criteria)
-}
-
-private given Decoder[Criteria[_]] = new {
-  final def apply(c: HCursor): Decoder.Result[Criteria[_]] =
-    for {
-      name <- c.get[String]("merchant")
-      merchant = Merchants.AllByName(name)
-      result <- merchant.codecs.decoder.apply(c)
-    } yield result
-}
+  val Criteria = "criteria"
+  val CriteriaId = "id"

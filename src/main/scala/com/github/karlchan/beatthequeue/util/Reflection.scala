@@ -9,10 +9,9 @@ object Reflection:
         field.setAccessible(true)
         Field(
           name = field.getName,
-          descriptor = field.getType.descriptorString,
           value = field.get(obj)
         )
       )
       .toSeq
 
-  case class Field(name: String, descriptor: String, value: Any)
+  case class Field(name: String, value: Any)

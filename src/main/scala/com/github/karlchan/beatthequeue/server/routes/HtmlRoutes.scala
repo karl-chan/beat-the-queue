@@ -5,11 +5,10 @@ import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.server.auth.Auth
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
-import com.github.karlchan.beatthequeue.server.routes.pages.auth.loginFailedPage
-import com.github.karlchan.beatthequeue.server.routes.pages.auth.loginPage
-import com.github.karlchan.beatthequeue.server.routes.pages.auth.registrationFailedPage
-import com.github.karlchan.beatthequeue.server.routes.pages.auth.registrationPage
-import com.github.karlchan.beatthequeue.server.routes.pages.homePage
+import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaPage
+import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
+import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
+import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.testPage
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
@@ -27,14 +26,21 @@ import tsec.authentication.asAuthed
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
-    case GET -> Root asAuthed user => homePage(user).flatMap(Ok(_))
+    case GET -> Root asAuthed user =>
+      HomePage
+        .render(user)
+        .flatMap(Ok(_))
     case req @ GET -> Root / "logout" asAuthed user =>
-      Auth.logout(req, onSuccess = redirectTo("/")),
+      Auth.logout(req, onSuccess = redirectTo("/"))
+
+    // Merchant routes
+    case GET -> Root / "criteria" / "edit" asAuthed user =>
+      Ok(CriteriaPage.catalog)
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
   case GET -> Root           => redirectTo("/login")
-  case GET -> Root / "login" => Ok(loginPage)
+  case GET -> Root / "login" => Ok(LoginPage.success)
   case req @ POST -> Root / "login" =>
     req.decode[UrlForm] { m =>
       (m.getFirst("username"), m.getFirst("password")) match {
@@ -44,12 +50,12 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
             username,
             password,
             onSuccess = redirectTo("/"),
-            onFailure = Ok(loginFailedPage)
+            onFailure = Ok(LoginPage.failure)
           )
-        case _ => Ok(loginFailedPage)
+        case _ => Ok(LoginPage.failure)
       }
     }
-  case GET -> Root / "register" => Ok(registrationPage)
+  case GET -> Root / "register" => Ok(RegistrationPage.render())
   case req @ POST -> Root / "register" =>
     req.decode[UrlForm] { m =>
       (
@@ -64,10 +70,12 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
               username,
               password,
               onSuccess = redirectTo("/"),
-              onFailure = Kleisli { error => Ok(registrationFailedPage(error)) }
+              onFailure = Kleisli { error =>
+                Ok(RegistrationPage.renderFailure(error))
+              }
             )
-          else Ok(registrationFailedPage("Passwords don't match"))
-        case _ => Ok(registrationFailedPage("Missing fields"))
+          else Ok(RegistrationPage.renderFailure("Passwords don't match"))
+        case _ => Ok(RegistrationPage.renderFailure("Missing fields"))
       }
     }
 }
