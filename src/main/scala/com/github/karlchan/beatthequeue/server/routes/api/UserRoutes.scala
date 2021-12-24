@@ -9,11 +9,7 @@ import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.model.Filters
-import fs2.Stream
-import mongo4cats.bson.ObjectId
-import mongo4cats.collection.UpdateOptions
-import mongo4cats.collection.operations.Filter
-import mongo4cats.collection.operations.Update
+import com.mongodb.client.result.UpdateResult
 import org.http4s._
 import org.http4s.dsl.io._
 import tsec.authentication.TSecAuthService
@@ -37,23 +33,13 @@ val userRoutes: HttpRoutes[IO] = privateRoutes
 
 private def upsertCriteria(authUser: AuthUser, criteria: Criteria[_])(using
     db: Db
-): IO[Unit] =
+): IO[UpdateResult] =
   for {
-    usersCollection <- db.users
-    _ <- usersCollection.updateOne(
-      Filter.eq(Fields.Id, authUser.id)
-        && Filter
-          .elemMatch(
-            Fields.Criteria,
-            Filter.eq(Fields.CriteriaId, criteria.id)
-          ),
-      Update.set(s"${Fields.Criteria}.$$[element]", criteria),
-      UpdateOptions()
-        .arrayFilters(
-          ArrayBuffer(
-            Filters.eq(s"element.${Fields.CriteriaId}", criteria.id)
-          ).asJava
+    res <- db.updateUser(
+      authUser,
+      user =>
+        user.copy(criteria =
+          criteria +: user.criteria.filterNot(_.id == criteria.id)
         )
-        .upsert(true)
     )
-  } yield ()
+  } yield res

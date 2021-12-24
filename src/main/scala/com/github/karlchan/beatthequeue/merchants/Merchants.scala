@@ -6,7 +6,7 @@ private type Category = String
 
 object Merchants:
   val All: Map[Category, Seq[Merchant[_, _]]] = Map {
-    "cinema" -> Seq(
+    "Cinema" -> Seq(
       Cineworld()
     )
   }

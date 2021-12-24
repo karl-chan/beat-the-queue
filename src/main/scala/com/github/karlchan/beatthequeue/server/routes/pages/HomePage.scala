@@ -7,9 +7,9 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.given_Db
+import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
 import scalatags.Text.all._
-import mongo4cats.bson.ObjectId
 
 object HomePage:
   def render(authUser: AuthUser): IO[Html] =
@@ -27,11 +27,7 @@ object HomePage:
       )
       .toMap
     for {
-      usersCollection <- db.users
-      user <- usersCollection.find
-        .filter(Filter.eq(Fields.Id, ObjectId(authUser.id)))
-        .first
-        .map(_.get)
+      user <- db.findUser(authUser)
       criteriaByCategory = user.criteria.groupBy(c =>
         categoryByMerchantNames(c.merchant)
       )

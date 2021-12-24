@@ -3,15 +3,19 @@ package com.github.karlchan.beatthequeue.server.routes
 import cats.data.Kleisli
 import cats.effect.IO
 import cats.syntax.all._
+import com.github.karlchan.beatthequeue.merchants.Criteria
+import com.github.karlchan.beatthequeue.merchants.given_Decoder_Criteria
 import com.github.karlchan.beatthequeue.server.auth.Auth
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
-import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaPage
+import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaCatalogPage
+import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaEditPage
 import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.testPage
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
+import io.circe.parser.decode
 import org.http4s.Response
 import org.http4s._
 import org.http4s.dsl.io._
@@ -34,8 +38,27 @@ private val privateRoutes: HttpRoutes[IO] =
       Auth.logout(req, onSuccess = redirectTo("/"))
 
     // Merchant routes
-    case GET -> Root / "criteria" / "edit" asAuthed user =>
-      Ok(CriteriaPage.catalog)
+    case GET -> Root / "criteria" / "catalog" asAuthed user =>
+      Ok(CriteriaCatalogPage.render)
+    case req @ GET -> Root / "criteria" / "edit" asAuthed user =>
+      req.request.params
+        .get("criteria")
+        .map(criteriaString =>
+          decode[Criteria[_]](criteriaString) match {
+            case Left(err) =>
+              BadRequest(
+                s"$criteriaString is not a valid criteria!"
+              )
+            case Right(criteria) =>
+              CriteriaEditPage
+                .render(criteria)
+                .flatMap(Ok(_))
+          }
+        )
+        .getOrElse(
+          redirectTo("/criteria/catalog")
+        )
+
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
@@ -78,6 +101,7 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
         case _ => Ok(RegistrationPage.renderFailure("Missing fields"))
       }
     }
+  case _ => redirectTo("/")
 }
 
 private val testRoutes: HttpRoutes[IO] = HttpRoutes.of {

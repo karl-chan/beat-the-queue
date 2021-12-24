@@ -25,7 +25,7 @@ final case class MultiSelectInputField(
         inputText: ''
       }
       """,
-      xInit := s"watch('selectedOptions', value => formData.$name = value)",
+      xInit := s"$$watch('selectedOptions', value => formData.$name = Object.keys(value))",
       cls := "relative inline-block",
       // Label
       div(
@@ -50,7 +50,9 @@ final case class MultiSelectInputField(
           template(
             xIf := "option.toLowerCase().includes(inputText.toLowerCase())",
             button(
-              cls := "flex place-content-between px-4 py-2 rounded-lg hover:bg-gray-200 focus:bg-gray-300 z-20",
+              `type` := "button",
+              cls := "flex place-content-between px-4 py-2 rounded-lg hover:bg-gray-200 z-20",
+              xClass := "option in selectedOptions? 'bg-gray-300': 'bg-gray-100'",
               attr("x-on:click.stop") := """option in selectedOptions?
                                               delete selectedOptions[option]:
                                               selectedOptions[option] = true""",
@@ -67,14 +69,5 @@ final case class MultiSelectInputField(
       div(
         cls := "text-xs text-gray-600 italic",
         xText := "Object.keys(selectedOptions).join(', ')"
-      ),
-      // Hidden input fields
-      template(
-        xFor := "selectedOption in selectedOptions",
-        input(
-          `type` := "hidden",
-          attr("name") := s"$name[]",
-          xModel := "selectedOption"
-        )
       )
     )

@@ -1,13 +1,14 @@
 package com.github.karlchan.beatthequeue.merchants
 
 import cats.effect.IO
+import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
-import com.github.karlchan.beatthequeue.server.routes.pages.merchants.Renderer
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.HCursor
 import io.circe.Json
+import mongo4cats.codecs.MongoCodecProvider
 import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
 
@@ -18,7 +19,9 @@ abstract class Merchant[M, C <: Criteria[M]](using
     childDecoder: Decoder[C]
 ):
   val name: String
+  val logoUrl: String
   val eventFinder: EventFinder[M]
+  val defaultCriteria: C
   val renderer: Renderer[M, C]
 
   final val criteriaEncoder = childEncoder.contramap(_.asInstanceOf[C])
