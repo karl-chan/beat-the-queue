@@ -101,7 +101,7 @@ object Renderer:
         .map((category, merchants) =>
           div(
             h1(cls := "text-4xl text-gray-800 font-semibold", category),
-            verticalGap(4),
+            vspace(4),
             div(
               cls := "grid grid-cols-4 gap-4",
               merchants

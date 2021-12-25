@@ -11,7 +11,7 @@ def navigationBar =
       cls := "p-4 text-gray-500 hover:bg-gray-900",
       materialIcon("menu")
     ),
-    horizontalGap(8),
+    hspace(8),
     linkButton(
       color = "red",
       href := "/criteria/catalog",
@@ -19,5 +19,5 @@ def navigationBar =
     ),
     div(cls := "flex-grow"),
     linkButton(color = "gray", href := "/logout", "Logout"),
-    horizontalGap(8)
+    hspace(8)
   )

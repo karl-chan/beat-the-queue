@@ -34,7 +34,7 @@ object HomePage:
     } yield div(
       cls := "flex flex-col space-y-2",
       h1(cls := "text-4xl text-gray-800 font-bold", "Alerts"),
-      verticalGap(4),
+      vspace(4),
       if user.criteria.isEmpty then
         div(cls := "mx-auto text-gray", "You have not set up alerts.")
       else
