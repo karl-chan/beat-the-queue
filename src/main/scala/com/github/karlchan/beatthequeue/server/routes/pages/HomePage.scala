@@ -33,22 +33,27 @@ object HomePage:
       )
     } yield div(
       cls := "flex flex-col space-y-2",
-      criteriaByCategory
-        .map((category, criteriaSeq) =>
-          div(
-            h1(category),
+      h1(cls := "text-4xl text-gray-800 font-bold", "Alerts"),
+      verticalGap(4),
+      if user.criteria.isEmpty then
+        div(cls := "mx-auto text-gray", "You have not set up alerts.")
+      else
+        criteriaByCategory
+          .map((category, criteriaSeq) =>
             div(
-              cls := "flex flex-wrap space-x-1",
-              criteriaSeq
-                .map(criteria =>
-                  val merchant = Merchants
-                    .findMerchantFor(criteria)
-                  merchant.renderer
-                    .render(criteria)(using merchant.criteriaEncoder)
-                )
-                .toSeq
+              h2(cls := "text-2xl text-gray-800 font-semibold", category),
+              div(
+                cls := "flex flex-wrap space-x-1",
+                criteriaSeq
+                  .map(criteria =>
+                    val merchant = Merchants
+                      .findMerchantFor(criteria)
+                    merchant.renderer
+                      .render(criteria)(using merchant.criteriaEncoder)
+                  )
+                  .toSeq
+              )
             )
           )
-        )
-        .toSeq
+          .toSeq
     )

@@ -100,7 +100,7 @@ object Renderer:
       Merchants.All
         .map((category, merchants) =>
           div(
-            div(cls := "text-4xl text-gray-800 font-semibold", category),
+            h1(cls := "text-4xl text-gray-800 font-semibold", category),
             verticalGap(4),
             div(
               cls := "grid grid-cols-4 gap-4",
