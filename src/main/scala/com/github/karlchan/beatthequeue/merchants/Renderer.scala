@@ -22,7 +22,7 @@ abstract class Renderer[M, C <: Criteria[M]]:
   final def render(criteria: C)(using encoder: Encoder[C]): Html =
     val merchant = Merchants.findMerchantFor(criteria)
     card(
-      cls := "flex flex-col space-y-2",
+      cls := "flex flex-col space-y-2 max-w-md",
       div(
         cls := "flex place-content-between space-x-2",
         img(
