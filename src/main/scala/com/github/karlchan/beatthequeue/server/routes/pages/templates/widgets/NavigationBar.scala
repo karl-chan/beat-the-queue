@@ -6,9 +6,9 @@ import scalatags.Text.all._
 def navigationBar =
   nav(
     cls := "flex items-center bg-gray-800 text-white",
-    button(
-      `type` := "button",
+    a(
       cls := "p-4 text-gray-500 hover:bg-gray-900",
+      href := "/",
       materialIcon("menu")
     ),
     hspace(8),
