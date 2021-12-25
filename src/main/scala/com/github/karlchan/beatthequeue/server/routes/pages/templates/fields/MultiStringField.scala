@@ -9,9 +9,7 @@ final case class MultiStringField(
 ) extends Field[Seq[String]]:
   override def render: Html =
     div(
-      cls := "flex flex-col space-y-2",
-      span(cls := "text-bold", s"$label:"),
-      ul(
-        for (name <- value.getOrElse(Seq.empty)) yield li(name)
-      )
+      cls := "flex flex-wrap space-x-2",
+      span(cls := "font-semibold", s"$label:"),
+      span(value.map(_.mkString(", ")).getOrElse("N/A"))
     )

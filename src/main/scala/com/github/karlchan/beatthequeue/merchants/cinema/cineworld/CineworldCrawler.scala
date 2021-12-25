@@ -54,19 +54,19 @@ final class CineworldCrawler(
           name = filmsById(ev.filmId).name,
           time = LocalDateTime.parse(ev.eventDateTime),
           venue = cinema.displayName,
-          screenType = toScreenType(ev.attributeIds.toSet).toUpperCase
+          screenType = toScreenType(ev.attributeIds.toSet)
         )
       )
 
     def toScreenType(attributeIds: Set[String]): String =
       for
         format <- SpecialFormats
-        if attributeIds.contains(format)
-      do return s"${format} ${toScreenType(attributeIds - format)}"
+        if attributeIds.contains(format.toLowerCase)
+      do return s"${format} ${toScreenType(attributeIds - format.toLowerCase)}"
 
       for
         format <- BaseFormats
-        if attributeIds.contains(format)
+        if attributeIds.contains(format.toLowerCase)
       do return format
       throw IllegalArgumentException(s"Unknown screen type: ${attributeIds}")
 
@@ -222,5 +222,5 @@ private[cineworld] object FeedResponse:
       url: String
   )
 
-private[this] val BaseFormats = List("2d", "3d")
-private[this] val SpecialFormats = List("imax", "4dx", "superscreen")
+private[this] val BaseFormats = List("2D", "3D")
+private[this] val SpecialFormats = List("IMAX", "4DX", "Superscreen")

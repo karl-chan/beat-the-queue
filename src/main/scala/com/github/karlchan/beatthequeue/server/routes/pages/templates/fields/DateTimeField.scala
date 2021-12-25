@@ -11,6 +11,6 @@ final case class DateTimeField(
 ) extends Field[LocalDateTime]:
   override def render: Html =
     div(
-      span(cls := "text-bold", s"$label: "),
+      span(cls := "font-semibold", s"$label: "),
       span(s"${value.getOrElse("N/A")}")
     )

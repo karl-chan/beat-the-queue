@@ -36,7 +36,11 @@ final class CineworldCrawlerTest
       "103", // Leicester Square
       LocalDate.now
     )
-    res.asserting(res => all(res.body.events.map(_.cinemaId)) should be("103"))
+    res.asserting(filmEventsResponse =>
+      filmEventsResponse.body.events.map(
+        _.cinemaId
+      ) should contain only "103"
+    )
   }
 
   "getNowPlaying" should "return non-empty list of films" in {
