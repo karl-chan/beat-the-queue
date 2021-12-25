@@ -8,7 +8,10 @@ import io.circe.syntax._
 
 final class Cineworld extends Merchant[Cineworld, CineworldCriteria]:
   override val name = Cineworld.Name
+  override val logoUrl =
+    "https://classic.cineworld.co.uk/xmedia/img/10108/logo.svg"
   override val eventFinder = CineworldCrawler()
+  override val defaultCriteria = CineworldCriteria()
   override val renderer = CineworldRenderer()
 
 object Cineworld:

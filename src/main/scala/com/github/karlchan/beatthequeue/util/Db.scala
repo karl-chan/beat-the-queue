@@ -10,6 +10,8 @@ import com.github.karlchan.beatthequeue.merchants.Merchant
 import com.github.karlchan.beatthequeue.merchants.Merchants
 import com.github.karlchan.beatthequeue.merchants.given_Decoder_Criteria
 import com.github.karlchan.beatthequeue.merchants.given_Encoder_Criteria
+import com.github.karlchan.beatthequeue.server.auth.AuthUser
+import com.mongodb.client.result.UpdateResult
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.HCursor
@@ -39,6 +41,31 @@ final class Db:
 
   def users: IO[MongoCollection[IO, Models.User]] =
     db.getCollectionWithCodec[Models.User]("users")
+
+  def findUser(authUser: AuthUser): IO[Models.User] =
+    for {
+      usersCollection <- users
+      maybeUser <- usersCollection.find
+        .filter(Filter.eq(Fields.Id, ObjectId(authUser.id)))
+        .first
+    } yield maybeUser.get
+
+  def updateUser(
+      authUser: AuthUser,
+      updateFunction: Models.User => Models.User
+  ): IO[UpdateResult] =
+    for {
+      usersCollection <- users
+      maybeUser <- usersCollection.find
+        .filter(Filter.eq(Fields.Id, ObjectId(authUser.id)))
+        .first
+      user = maybeUser.get
+      newUser = updateFunction(user)
+      res <- usersCollection.replaceOne(
+        Filter.eq(Fields.Id, ObjectId(authUser.id)),
+        newUser
+      )
+    } yield res
 
 object Models:
   final case class User(

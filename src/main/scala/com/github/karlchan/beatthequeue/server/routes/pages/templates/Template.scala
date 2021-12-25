@@ -19,9 +19,8 @@ object Template:
           href := "https://fonts.googleapis.com/icon?family=Material+Icons",
           rel := "stylesheet"
         ),
-        link(
-          href := "https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css",
-          rel := "stylesheet"
+        script(
+          src := "https://cdn.tailwindcss.com"
         ),
         script(
           defer := true,

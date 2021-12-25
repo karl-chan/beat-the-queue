@@ -8,6 +8,7 @@ lazy val viewBox = attr("viewBox")
 
 // alpine.js attributes
 lazy val key = attr("key")
+lazy val xClass = attr(":class")
 lazy val xData = attr("x-data")
 lazy val xFor = attr("x-for")
 lazy val xIf = attr("x-if")
