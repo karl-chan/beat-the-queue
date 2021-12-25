@@ -20,12 +20,22 @@ import scala.collection.mutable.ArrayBuffer
 import collection.JavaConverters._
 
 private val privateRoutes: HttpRoutes[IO] = Auth.service(
-  TSecAuthService { case req @ POST -> Root / "criteria" asAuthed user =>
-    for {
-      criteria <- req.request.as[Criteria[_]]
-      _ <- upsertCriteria(user, criteria)
-      res <- Ok()
-    } yield res
+  TSecAuthService {
+    case req @ POST -> Root / "criteria" asAuthed user =>
+      for {
+        criteria <- req.request.as[Criteria[_]]
+        _ <- upsertCriteria(user, criteria)
+        res <- Ok()
+      } yield res
+    case req @ DELETE -> Root / "criteria" asAuthed user =>
+      req.request.params.get("id") match {
+        case None => BadRequest("Missing id field!")
+        case Some(criteriaId) =>
+          for {
+            _ <- deleteCriteria(user, criteriaId)
+            res <- Ok()
+          } yield res
+      }
   }
 )
 
@@ -41,5 +51,15 @@ private def upsertCriteria(authUser: AuthUser, criteria: Criteria[_])(using
         user.copy(criteria =
           criteria +: user.criteria.filterNot(_.id == criteria.id)
         )
+    )
+  } yield res
+
+private def deleteCriteria(authUser: AuthUser, criteriaId: String)(using
+    db: Db
+): IO[UpdateResult] =
+  for {
+    res <- db.updateUser(
+      authUser,
+      user => user.copy(criteria = user.criteria.filterNot(_.id == criteriaId))
     )
   } yield res

@@ -58,7 +58,6 @@ private val privateRoutes: HttpRoutes[IO] =
         .getOrElse(
           redirectTo("/criteria/catalog")
         )
-
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
