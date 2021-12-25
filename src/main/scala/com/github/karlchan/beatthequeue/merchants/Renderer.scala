@@ -106,25 +106,26 @@ object Renderer:
       cls := "flex flex-col space-y-2",
       Merchants.All
         .map((category, merchants) =>
+          // Row of category
           div(
             h1(cls := "text-4xl text-gray-800 font-semibold", category),
             vspace(4),
+            // Grid of merchants
             div(
               cls := "grid grid-cols-4 gap-4",
               merchants
                 .map(merchant =>
-                  val url = Uri
-                    .unsafeFromString("/criteria/edit")
-                    .withQueryParam(
-                      "criteria",
-                      merchant.criteriaEncoder
-                        .apply(merchant.defaultCriteria)
-                        .toString
-                    )
-                    .toString
                   linkButton(
                     color = "gray",
-                    href := url,
+                    href := Uri
+                      .unsafeFromString("/criteria/edit")
+                      .withQueryParam(
+                        "criteria",
+                        merchant.criteriaEncoder
+                          .apply(merchant.defaultCriteria)
+                          .toString
+                      )
+                      .toString,
                     img(src := merchant.logoUrl, alt := merchant.name)
                   )
                 )
