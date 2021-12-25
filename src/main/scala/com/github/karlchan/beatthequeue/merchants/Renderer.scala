@@ -19,20 +19,16 @@ import scalatags.Text.all._
 
 abstract class Renderer[M, C <: Criteria[M]]:
   final def render(criteria: C)(using encoder: Encoder[C]): Html =
-    val url = Uri
-      .unsafeFromString("/criteria/edit")
-      .withQueryParam(
-        "criteria",
-        criteria.asJson.toString
-      )
-      .toString
     card(
       cls := "flex flex-col space-y-2",
       div(
         cls := "flex place-content-end",
         linkButton(
           color = "cyan",
-          href := url,
+          href := Uri
+            .unsafeFromString("/criteria/edit")
+            .withQueryParam("criteria", criteria.asJson.toString)
+            .toString,
           materialIcon("edit")
         )
       ),
@@ -48,29 +44,49 @@ abstract class Renderer[M, C <: Criteria[M]]:
       method := "POST",
       xData := s"""
       {
-        formData: ${criteria.asJson}
+        formData: ${criteria.asJson},
+        submit() {
+          fetch("/api/user/criteria", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(this.formData)
+          })
+          .then(res => {
+            if (!res.ok) {
+              alert("Failed to submit criteria. See console for error.")
+              console.error(res)
+            } else {
+              window.location.href = "/"
+            }
+          })
+        },
+        deleteCriteria() {
+          fetch("/api/user/criteria?id=" + this.formData.id, {
+            method: "DELETE",
+          })
+          .then(res => {
+            if (!res.ok) {
+              alert("Failed to delete criteria. See console for error.")
+              console.error(res)
+            } else {
+              window.location.href = "/"
+            }
+          })
+        },
       }
       """,
-      attr("x-on:submit.prevent") := """
-        fetch("/api/user/criteria", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        })
-        .then(res => {
-          if (!res.ok) {
-            alert("Failed to submit criteria. See console for error.")
-            console.error(res)
-          } else {
-            window.location.href = "/"
-          }
-        })
-      """,
+      attr("x-on:submit.prevent") := "submit()",
       inputFields.map(_.render),
       styledButton(
         color = "green",
         `type` := "submit",
         "Submit"
+      ),
+      styledButton(
+        color = "red",
+        `type` := "button",
+        attr("x-on:click") := "deleteCriteria()",
+        "Delete"
       )
     )
 

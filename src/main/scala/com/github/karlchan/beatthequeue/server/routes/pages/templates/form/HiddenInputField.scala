@@ -12,7 +12,7 @@ final case class HiddenInputField(
   override def render: Html =
     input(
       `type` := "hidden",
-      xData := s"formData.$name",
+      xModel := s"formData.$name",
       attr("name") := name,
       attr("value") := value.get
     )

@@ -21,7 +21,7 @@ final case class StringInputField(
       // User input field
       input(
         `type` := "text",
-        xData := s"formData.$name",
+        xModel := s"formData.$name",
         cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
         attr("name") := name
       )
