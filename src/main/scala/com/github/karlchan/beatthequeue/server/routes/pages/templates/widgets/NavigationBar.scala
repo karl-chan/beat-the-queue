@@ -9,7 +9,7 @@ def navigationBar =
     button(
       `type` := "button",
       cls := "p-4 text-gray-500 hover:bg-gray-900",
-      span(cls := "material-icons", "menu")
+      materialIcon("menu")
     ),
     horizontalGap(8),
     linkButton(

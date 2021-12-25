@@ -18,10 +18,26 @@ import org.http4s.Uri
 import scalatags.Text.all._
 
 abstract class Renderer[M, C <: Criteria[M]]:
-  final def render(criteria: C): Html =
-    div(
+  final def render(criteria: C)(using encoder: Encoder[C]): Html =
+    val url = Uri
+      .unsafeFromString("/criteria/edit")
+      .withQueryParam(
+        "criteria",
+        criteria.asJson.toString
+      )
+      .toString
+    card(
       cls := "flex flex-col space-y-2",
-      toFields(criteria).map(_.render)
+      div(
+        cls := "flex place-content-end",
+        linkButton(
+          color = "cyan",
+          href := url,
+          materialIcon("edit")
+        )
+      ),
+      toFields(criteria)
+        .map(_.render)
     )
 
   final def renderEditor(criteria: C)(using encoder: Encoder[C]): IO[Html] =

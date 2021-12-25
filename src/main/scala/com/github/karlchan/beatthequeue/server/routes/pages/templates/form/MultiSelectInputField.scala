@@ -2,6 +2,7 @@ package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import io.circe.syntax._
 import scalatags.Text.all._
 
@@ -59,7 +60,7 @@ final case class MultiSelectInputField(
               span(xText := "option"),
               template(
                 xIf := "option in selectedOptions",
-                span(cls := "material-icons", "check")
+                materialIcon("check")
               )
             )
           )

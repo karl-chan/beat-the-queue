@@ -41,10 +41,10 @@ object HomePage:
               cls := "flex flex-wrap space-x-1",
               criteriaSeq
                 .map(criteria =>
-                  Merchants
+                  val merchant = Merchants
                     .findMerchantFor(criteria)
-                    .renderer
-                    .render(criteria)
+                  merchant.renderer
+                    .render(criteria)(using merchant.criteriaEncoder)
                 )
                 .toSeq
             )

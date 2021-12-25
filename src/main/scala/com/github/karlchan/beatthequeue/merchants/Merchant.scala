@@ -24,8 +24,9 @@ abstract class Merchant[M, C <: Criteria[M]](using
   val defaultCriteria: C
   val renderer: Renderer[M, C]
 
-  final val criteriaEncoder = childEncoder.contramap(_.asInstanceOf[C])
-  final val criteriaDecoder = childDecoder.map(identity)
+  final val criteriaEncoder: Encoder[Criteria[M]] =
+    childEncoder.contramap(_.asInstanceOf[C])
+  final val criteriaDecoder: Decoder[Criteria[M]] = childDecoder.map(identity)
 
 trait Event[M]:
   val name: String
