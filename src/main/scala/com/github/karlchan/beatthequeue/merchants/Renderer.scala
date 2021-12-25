@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue.merchants
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.Field
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.MultiStringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.{
@@ -19,10 +20,16 @@ import scalatags.Text.all._
 
 abstract class Renderer[M, C <: Criteria[M]]:
   final def render(criteria: C)(using encoder: Encoder[C]): Html =
+    val merchant = Merchants.findMerchantFor(criteria)
     card(
       cls := "flex flex-col space-y-2",
       div(
-        cls := "flex place-content-end",
+        cls := "flex place-content-between space-x-2",
+        img(
+          cls := "bg-gray-200",
+          src := merchant.logoUrl,
+          alt := merchant.name
+        ),
         linkButton(
           color = "cyan",
           href := Uri
@@ -100,8 +107,8 @@ object Renderer:
       Merchants.All
         .map((category, merchants) =>
           div(
-            div(cls := "text-4xl text-gray-800 font-semibold", category),
-            verticalGap(4),
+            h1(cls := "text-4xl text-gray-800 font-semibold", category),
+            vspace(4),
             div(
               cls := "grid grid-cols-4 gap-4",
               merchants
