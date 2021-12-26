@@ -13,6 +13,7 @@ import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
 
 import java.util.UUID
+import java.time.LocalDateTime
 
 abstract class Merchant[M, C <: Criteria[M]](using
     childEncoder: Encoder[C],
@@ -29,7 +30,9 @@ abstract class Merchant[M, C <: Criteria[M]](using
   final val criteriaDecoder: Decoder[Criteria[M]] = childDecoder.map(identity)
 
 trait Event[M]:
+  val merchant: String
   val name: String
+  val time: LocalDateTime
 
 trait EventFinder[M]:
   def run(): IO[Seq[Event[M]]]
