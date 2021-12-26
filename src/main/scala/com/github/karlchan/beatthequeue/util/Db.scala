@@ -72,7 +72,13 @@ object Models:
       _id: ObjectId,
       username: String,
       hash: String,
-      criteria: Seq[Criteria[_]]
+      criteria: Seq[Criteria[_]] = Seq.empty,
+      notificationSettings: NotificationSettings = NotificationSettings()
+  )
+
+  final case class NotificationSettings(
+      maybeEmailAddress: Option[String] = None,
+      maybePushEndpoint: Option[String] = None
   )
 
 object Fields:

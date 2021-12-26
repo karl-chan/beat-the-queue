@@ -1,6 +1,7 @@
 val scala3Version = "3.1.0"
 
 val circeVersion = "0.14.1"
+val emilVersion = "0.10.0-M3"
 val http4sVersion = "0.23.0"
 val mongo4catsVersion = "0.4.2"
 
@@ -15,6 +16,8 @@ lazy val root = project
       "ch.qos.logback" % "logback-classic" % "1.2.6"
     ) ++ Seq(
       // scala 3 dependencies
+      "com.github.eikek" %% "emil-common" % emilVersion,
+      "com.github.eikek" %% "emil-javamail" % emilVersion,
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.github.jmcardon" %% "tsec-http4s" % "0.4.0",

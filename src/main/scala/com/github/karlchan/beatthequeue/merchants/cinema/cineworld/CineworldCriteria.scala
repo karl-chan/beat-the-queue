@@ -17,7 +17,7 @@ final case class CineworldCriteria(
     screenTypes: Option[Seq[String]] = None
 ) extends Criteria[Cineworld]:
   def matches(event: Event[Cineworld]) =
-    val CineworldEvent(name, time, venue, screenType) =
+    val CineworldEvent(_, name, time, venue, screenType) =
       event.asInstanceOf[CineworldEvent]
 
     filmNames.mapTruthy(_.contains(name)) &&

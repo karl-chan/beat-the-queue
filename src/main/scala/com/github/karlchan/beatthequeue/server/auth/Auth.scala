@@ -65,8 +65,7 @@ object Auth:
                 Models.User(
                   _id = userId,
                   username = username,
-                  hash = hash,
-                  criteria = Seq.empty
+                  hash = hash
                 )
               )
               cookie <- authenticator.create(userId.toString)
