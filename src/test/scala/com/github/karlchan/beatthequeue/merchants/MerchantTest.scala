@@ -16,7 +16,7 @@ final class MerchantTest extends AnyFlatSpec with should.Matchers:
   "criteria" should "be encodable to / decodable from json losslessly" in {
     val criteria: Criteria[Cineworld] = CineworldCriteria(
       filmNames = Some(Seq("Dune", "No Time To Die")),
-      startTime = Some(LocalDateTime.of(2021, 10, 15, 0, 0, 0, 0)),
+      startTime = Some(LocalDateTime.of(2021, 10, 15, 0, 0)),
       endTime = None,
       venues = Some(Seq("Leicester Square")),
       screenTypes = None

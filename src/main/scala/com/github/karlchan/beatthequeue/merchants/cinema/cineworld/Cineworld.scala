@@ -6,7 +6,8 @@ import com.github.karlchan.beatthequeue.merchants.Merchant
 import io.circe.generic.auto._
 import io.circe.syntax._
 
-final class Cineworld extends Merchant[Cineworld, CineworldCriteria]:
+final class Cineworld
+    extends Merchant[Cineworld, CineworldCriteria, CineworldEvent]:
   override val name = Cineworld.Name
   override val logoUrl =
     "https://classic.cineworld.co.uk/xmedia/img/10108/logo.svg"
