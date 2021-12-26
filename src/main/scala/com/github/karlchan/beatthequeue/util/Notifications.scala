@@ -14,7 +14,7 @@ import scala.collection.mutable
 object Notifications:
   def sendEmail(emailAddress: String, events: Seq[Event[_]]): IO[_] =
     val body = mutable.StringBuilder()
-    body ++= "<p>The following events satisfy your criteria</p>"
+    body ++= "<p>The following events may be of interest to you:</p>"
     body ++= "<ul>"
     for (event <- events) {
       body ++= s"<li>${event.asJson}</li>"
