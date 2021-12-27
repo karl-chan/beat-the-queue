@@ -45,3 +45,6 @@ bin/
 
 #general
 *.class
+
+# node
+node_modules/
