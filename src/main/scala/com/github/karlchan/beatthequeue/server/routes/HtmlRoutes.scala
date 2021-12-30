@@ -13,9 +13,12 @@ import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.testPage
+import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
+import io.circe.generic.auto._
 import io.circe.parser.decode
+import io.circe.syntax._
 import org.http4s.Response
 import org.http4s._
 import org.http4s.dsl.io._
@@ -70,17 +73,15 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
       (
         m.getFirst("username"),
         m.getFirst("password"),
-        m.getFirst("pushSubscriptionEndpoint")
+        m.getFirst("pushSubscriptionJson")
       ) match {
-        case (Some(username), Some(password), Some(pushSubscriptionEndpoint))
+        case (Some(username), Some(password), Some(pushSubscriptionJson))
             if username.nonEmpty && password.nonEmpty =>
           Auth.login(
             username,
             password,
-            maybePushSubscriptionEndpoint =
-              if pushSubscriptionEndpoint.nonEmpty then
-                Some(pushSubscriptionEndpoint)
-              else None,
+            maybePushSubscription =
+              decode[Models.PushSubscription](pushSubscriptionJson).toOption,
             onSuccess = redirectTo("/"),
             onFailure = Ok(LoginPage.failure)
           )
@@ -94,23 +95,21 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
         m.getFirst("username"),
         m.getFirst("password"),
         m.getFirst("confirmPassword"),
-        m.getFirst("pushSubscriptionEndpoint")
+        m.getFirst("pushSubscriptionJson")
       ) match {
         case (
               Some(username),
               Some(password),
               Some(confirmPassword),
-              Some(pushSubscriptionEndpoint)
+              Some(pushSubscriptionJson)
             )
             if username.nonEmpty && password.nonEmpty && confirmPassword.nonEmpty =>
           if password == confirmPassword then
             Auth.register(
               username,
               password,
-              maybePushSubscriptionEndpoint =
-                if pushSubscriptionEndpoint.nonEmpty then
-                  Some(pushSubscriptionEndpoint)
-                else None,
+              maybePushSubscription =
+                decode[Models.PushSubscription](pushSubscriptionJson).toOption,
               onSuccess = redirectTo("/"),
               onFailure = Kleisli { error =>
                 Ok(RegistrationPage.renderFailure(error))

@@ -35,12 +35,12 @@ async function subscribePushNotifications (/** @type {ServiceWorkerRegistration}
     })
     console.log('Push subcription: ', pushSubscription)
 
-    const el = document.getElementById('pushSubscriptionEndpoint')
+    const el = document.getElementById('pushSubscriptionJson')
     if (el) {
-      el.value = pushSubscription.endpoint
+      el.value = JSON.stringify(pushSubscription)
       console.log('Sucessfully subscribed to push')
     } else {
-      console.warn('Unable to find pushSubscriptionEndpoint hidden input field')
+      console.warn('Unable to find pushSubscriptionJson hidden input field')
     }
   } catch (err) {
     if (Notification.permission === 'denied') {

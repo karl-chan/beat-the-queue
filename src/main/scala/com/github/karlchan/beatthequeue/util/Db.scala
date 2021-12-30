@@ -78,7 +78,18 @@ object Models:
 
   final case class NotificationSettings(
       maybeEmailAddress: Option[String] = None,
-      pushEndpoints: Seq[String] = Seq.empty
+      pushSubscriptions: Seq[PushSubscription] = Seq.empty
+  )
+
+  final case class PushSubscription(
+      endpoint: String,
+      expirationTime: Option[String] = None,
+      keys: PushSubscriptionKeys
+  )
+
+  final case class PushSubscriptionKeys(
+      p256dh: String,
+      auth: String
   )
 
 object Fields:

@@ -1,21 +1,18 @@
-self.addEventListener('push', function (e) {
-  const options = {
+/// <reference no-default-lib="true"/>
+/// <reference lib="es2015" />
+/// <reference lib="webworker" />
+
+/**
+ * @type {ServiceWorkerGlobalScope}
+ */
+const sw = self
+
+sw.addEventListener('push', event => {
+  const notification = new Notification('Beat the Queue', {
     body: 'Upcoming events',
-    icon: 'images/example.png',
+    icon: 'icons/icon.svg',
     vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: '2'
-    }
-  }
-  e.waitUntil(
-    self.registration.showNotification('[Beat the Queue]', options)
-  )
-})
-
-self.addEventListener('notificationclick', function (e) {
-  const notification = e.notification
-  const action = e.action
-
-  // TODO: Open results page
+    data: event.data.json()
+  })
+  notification.addEventListener('click', event => {})
 })
