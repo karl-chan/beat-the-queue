@@ -3,6 +3,8 @@ package com.github.karlchan.beatthequeue.server
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
+import cats.syntax.all._
+import com.github.karlchan.beatthequeue.server.routes.api.serviceWorkerRoutes
 import com.github.karlchan.beatthequeue.server.routes.api.userRoutes
 import com.github.karlchan.beatthequeue.server.routes.htmlRoutes
 import com.github.karlchan.beatthequeue.server.routes.static.staticRoutes
@@ -26,6 +28,7 @@ object Server extends IOApp:
 
   private val app = Router(
     "/api" -> Router(
+      "/service-worker" -> serviceWorkerRoutes,
       "/user" -> userRoutes
     ),
     "/static" -> staticRoutes,

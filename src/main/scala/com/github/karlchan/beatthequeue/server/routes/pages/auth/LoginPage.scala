@@ -29,6 +29,12 @@ object LoginPage:
             name := "password",
             placeholder := "Password"
           ),
+          input(
+            `type` := "hidden",
+            id := "pushSubscriptionEndpoint",
+            name := "pushSubscriptionEndpoint",
+            value := ""
+          ),
           styledButton(
             color = "green",
             `type` := "submit",

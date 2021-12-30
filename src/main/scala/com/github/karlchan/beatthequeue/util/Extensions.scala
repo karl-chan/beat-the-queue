@@ -8,3 +8,4 @@ extension (date: LocalDate)
 
 extension [T](option: Option[T])
   def mapTruthy(f: T => Boolean): Boolean = option.map(f).getOrElse(true)
+  def mapFalsy(f: T => Boolean): Boolean = option.map(f).getOrElse(false)

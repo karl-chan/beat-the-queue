@@ -28,6 +28,8 @@ import scalatags.Text.all._
 import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
 
+import java.io.File
+
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
     case GET -> Root asAuthed user =>
@@ -65,12 +67,20 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
   case GET -> Root / "login" => Ok(LoginPage.success)
   case req @ POST -> Root / "login" =>
     req.decode[UrlForm] { m =>
-      (m.getFirst("username"), m.getFirst("password")) match {
-        case (Some(username), Some(password))
+      (
+        m.getFirst("username"),
+        m.getFirst("password"),
+        m.getFirst("pushSubscriptionEndpoint")
+      ) match {
+        case (Some(username), Some(password), Some(pushSubscriptionEndpoint))
             if username.nonEmpty && password.nonEmpty =>
           Auth.login(
             username,
             password,
+            maybePushSubscriptionEndpoint =
+              if pushSubscriptionEndpoint.nonEmpty then
+                Some(pushSubscriptionEndpoint)
+              else None,
             onSuccess = redirectTo("/"),
             onFailure = Ok(LoginPage.failure)
           )
@@ -83,14 +93,24 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
       (
         m.getFirst("username"),
         m.getFirst("password"),
-        m.getFirst("confirmPassword")
+        m.getFirst("confirmPassword"),
+        m.getFirst("pushSubscriptionEndpoint")
       ) match {
-        case (Some(username), Some(password), Some(confirmPassword))
+        case (
+              Some(username),
+              Some(password),
+              Some(confirmPassword),
+              Some(pushSubscriptionEndpoint)
+            )
             if username.nonEmpty && password.nonEmpty && confirmPassword.nonEmpty =>
           if password == confirmPassword then
             Auth.register(
               username,
               password,
+              maybePushSubscriptionEndpoint =
+                if pushSubscriptionEndpoint.nonEmpty then
+                  Some(pushSubscriptionEndpoint)
+                else None,
               onSuccess = redirectTo("/"),
               onFailure = Kleisli { error =>
                 Ok(RegistrationPage.renderFailure(error))
@@ -100,6 +120,7 @@ private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {
         case _ => Ok(RegistrationPage.renderFailure("Missing fields"))
       }
     }
+
   case _ => redirectTo("/")
 }
 

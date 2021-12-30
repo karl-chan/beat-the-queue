@@ -1,0 +1,14 @@
+{
+  "background_color": "white",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "name": "Beat the Queue",
+  "short_name": "Beat the Queue",
+  "start_url": "/"
+}
