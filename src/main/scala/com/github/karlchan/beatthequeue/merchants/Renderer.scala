@@ -96,8 +96,8 @@ abstract class Renderer[M, C <: Criteria[M]]:
       )
     )
 
-  def toFields(criteria: C): Seq[Field[_]]
-  def toInputFields(criteria: C): IO[Seq[InputField[_]]]
+  def toFields(criteria: C): Seq[Field]
+  def toInputFields(criteria: C): IO[Seq[InputField]]
 
 object Renderer:
   def renderCatalog(): Html =

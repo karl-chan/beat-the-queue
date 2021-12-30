@@ -7,7 +7,7 @@ import scalatags.Text.all._
 final case class HiddenInputField(
     override val name: String,
     val value: Option[String]
-) extends InputField[String]:
+) extends SingleInputField[String]:
   override val label = ""
   override def render: Html =
     input(

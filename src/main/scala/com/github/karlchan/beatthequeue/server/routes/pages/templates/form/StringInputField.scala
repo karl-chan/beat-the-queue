@@ -10,7 +10,7 @@ final case class StringInputField(
     override val label: String,
     override val name: String,
     override val value: Option[String] = None
-) extends InputField[String]:
+) extends SingleInputField[String]:
   override def render: Html =
     div(
       // Label

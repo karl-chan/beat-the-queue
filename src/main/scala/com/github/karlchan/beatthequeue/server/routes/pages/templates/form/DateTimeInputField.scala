@@ -10,7 +10,7 @@ final case class DateTimeInputField(
     override val label: String,
     override val name: String,
     override val value: Option[LocalDateTime] = None
-) extends InputField[LocalDateTime]:
+) extends SingleInputField[LocalDateTime]:
   override def render: Html =
     div(
       // Label
