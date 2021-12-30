@@ -36,7 +36,7 @@ import concurrent.duration.DurationInt
 
 final case class AuthUser(
     id: String,
-    maybePushSubscriptionEndpoint: Option[String]
+    maybePushSubscription: Option[Models.PushSubscription]
 )
 
 type AuthService =
@@ -50,7 +50,7 @@ object Auth:
   def register(
       username: String,
       password: String,
-      maybePushSubscriptionEndpoint: Option[String] = None,
+      maybePushSubscription: Option[Models.PushSubscription] = None,
       onSuccess: IO[Response[IO]],
       onFailure: Kleisli[IO, String, Response[IO]]
   )(using db: Db): IO[Response[IO]] =
@@ -73,7 +73,7 @@ object Auth:
                   username = username,
                   hash = hash,
                   notificationSettings = Models.NotificationSettings(
-                    pushEndpoints = maybePushSubscriptionEndpoint.toSeq
+                    pushSubscriptions = maybePushSubscription.toSeq
                   )
                 )
               )
@@ -82,7 +82,7 @@ object Auth:
               _ <- idStore.update(
                 AuthUser(
                   id = userId.toString,
-                  maybePushSubscriptionEndpoint = maybePushSubscriptionEndpoint
+                  maybePushSubscription = maybePushSubscription
                 )
               )
             } yield authenticator.embed(successResponse, cookie)
@@ -92,7 +92,7 @@ object Auth:
   def login(
       username: String,
       password: String,
-      maybePushSubscriptionEndpoint: Option[String] = None,
+      maybePushSubscription: Option[Models.PushSubscription] = None,
       onSuccess: IO[Response[IO]],
       onFailure: IO[Response[IO]]
   )(using db: Db): IO[Response[IO]] =
@@ -115,21 +115,20 @@ object Auth:
                   _ <- idStore.update(
                     AuthUser(
                       id = dbUser._id.toString,
-                      maybePushSubscriptionEndpoint =
-                        maybePushSubscriptionEndpoint
+                      maybePushSubscription = maybePushSubscription
                     )
                   )
                   // Insert new push notification endpoint
                   _ <-
-                    maybePushSubscriptionEndpoint match {
-                      case Some(pushSubscriptionEndpoint)
-                          if !dbUser.notificationSettings.pushEndpoints
-                            .contains(pushSubscriptionEndpoint) =>
+                    maybePushSubscription match {
+                      case Some(pushSubscription)
+                          if !dbUser.notificationSettings.pushSubscriptions
+                            .contains(pushSubscription) =>
                         usersCollection.replaceOne(
                           Filter.eq(Fields.Username, username),
                           dbUser
-                            .modify(_.notificationSettings.pushEndpoints)
-                            .using(pushSubscriptionEndpoint +: _)
+                            .modify(_.notificationSettings.pushSubscriptions)
+                            .using(pushSubscription +: _)
                         )
                       case _ => IO.unit
                     }
@@ -150,12 +149,12 @@ object Auth:
       _ <- idStore.delete(authUser.id)
 
       // Delete obsolete notification endpoint
-      _ <- authUser.maybePushSubscriptionEndpoint match {
-        case Some(pushSubscriptionEndpoint) =>
+      _ <- authUser.maybePushSubscription match {
+        case Some(pushSubscription) =>
           db.updateUser(
             authUser,
-            _.modify(_.notificationSettings.pushEndpoints)
-              .using(_.filterNot(_ == pushSubscriptionEndpoint))
+            _.modify(_.notificationSettings.pushSubscriptions)
+              .using(_.filterNot(_ == pushSubscription))
           )
         case None => IO.unit
       }

@@ -6,9 +6,16 @@ import com.github.karlchan.beatthequeue.merchants.given_Encoder_Event
 import emil._
 import emil.builder._
 import emil.javamail._
+import io.circe.Json
 import io.circe.generic.auto._
 import io.circe.syntax._
+import nl.martijndwars.webpush.Notification
+import nl.martijndwars.webpush.PushAsyncService
+import nl.martijndwars.webpush.Subscription
+import nl.martijndwars.webpush.Subscription.Keys
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 
+import java.security.Security
 import scala.collection.mutable
 
 object Notifications:
@@ -30,7 +37,19 @@ object Notifications:
 
     emailClient(smtpConf).send(mail)
 
-  def sendPush(pushEndpoint: String, events: Seq[Event[_]]): IO[Unit] = ???
+  def sendPush(
+      pushSubscription: Models.PushSubscription,
+      events: Seq[Event[_]]
+  ): IO[_] =
+    val notification =
+      Notification(
+        Subscription(
+          pushSubscription.endpoint,
+          Keys(pushSubscription.keys.p256dh, pushSubscription.keys.auth)
+        ),
+        Json.fromValues(events.map(_.asJson)).toString
+      )
+    IO.fromCompletableFuture(IO(pushService.send(notification)))
 
   private val emailClient = JavaMailEmil[IO]()
   private val senderAddress = Properties.get("mail.server.user")
@@ -41,3 +60,9 @@ object Notifications:
       Properties.get("mail.server.password"),
       SSLType.StartTLS
     )
+
+  Security.addProvider(new BouncyCastleProvider())
+  private val pushService = PushAsyncService(
+    Properties.get("vapid.public.key"),
+    Properties.get("vapid.private.key")
+  )

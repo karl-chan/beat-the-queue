@@ -13,7 +13,8 @@ lazy val root = project
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
       // java dependencies
-      "ch.qos.logback" % "logback-classic" % "1.2.6"
+      "ch.qos.logback" % "logback-classic" % "1.2.6",
+      "nl.martijndwars" % "web-push" % "5.1.1"
     ) ++ Seq(
       // scala 3 dependencies
       "com.github.eikek" %% "emil-common" % emilVersion,

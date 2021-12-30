@@ -37,8 +37,8 @@ object RegistrationPage:
           ),
           input(
             `type` := "hidden",
-            id := "pushSubscriptionEndpoint",
-            name := "pushSubscriptionEndpoint",
+            id := "pushSubscriptionJson",
+            name := "pushSubscriptionJson",
             value := ""
           ),
           styledButton(
