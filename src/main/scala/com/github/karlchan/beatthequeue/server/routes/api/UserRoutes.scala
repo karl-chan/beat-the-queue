@@ -10,6 +10,7 @@ import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.model.Filters
 import com.mongodb.client.result.UpdateResult
+import com.softwaremill.quicklens.modify
 import org.http4s._
 import org.http4s.dsl.io._
 import tsec.authentication.TSecAuthService
@@ -47,10 +48,7 @@ private def upsertCriteria(authUser: AuthUser, criteria: Criteria[_])(using
   for {
     res <- db.updateUser(
       authUser,
-      user =>
-        user.copy(criteria =
-          criteria +: user.criteria.filterNot(_.id == criteria.id)
-        )
+      _.modify(_.criteria).using(criteria +: _.filterNot(_.id == criteria.id))
     )
   } yield res
 
@@ -60,6 +58,6 @@ private def deleteCriteria(authUser: AuthUser, criteriaId: String)(using
   for {
     res <- db.updateUser(
       authUser,
-      user => user.copy(criteria = user.criteria.filterNot(_.id == criteriaId))
+      _.modify(_.criteria).using(_.filterNot(_.id == criteriaId))
     )
   } yield res

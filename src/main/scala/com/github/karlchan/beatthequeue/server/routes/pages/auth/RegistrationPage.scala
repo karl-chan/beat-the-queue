@@ -35,6 +35,12 @@ object RegistrationPage:
             name := "confirmPassword",
             placeholder := "Confirm password"
           ),
+          input(
+            `type` := "hidden",
+            id := "pushSubscriptionEndpoint",
+            name := "pushSubscriptionEndpoint",
+            value := ""
+          ),
           styledButton(
             color = "yellow",
             `type` := "submit",

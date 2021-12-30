@@ -18,6 +18,7 @@ lazy val root = project
       // scala 3 dependencies
       "com.github.eikek" %% "emil-common" % emilVersion,
       "com.github.eikek" %% "emil-javamail" % emilVersion,
+      "com.softwaremill.quicklens" %% "quicklens" % "1.8.2",
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.github.jmcardon" %% "tsec-http4s" % "0.4.0",

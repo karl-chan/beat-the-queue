@@ -16,8 +16,15 @@ object Template:
           content := "width=device-width, initial-scale=1.0"
         ),
         link(
-          href := "https://fonts.googleapis.com/icon?family=Material+Icons",
-          rel := "stylesheet"
+          rel := "icon",
+          `type` := "image/svg+xml",
+          attr("sizes") := "any",
+          href := "/static/icons/icon.svg"
+        ),
+        link(rel := "manifest", href := "static/manifest.json"),
+        link(
+          rel := "stylesheet",
+          href := "https://fonts.googleapis.com/icon?family=Material+Icons"
         ),
         script(
           src := "https://cdn.tailwindcss.com"
@@ -25,6 +32,9 @@ object Template:
         script(
           defer := true,
           src := "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+        ),
+        script(
+          src := "/static/js/main.js"
         )
       ),
       body(

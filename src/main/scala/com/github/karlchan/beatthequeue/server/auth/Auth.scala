@@ -9,6 +9,8 @@ import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
+import com.github.karlchan.beatthequeue.util.mapFalsy
+import com.softwaremill.quicklens.modify
 import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
 import org.http4s.HttpRoutes
@@ -32,7 +34,10 @@ import scala.collection.mutable
 
 import concurrent.duration.DurationInt
 
-final case class AuthUser(id: String)
+final case class AuthUser(
+    id: String,
+    maybePushSubscriptionEndpoint: Option[String]
+)
 
 type AuthService =
   TSecAuthService[AuthUser, AuthCookie, IO]
@@ -45,6 +50,7 @@ object Auth:
   def register(
       username: String,
       password: String,
+      maybePushSubscriptionEndpoint: Option[String] = None,
       onSuccess: IO[Response[IO]],
       onFailure: Kleisli[IO, String, Response[IO]]
   )(using db: Db): IO[Response[IO]] =
@@ -65,12 +71,20 @@ object Auth:
                 Models.User(
                   _id = userId,
                   username = username,
-                  hash = hash
+                  hash = hash,
+                  notificationSettings = Models.NotificationSettings(
+                    pushEndpoints = maybePushSubscriptionEndpoint.toSeq
+                  )
                 )
               )
               cookie <- authenticator.create(userId.toString)
               successResponse <- onSuccess
-              _ <- idStore.update(AuthUser(userId.toString))
+              _ <- idStore.update(
+                AuthUser(
+                  id = userId.toString,
+                  maybePushSubscriptionEndpoint = maybePushSubscriptionEndpoint
+                )
+              )
             } yield authenticator.embed(successResponse, cookie)
         }
       } yield response
@@ -78,6 +92,7 @@ object Auth:
   def login(
       username: String,
       password: String,
+      maybePushSubscriptionEndpoint: Option[String] = None,
       onSuccess: IO[Response[IO]],
       onFailure: IO[Response[IO]]
   )(using db: Db): IO[Response[IO]] =
@@ -97,7 +112,28 @@ object Auth:
                 for {
                   cookie <- authenticator.create(dbUser._id.toString)
                   successResponse <- onSuccess
-                  _ <- idStore.update(AuthUser(dbUser._id.toString))
+                  _ <- idStore.update(
+                    AuthUser(
+                      id = dbUser._id.toString,
+                      maybePushSubscriptionEndpoint =
+                        maybePushSubscriptionEndpoint
+                    )
+                  )
+                  // Insert new push notification endpoint
+                  _ <-
+                    maybePushSubscriptionEndpoint match {
+                      case Some(pushSubscriptionEndpoint)
+                          if !dbUser.notificationSettings.pushEndpoints
+                            .contains(pushSubscriptionEndpoint) =>
+                        usersCollection.replaceOne(
+                          Filter.eq(Fields.Username, username),
+                          dbUser
+                            .modify(_.notificationSettings.pushEndpoints)
+                            .using(pushSubscriptionEndpoint +: _)
+                        )
+                      case _ => IO.unit
+                    }
+
                 } yield authenticator.embed(successResponse, cookie)
               else onFailure
           } yield response
@@ -107,13 +143,25 @@ object Auth:
   def logout(
       securedRequest: SecuredRequest[IO, AuthUser, AuthCookie],
       onSuccess: IO[Response[IO]]
-  ): IO[Response[IO]] =
-    val SecuredRequest(_, user, cookie) = securedRequest
+  )(using db: Db): IO[Response[IO]] =
+    val SecuredRequest(_, authUser, cookie) = securedRequest
     for {
       _ <- authenticator.discard(cookie)
-      _ <- idStore.delete(user.id)
-    } yield ()
-    onSuccess.map(_.removeCookie(CookieName))
+      _ <- idStore.delete(authUser.id)
+
+      // Delete obsolete notification endpoint
+      _ <- authUser.maybePushSubscriptionEndpoint match {
+        case Some(pushSubscriptionEndpoint) =>
+          db.updateUser(
+            authUser,
+            _.modify(_.notificationSettings.pushEndpoints)
+              .using(_.filterNot(_ == pushSubscriptionEndpoint))
+          )
+        case None => IO.unit
+      }
+
+      res <- onSuccess
+    } yield res.removeCookie(CookieName)
 
   private val CookieName = "authCookie"
   private val idStore = InMemoryBackingStore[IO, String, AuthUser](_.id)
