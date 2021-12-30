@@ -5,11 +5,11 @@ import scalatags.Text.all._
 
 final case class MultiStringField(
     override val label: String,
-    override val value: Option[Seq[String]]
-) extends Field[Seq[String]]:
+    override val value: Seq[String]
+) extends MultiField[String]:
   override def render: Html =
     div(
       cls := "flex flex-wrap space-x-2",
       span(cls := "font-semibold", s"$label:"),
-      span(value.map(_.mkString(", ")).getOrElse("N/A"))
+      span(if value.nonEmpty then value.mkString(", ") else "N/A")
     )

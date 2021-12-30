@@ -11,18 +11,16 @@ import java.util.UUID
 final case class MultiSelectInputField(
     override val label: String,
     override val name: String,
-    override val value: Option[Seq[String]] = None,
+    override val value: Seq[String] = Seq.empty,
     val options: Seq[String]
-) extends InputField[Seq[String]]:
+) extends MultiInputField[String]:
   override def render: Html =
     div(
       xData := s"""
       {
         show: false,
         options: ${options.asJson},
-        selectedOptions: ${value
-        .getOrElse(Seq.empty)
-        .asJson}.reduce((acc,curr)=> (acc[curr]=true,acc),{}),
+        selectedOptions: ${value.asJson}.reduce((acc,curr)=> (acc[curr]=true,acc),{}),
         inputText: ''
       }
       """,

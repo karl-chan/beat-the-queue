@@ -9,3 +9,9 @@ extension (date: LocalDate)
 extension [T](option: Option[T])
   def mapTruthy(f: T => Boolean): Boolean = option.map(f).getOrElse(true)
   def mapFalsy(f: T => Boolean): Boolean = option.map(f).getOrElse(false)
+
+extension [T](seq: Seq[T])
+  def mapTruthy(f: T => Boolean): Boolean =
+    if seq.nonEmpty then seq.forall(f) else true
+  def mapFalsy(f: T => Boolean): Boolean =
+    if seq.nonEmpty then seq.forall(f) else false

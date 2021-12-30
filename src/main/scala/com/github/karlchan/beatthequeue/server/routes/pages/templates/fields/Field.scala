@@ -2,7 +2,12 @@ package com.github.karlchan.beatthequeue.server.routes.pages.templates.fields
 
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 
-trait Field[V]:
+sealed trait Field:
   val label: String
-  val value: Option[V]
   def render: Html
+
+private[this] trait SingleField[V] extends Field:
+  val value: Option[V]
+
+private[this] trait MultiField[V] extends Field:
+  val value: Seq[V]

@@ -10,11 +10,11 @@ import java.util.UUID
 final case class CineworldCriteria(
     override val id: String = UUID.randomUUID.toString,
     override val merchant: String = Cineworld.Name,
-    filmNames: Option[Seq[String]] = None,
+    filmNames: Seq[String] = Seq.empty,
     startTime: Option[LocalDateTime] = None,
     endTime: Option[LocalDateTime] = None,
-    venues: Option[Seq[String]] = None,
-    screenTypes: Option[Seq[String]] = None
+    venues: Seq[String] = Seq.empty,
+    screenTypes: Seq[String] = Seq.empty
 ) extends Criteria[Cineworld]:
   def matches(event: Event[Cineworld]) =
     val CineworldEvent(_, name, time, venue, screenType) =

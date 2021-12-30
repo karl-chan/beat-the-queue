@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 final case class DateTimeField(
     override val label: String,
     override val value: Option[LocalDateTime] = None
-) extends Field[LocalDateTime]:
+) extends SingleField[LocalDateTime]:
   override def render: Html =
     div(
       span(cls := "font-semibold", s"$label: "),
