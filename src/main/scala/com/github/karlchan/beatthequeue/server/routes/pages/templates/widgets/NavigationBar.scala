@@ -34,6 +34,11 @@ def navigationBar(args: Modifier*) =
         cls := "flex flex-col w-48 bg-gray-50 shadow-md z-10",
         a(
           cls := "p-4 hover:bg-gray-200 focus:bg-gray-300",
+          href := "/",
+          "Home"
+        ),
+        a(
+          cls := "p-4 hover:bg-gray-200 focus:bg-gray-300",
           href := "/settings",
           "Settings"
         )
