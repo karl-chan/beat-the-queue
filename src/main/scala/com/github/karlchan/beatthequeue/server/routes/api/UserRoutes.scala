@@ -11,7 +11,10 @@ import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.model.Filters
 import com.mongodb.client.result.UpdateResult
 import com.softwaremill.quicklens.modify
+import io.circe.generic.auto._
+import io.circe.syntax._
 import org.http4s._
+import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.io._
 import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
@@ -37,6 +40,12 @@ private val privateRoutes: HttpRoutes[IO] = Auth.service(
             res <- Ok()
           } yield res
       }
+    case req @ POST -> Root / "settings" asAuthed user =>
+      for {
+        settings <- req.request.as[Settings]
+        _ <- updateSettings(user, settings)
+        res <- Ok()
+      } yield res
   }
 )
 
@@ -61,3 +70,18 @@ private def deleteCriteria(authUser: AuthUser, criteriaId: String)(using
       _.modify(_.criteria).using(_.filterNot(_.id == criteriaId))
     )
   } yield res
+
+private def updateSettings(authUser: AuthUser, settings: Settings)(using
+    db: Db
+): IO[UpdateResult] =
+  for {
+    res <- db.updateUser(
+      authUser,
+      _.modify(_.notificationSettings.emailAddresses)
+        .setTo(settings.emailAddresses)
+    )
+  } yield res
+
+private case class Settings(
+    emailAddresses: Seq[String]
+)

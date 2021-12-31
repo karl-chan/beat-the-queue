@@ -73,7 +73,7 @@ object Models:
   )
 
   final case class NotificationSettings(
-      maybeEmailAddress: Option[String] = None,
+      emailAddresses: Seq[String] = Seq.empty,
       pushSubscriptions: Seq[PushSubscription] = Seq.empty
   )
 

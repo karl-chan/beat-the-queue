@@ -19,23 +19,29 @@ import java.security.Security
 import scala.collection.mutable
 
 object Notifications:
-  def sendEmail(emailAddress: String, events: Seq[Event[_]]): IO[_] =
-    val body = mutable.StringBuilder()
-    body ++= "<p>The following events may be of interest to you:</p>"
-    body ++= "<ul>"
-    for (event <- events) {
-      body ++= s"<li>${event.asJson}</li>"
-    }
-    body ++= "</ul>"
+  def sendEmail(emailAddresses: Seq[String], events: Seq[Event[_]]): IO[_] =
+    def buildMessage(): String =
+      val builder = mutable.StringBuilder()
+      builder ++= "<p>The following events may be of interest to you:</p>"
+      builder ++= "<ul>"
+      for (event <- events) {
+        builder ++= s"<li>${event.asJson}</li>"
+      }
+      builder ++= "</ul>"
+      builder.toString
 
-    val mail: Mail[IO] = MailBuilder.build(
-      From(senderAddress),
-      To(emailAddress),
-      Subject("[Beat the Queue] Upcoming events"),
-      HtmlBody(body.toString)
-    )
+    val message = buildMessage()
 
-    emailClient(smtpConf).send(mail)
+    def buildEmail(recipientAddress: String): Mail[IO] =
+      MailBuilder.build(
+        From(senderAddress),
+        To(recipientAddress),
+        Subject("[Beat the Queue] Upcoming events"),
+        HtmlBody(message)
+      )
+
+    val emails = emailAddresses.map(buildEmail(_))
+    emailClient(smtpConf).send(emails.head, emails.tail*)
 
   def sendPush(
       pushSubscription: Models.PushSubscription,

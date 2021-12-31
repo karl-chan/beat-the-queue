@@ -1,6 +1,7 @@
 package com.github.karlchan.beatthequeue.server.routes.pages
 
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
@@ -21,7 +22,7 @@ object Template:
           attr("sizes") := "any",
           href := "/static/icons/icon.svg"
         ),
-        link(rel := "manifest", href := "static/manifest.json"),
+        link(rel := "manifest", href := "/static/manifest.json"),
         link(
           rel := "stylesheet",
           href := "https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -41,3 +42,6 @@ object Template:
         contents
       )
     )
+
+  def styledPageWithNav(contents: Html*): Html =
+    Template.styledPage(navigationBar(contents))

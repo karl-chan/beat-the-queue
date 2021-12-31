@@ -11,7 +11,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.EntityDecoder
 import org.http4s.Uri
-import org.http4s.circe.jsonOf
+import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.implicits.uri
 
 import java.time.LocalDate
@@ -97,14 +97,14 @@ final class CineworldCrawler(
   private[cineworld] def getCinemas(): IO[CinemasResponse.Cinemas] =
     http.get[CinemasResponse.Cinemas](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
-    )(using jsonOf[IO, CinemasResponse.Cinemas])
+    )
 
   private[cineworld] def getBookableDates(
       cinemaId: String
   ): IO[BookableDatesResponse.Dates] =
     http.get[BookableDatesResponse.Dates](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/dates/in-cinema/${cinemaId}/until/${untilDate.shortFormat}"
-    )(using jsonOf[IO, BookableDatesResponse.Dates])
+    )
 
   private[cineworld] def getFilmEvents(
       cinemaId: String,
@@ -112,17 +112,17 @@ final class CineworldCrawler(
   ): IO[FilmEventsResponse.FilmEvents] =
     http.get[FilmEventsResponse.FilmEvents](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/film-events/in-cinema/${cinemaId}/at-date/${date.shortFormat}"
-    )(using jsonOf[IO, FilmEventsResponse.FilmEvents])
+    )
 
   private[cineworld] def getNowPlaying(): IO[FeedResponse.Feed] =
     http.get[FeedResponse.Feed](
       "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/now-playing"
-    )(using jsonOf[IO, FeedResponse.Feed])
+    )
 
   private[cineworld] def getComingSoon(): IO[FeedResponse.Feed] =
     http.get[FeedResponse.Feed](
       "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/coming-soon"
-    )(using jsonOf[IO, FeedResponse.Feed])
+    )
 
 private[cineworld] object CinemasResponse:
   final case class Cinemas(

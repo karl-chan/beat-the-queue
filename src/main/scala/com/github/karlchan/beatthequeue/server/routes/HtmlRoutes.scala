@@ -32,6 +32,8 @@ import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
 
 import java.io.File
+import com.github.karlchan.beatthequeue.server.routes.pages.SettingsPage
+import com.github.karlchan.beatthequeue.server.routes.pages.SettingsEditPage
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
@@ -63,6 +65,12 @@ private val privateRoutes: HttpRoutes[IO] =
         .getOrElse(
           redirectTo("/criteria/catalog")
         )
+
+    // Settings route
+    case GET -> Root / "settings" asAuthed user =>
+      SettingsPage.render(user).flatMap(Ok(_))
+    case GET -> Root / "settings" / "edit" asAuthed user =>
+      SettingsEditPage.render(user).flatMap(Ok(_))
   })
 
 private val publicRoutes: HttpRoutes[IO] = HttpRoutes.of {

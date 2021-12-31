@@ -15,8 +15,7 @@ object HomePage:
   def render(authUser: AuthUser): IO[Html] =
     for {
       criteria <- renderCriteria(authUser)
-    } yield Template.styledPage(
-      navigationBar,
+    } yield Template.styledPageWithNav(
       criteria
     )
 
