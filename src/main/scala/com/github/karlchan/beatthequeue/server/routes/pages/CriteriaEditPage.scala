@@ -13,7 +13,6 @@ object CriteriaEditPage:
         .findMerchantFor(criteria)
         .renderer
         .renderEditor(criteria)
-    } yield Template.styledPage(
-      navigationBar,
+    } yield Template.styledPageWithNav(
       editor
     )

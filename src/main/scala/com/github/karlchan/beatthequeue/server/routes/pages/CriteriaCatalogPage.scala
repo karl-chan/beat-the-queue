@@ -7,7 +7,6 @@ import scalatags.Text.all._
 
 object CriteriaCatalogPage:
   def render: Html =
-    Template.styledPage(
-      navigationBar,
+    Template.styledPageWithNav(
       Renderer.renderCatalog()
     )
