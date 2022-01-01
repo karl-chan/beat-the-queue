@@ -20,8 +20,8 @@ final case class CineworldCriteria(
     val CineworldEvent(_, name, time, venue, screenType) =
       event.asInstanceOf[CineworldEvent]
 
-    filmNames.mapTruthy(_.contains(name)) &&
+    filmNames.mapTruthy(_ == name) &&
     startTime.mapTruthy(!_.isAfter(time)) &&
     endTime.mapTruthy(!_.isBefore(time)) &&
-    venues.mapTruthy(_.contains(venue)) &&
-    screenTypes.mapTruthy(_.contains(screenType))
+    venues.mapTruthy(_ == venue) &&
+    screenTypes.mapTruthy(t => screenType.toLowerCase.contains(t.toLowerCase))

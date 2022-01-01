@@ -6,11 +6,13 @@ import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldCraw
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldCriteria
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateTimeField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.MultiStringField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.StringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateTimeInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 
-class CineworldRenderer extends Renderer[Cineworld, CineworldCriteria]:
+class CineworldRenderer
+    extends Renderer[Cineworld, CineworldCriteria, CineworldEvent]:
   override def toFields(criteria: CineworldCriteria) = Seq(
     MultiStringField(label = "Film names", value = criteria.filmNames),
     DateTimeField(label = "Start time", value = criteria.startTime),
@@ -52,3 +54,10 @@ class CineworldRenderer extends Renderer[Cineworld, CineworldCriteria]:
         value = criteria.screenTypes
       )
     )
+
+  override def toFields(event: CineworldEvent) = Seq(
+    StringField(label = "Film name", value = Some(event.name)),
+    DateTimeField(label = "Time", value = Some(event.time)),
+    StringField(label = "Venue", value = Some(event.venue)),
+    StringField(label = "Screen type", value = Some(event.screenType))
+  )

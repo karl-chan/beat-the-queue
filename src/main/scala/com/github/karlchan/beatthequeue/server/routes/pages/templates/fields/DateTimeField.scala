@@ -4,6 +4,7 @@ import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import scalatags.Text.all._
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 final case class DateTimeField(
     override val label: String,
@@ -12,5 +13,7 @@ final case class DateTimeField(
   override def render: Html =
     div(
       span(cls := "font-semibold", s"$label: "),
-      span(s"${value.getOrElse("N/A")}")
+      span(s"${value.map(_.format(Formatter)).getOrElse("N/A")}")
     )
+
+private val Formatter = DateTimeFormatter.ofPattern("LLL d h:mm a (EE)");

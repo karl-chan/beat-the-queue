@@ -18,13 +18,14 @@ import java.util.UUID
 abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
     actualCriteriaEncoder: Encoder[C],
     actualCriteriaDecoder: Decoder[C],
-    actualEventEncoder: Encoder[E]
+    actualEventEncoder: Encoder[E],
+    actualEventDecoder: Decoder[E]
 ):
   val name: String
   val logoUrl: String
   val eventFinder: EventFinder[M]
   val defaultCriteria: C
-  val renderer: Renderer[M, C]
+  val renderer: Renderer[M, C, E]
 
   final val criteriaEncoder: Encoder[Criteria[M]] =
     actualCriteriaEncoder.contramap(_.asInstanceOf[C])
@@ -32,6 +33,8 @@ abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
     actualCriteriaDecoder.map(identity)
   final val eventEncoder: Encoder[Event[M]] =
     actualEventEncoder.contramap(_.asInstanceOf[E])
+  final val eventDecoder: Decoder[Event[M]] =
+    actualEventDecoder.map(identity)
 
 trait Event[M]:
   val merchant: String
@@ -67,4 +70,13 @@ given [M]: Encoder[Event[M]] = new {
   final def apply(event: Event[M]): Json =
     val merchant = Merchants.findMerchantFor(event)
     merchant.eventEncoder.apply(event)
+}
+
+given Decoder[Event[_]] = new {
+  final def apply(c: HCursor): Decoder.Result[Event[_]] =
+    for {
+      name <- c.get[String]("merchant")
+      merchant = Merchants.AllByName(name)
+      result <- merchant.eventDecoder.apply(c)
+    } yield result
 }

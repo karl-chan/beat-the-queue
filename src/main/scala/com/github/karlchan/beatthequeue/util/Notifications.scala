@@ -20,6 +20,8 @@ import scala.collection.mutable
 
 object Notifications:
   def sendEmail(emailAddresses: Seq[String], events: Seq[Event[_]]): IO[_] =
+    if emailAddresses.isEmpty || events.isEmpty then return IO.unit
+
     def buildMessage(): String =
       val builder = mutable.StringBuilder()
       builder ++= "<p>The following events may be of interest to you:</p>"
@@ -47,13 +49,15 @@ object Notifications:
       pushSubscription: Models.PushSubscription,
       events: Seq[Event[_]]
   ): IO[_] =
+    if events.isEmpty then return IO.unit
+
     val notification =
       Notification(
         Subscription(
           pushSubscription.endpoint,
           Keys(pushSubscription.keys.p256dh, pushSubscription.keys.auth)
         ),
-        Json.fromValues(events.map(_.asJson)).toString
+        events.length.toString
       )
     IO.fromCompletableFuture(IO(pushService.send(notification)))
 

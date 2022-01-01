@@ -17,7 +17,7 @@ import io.circe.syntax._
 import org.http4s.Uri
 import scalatags.Text.all._
 
-abstract class Renderer[M, C <: Criteria[M]]:
+abstract class Renderer[M, C <: Criteria[M], E <: Event[M]]:
   final def render(criteria: C)(using encoder: Encoder[C]): Html =
     val merchant = Merchants.findMerchantFor(criteria)
     card(
@@ -96,8 +96,16 @@ abstract class Renderer[M, C <: Criteria[M]]:
       )
     )
 
+  final def render(event: E): Html =
+    val merchant = Merchants.findMerchantFor(event)
+    card(
+      cls := "flex flex-col space-y-2 max-w-md",
+      toFields(event).map(_.render)
+    )
+
   def toFields(criteria: C): Seq[Field]
   def toInputFields(criteria: C): IO[Seq[InputField]]
+  def toFields(event: E): Seq[Field]
 
 object Renderer:
   def renderCatalog(): Html =

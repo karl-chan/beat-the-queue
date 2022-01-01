@@ -9,19 +9,32 @@ import com.github.karlchan.beatthequeue.merchants.Merchant
 import com.github.karlchan.beatthequeue.merchants.Merchants
 import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Models
+import com.github.karlchan.beatthequeue.util.Notifications
 import com.github.karlchan.beatthequeue.util.given_Db
+import com.mongodb.client.result.UpdateResult
+import com.softwaremill.quicklens.modify
+import org.typelevel.log4cats.slf4j.Slf4jLogger
+
+import java.time.LocalDateTime
 
 def crawl(): IO[ExitCode] =
   for {
-    allMerchantEvents <- getAllMerchantEvents()
-    allUsers <- getAllUsers()
-    matches = allUsers
-      .map(user => (user, findMatchesForUser(_, allMerchantEvents)))
-      .toMap
+    logger <- Slf4jLogger.create[IO]
 
+    allMerchantEvents <- findAllEvents()
+    _ <- logger.info("Finshed crawling for all events.")
+
+    allUsers <- getAllUsers()
+    _ <- logger.info("Got all users.")
+
+    allMatchResults = allUsers.map(findMatchesForUser(_, allMerchantEvents))
+    _ <- logger.info("Got match results.")
+
+    _ <- allMatchResults.parTraverse(notifyUser(_))
+    _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
-private def getAllMerchantEvents(): IO[Map[String, Seq[Event[_]]]] =
+private def findAllEvents(): IO[Map[String, Seq[Event[_]]]] =
   Merchants.AllByName.toSeq
     .parTraverse((name, merchant) =>
       for {
@@ -39,12 +52,21 @@ private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =
 private def findMatchesForUser(
     user: Models.User,
     allMerchantEvents: Map[String, Seq[Event[_]]]
-): Map[Criteria[_], Seq[Event[_]]] =
-  user.criteria
-    .map(criteria =>
-      (criteria, findMatchesForCriteria(criteria, allMerchantEvents))
-    )
-    .toMap
+): MatchResult =
+  MatchResult(
+    user = user,
+    matchingEventsByCriteria = user.criteria
+      .map(criteria =>
+        (
+          criteria,
+          removeDuplicates(
+            findMatchesForCriteria(criteria, allMerchantEvents),
+            user.events
+          )
+        )
+      )
+      .toMap
+  )
 
 private def findMatchesForCriteria[M](
     criteria: Criteria[M],
@@ -53,3 +75,30 @@ private def findMatchesForCriteria[M](
   val merchantEvents =
     allMerchantEvents(criteria.merchant).asInstanceOf[Seq[Event[M]]]
   merchantEvents.filter(criteria.matches(_))
+
+private def removeDuplicates(
+    newEvents: Seq[Event[_]],
+    oldEvents: Seq[Event[_]]
+): Seq[Event[_]] =
+  (newEvents.toSet -- oldEvents.toSet).toSeq
+
+private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
+  val settings = matchResult.user.notificationSettings
+  val allEvents = matchResult.matchingEventsByCriteria.values.flatten.toSeq
+  for {
+    // Insert new events into existing db user object
+    _ <- db.updateUser(
+      matchResult.user._id.toString,
+      _.modify(_.events).using(events => (events.toSet ++ allEvents).toSeq)
+    )
+    // Send out notifications via subscribed means
+    _ <- Notifications.sendEmail(settings.emailAddresses, allEvents)
+    _ <- settings.pushSubscriptions.parTraverse(
+      Notifications.sendPush(_, allEvents)
+    )
+  } yield ()
+
+case class MatchResult(
+    user: Models.User,
+    matchingEventsByCriteria: Map[Criteria[_], Seq[Event[_]]]
+)

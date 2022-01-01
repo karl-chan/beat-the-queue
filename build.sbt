@@ -40,6 +40,9 @@ lazy val root = project
       "com.lihaoyi" %% "scalatags" % "0.10.0"
     ).map(_.cross(CrossVersion.for3Use2_13)),
     // plugin configurations
+    mainClass in (Compile, run) := Some(
+      "com.github.karlchan.beatthequeue.Main"
+    ),
     reStart / mainClass := Some(
       "com.github.karlchan.beatthequeue.server.Server"
     ),
