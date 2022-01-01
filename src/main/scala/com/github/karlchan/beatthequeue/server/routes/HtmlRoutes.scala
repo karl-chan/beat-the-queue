@@ -9,7 +9,10 @@ import com.github.karlchan.beatthequeue.server.auth.Auth
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
 import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaCatalogPage
 import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaEditPage
+import com.github.karlchan.beatthequeue.server.routes.pages.EventsPage
 import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
+import com.github.karlchan.beatthequeue.server.routes.pages.SettingsEditPage
+import com.github.karlchan.beatthequeue.server.routes.pages.SettingsPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.testPage
@@ -32,8 +35,6 @@ import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
 
 import java.io.File
-import com.github.karlchan.beatthequeue.server.routes.pages.SettingsPage
-import com.github.karlchan.beatthequeue.server.routes.pages.SettingsEditPage
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
@@ -65,6 +66,9 @@ private val privateRoutes: HttpRoutes[IO] =
         .getOrElse(
           redirectTo("/criteria/catalog")
         )
+
+    case GET -> Root / "events" asAuthed user =>
+      EventsPage.render(user).flatMap(Ok(_))
 
     // Settings route
     case GET -> Root / "settings" asAuthed user =>

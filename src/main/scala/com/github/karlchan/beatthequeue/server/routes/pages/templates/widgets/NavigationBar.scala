@@ -39,6 +39,11 @@ def navigationBar(args: Modifier*) =
         ),
         a(
           cls := "p-4 hover:bg-gray-200 focus:bg-gray-300",
+          href := "/events",
+          "Upcoming Events"
+        ),
+        a(
+          cls := "p-4 hover:bg-gray-200 focus:bg-gray-300",
           href := "/settings",
           "Settings"
         )

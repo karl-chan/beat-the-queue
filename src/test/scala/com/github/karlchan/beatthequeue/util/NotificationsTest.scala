@@ -31,7 +31,7 @@ final class NotificationsTest
   "sendEmail" should "deliver list of events succesfully" in {
     // Send email to myself
     val res = Notifications.sendEmail(
-      Properties.get("mail.server.user"),
+      Seq(Properties.get("mail.server.user")),
       events
     )
     res.asserting(_ should not be ())
