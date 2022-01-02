@@ -61,7 +61,7 @@ private def findMatchesForUser(
           criteria,
           removeDuplicates(
             findMatchesForCriteria(criteria, allMerchantEvents),
-            user.events
+            user.notifications.map(_.event)
           )
         )
       )
@@ -83,18 +83,21 @@ private def removeDuplicates(
   (newEvents.toSet -- oldEvents.toSet).toSeq
 
 private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
+  val now = LocalDateTime.now
   val settings = matchResult.user.notificationSettings
-  val allEvents = matchResult.matchingEventsByCriteria.values.flatten.toSeq
+  val newEvents = matchResult.matchingEventsByCriteria.values.flatten.toSeq
+  val newNotifications =
+    newEvents.map(event => Models.Notification(event = event, published = now))
   for {
     // Insert new events into existing db user object
     _ <- db.updateUser(
       matchResult.user._id.toString,
-      _.modify(_.events).using(events => (events.toSet ++ allEvents).toSeq)
+      _.modify(_.notifications).using(_ ++ newNotifications)
     )
     // Send out notifications via subscribed means
-    _ <- Notifications.sendEmail(settings.emailAddresses, allEvents)
+    _ <- Notifications.sendEmail(settings.emailAddresses, newEvents)
     _ <- settings.pushSubscriptions.parTraverse(
-      Notifications.sendPush(_, allEvents)
+      Notifications.sendPush(_, newEvents)
     )
   } yield ()
 

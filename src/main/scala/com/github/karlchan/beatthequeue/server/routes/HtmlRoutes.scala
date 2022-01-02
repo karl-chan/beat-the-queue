@@ -9,16 +9,19 @@ import com.github.karlchan.beatthequeue.server.auth.Auth
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
 import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaCatalogPage
 import com.github.karlchan.beatthequeue.server.routes.pages.CriteriaEditPage
-import com.github.karlchan.beatthequeue.server.routes.pages.EventsPage
 import com.github.karlchan.beatthequeue.server.routes.pages.HomePage
+import com.github.karlchan.beatthequeue.server.routes.pages.NotificationsPage
 import com.github.karlchan.beatthequeue.server.routes.pages.SettingsEditPage
 import com.github.karlchan.beatthequeue.server.routes.pages.SettingsPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.LoginPage
 import com.github.karlchan.beatthequeue.server.routes.pages.auth.RegistrationPage
 import com.github.karlchan.beatthequeue.server.routes.pages.testPage
+import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
+import com.mongodb.client.result.UpdateResult
+import com.softwaremill.quicklens.modify
 import io.circe.generic.auto._
 import io.circe.parser.decode
 import io.circe.syntax._
@@ -35,6 +38,7 @@ import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
 
 import java.io.File
+import java.time.LocalDateTime
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {
@@ -67,8 +71,18 @@ private val privateRoutes: HttpRoutes[IO] =
           redirectTo("/criteria/catalog")
         )
 
-    case GET -> Root / "events" asAuthed user =>
-      EventsPage.render(user).flatMap(Ok(_))
+    case GET -> Root / "notifications" asAuthed user =>
+      NotificationsPage.render(user).flatMap(Ok(_))
+    case req @ GET -> Root / "notifications" / "hide" asAuthed user =>
+      req.request.params
+        .get("published")
+        .map(published =>
+          for {
+            _ <- hideNotifications(user, LocalDateTime.parse(published))
+            res <- redirectTo("/notifications")
+          } yield res
+        )
+        .getOrElse(redirectTo("/notifications"))
 
     // Settings route
     case GET -> Root / "settings" asAuthed user =>
@@ -155,4 +169,12 @@ private def redirectTo(location: String): IO[Response[IO]] =
     Response[IO]()
       .withStatus(Status.Found)
       .withHeaders(Location(Uri.unsafeFromString(location)))
+  )
+
+private def hideNotifications(authUser: AuthUser, published: LocalDateTime)(
+    using db: Db
+): IO[UpdateResult] =
+  db.updateUser(
+    authUser,
+    _.modify(_.notifications).using(_.filterNot(_.published == published))
   )

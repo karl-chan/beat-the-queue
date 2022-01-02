@@ -10,6 +10,7 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.{
   form => _,
   _
 }
+import com.github.karlchan.beatthequeue.util.Models
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.parser._
@@ -23,7 +24,7 @@ abstract class Renderer[M, C <: Criteria[M], E <: Event[M]]:
     card(
       cls := "flex flex-col space-y-2 max-w-md",
       div(
-        cls := "flex place-content-between space-x-2",
+        cls := "flex justify-between items-center",
         img(
           cls := "bg-gray-200",
           src := merchant.logoUrl,
@@ -96,11 +97,16 @@ abstract class Renderer[M, C <: Criteria[M], E <: Event[M]]:
       )
     )
 
-  final def render(event: E): Html =
-    val merchant = Merchants.findMerchantFor(event)
+  final def render(notification: Models.Notification): Html =
+    val merchant = Merchants.findMerchantFor(notification.event)
     card(
       cls := "flex flex-col space-y-2 max-w-md",
-      toFields(event).map(_.render)
+      img(
+        cls := "bg-gray-200",
+        src := merchant.logoUrl,
+        alt := merchant.name
+      ),
+      toFields(notification.event.asInstanceOf[E]).map(_.render)
     )
 
   def toFields(criteria: C): Seq[Field]

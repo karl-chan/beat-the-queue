@@ -16,7 +16,7 @@ sw.addEventListener('push', event => {
     vibrate: [100, 50, 100],
     requireInteraction: true,
     data: {
-      url: `${sw.location.origin}/events`
+      url: `${sw.location.origin}/notifications`
     }
   })
 })
