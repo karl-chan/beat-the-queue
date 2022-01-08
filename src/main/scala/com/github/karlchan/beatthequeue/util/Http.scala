@@ -5,6 +5,7 @@ import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.effect.std.Hotswap
 import cats.effect.std.Semaphore
+import cats.effect.unsafe.implicits.global
 import cats.instances.parallel
 import cats.syntax.all._
 import org.http4s.EntityDecoder
@@ -19,7 +20,7 @@ import org.http4s.client.middleware.GZip
 import org.http4s.client.middleware.RequestLogger
 import org.http4s.client.middleware.Retry
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 import concurrent.duration.DurationInt
 
@@ -44,8 +45,10 @@ final class Http(
       middleware(_).expect[R](r)
     }
 
-  private val clientResource = BlazeClientBuilder[IO](global).resource
+  private val clientResource =
+    BlazeClientBuilder[IO](ExecutionContext.global).resource
 
+  private val semaphore = Semaphore[IO](maxParallelism).unsafeRunSync()
   private val middleware =
     FollowRedirect[IO](maxRedirects) andThen
       Retry[IO]((req, res, numTries) =>
@@ -53,13 +56,13 @@ final class Http(
           Some(retryDelay.milliseconds)
         else None
       ) andThen
-      Throttle(Semaphore[IO](maxParallelism)) andThen
+      Throttle(semaphore) andThen
       GZip() andThen
       RequestLogger(logHeaders = true, logBody = false)
 
 private object Throttle:
   def apply(
-      semaphore: IO[Semaphore[IO]]
+      semaphore: Semaphore[IO]
   )(client: Client[IO]): Client[IO] =
 
     def throttle(
@@ -67,11 +70,9 @@ private object Throttle:
         hotswap: Hotswap[IO, Response[IO]]
     ): IO[Response[IO]] =
       for {
-        // TODO: Fix semaphore dereferencing returning a different instance each time.
-        s <- semaphore
-        _ <- s.acquire
+        _ <- semaphore.acquire
         res <- hotswap.swap(client.run(req))
-        _ <- s.release
+        _ <- semaphore.release
       } yield res
 
     Client { req =>
