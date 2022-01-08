@@ -21,6 +21,7 @@ import io.circe.HCursor
 import io.circe.Json
 >>>>>>> master
 import io.circe.generic.auto._
+import io.circe.syntax._
 import mongo4cats.bson.ObjectId
 import mongo4cats.circe._
 import mongo4cats.client.MongoClient
@@ -28,6 +29,7 @@ import mongo4cats.collection.MongoCollection
 import mongo4cats.collection.operations.Filter
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 given Db = Db()
 
@@ -84,7 +86,7 @@ object Models:
       hash: String,
       criteria: Seq[Criteria[_]] = Seq.empty,
       notificationSettings: NotificationSettings = NotificationSettings(),
-      events: Seq[Event[_]] = Seq.empty // events matching user criteria
+      notifications: Seq[Notification] = Seq.empty
   )
 
   final case class NotificationSettings(
@@ -101,6 +103,13 @@ object Models:
   final case class PushSubscriptionKeys(
       p256dh: String,
       auth: String
+  )
+
+  final case class Notification(
+      id: String = UUID.randomUUID.toString,
+      event: Event[_],
+      published: LocalDateTime,
+      hidden: Boolean = false
   )
 
 object Fields:
