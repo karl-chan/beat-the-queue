@@ -7,6 +7,7 @@ import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.shortFormat
+import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.EntityDecoder
@@ -24,24 +25,24 @@ final class CineworldCrawler(
   private val http =
     Http(maxParallelism = Properties.getInt("cineworld.max.parallelism"))
 
-  override def run(): IO[Seq[CineworldEvent]] =
-    def listCinemaDates(): IO[Seq[(CinemasResponse.Cinema, List[LocalDate])]] =
+  override def run(): Stream[IO, CineworldEvent] =
+    def listCinemaDates()
+        : Stream[IO, (CinemasResponse.Cinema, List[LocalDate])] =
       for {
-        cinemas <- getCinemas().map(_.body.cinemas)
-        dates <- cinemas
-          .parTraverse(cinema => getBookableDates(cinema.id))
-          .map(bookableDatesResponse =>
-            bookableDatesResponse.map(_.body.dates.map(LocalDate.parse))
-          )
-      } yield cinemas zip dates
+        cinemasResponse <- Stream.eval(getCinemas())
+        cinema <- Stream.emits(cinemasResponse.body.cinemas)
+        datesResponse <- Stream.eval(getBookableDates(cinema.id))
+        dates = datesResponse.body.dates.map(LocalDate.parse)
+      } yield (cinema, dates)
 
     def listEvents(
         cinema: CinemasResponse.Cinema,
         dates: List[LocalDate]
-    ): IO[Seq[(CinemasResponse.Cinema, FilmEventsResponse.FilmEvents)]] =
+    ): Stream[IO, (CinemasResponse.Cinema, FilmEventsResponse.FilmEvents)] =
       for {
-        filmEvents <- dates.parTraverse(getFilmEvents(cinema.id, _))
-      } yield filmEvents.map((cinema, _))
+        date <- Stream.emits(dates)
+        filmEvents <- Stream.eval(getFilmEvents(cinema.id, date))
+      } yield (cinema, filmEvents)
 
     def mergeCinemaEvents(
         cinema: CinemasResponse.Cinema,
@@ -72,8 +73,9 @@ final class CineworldCrawler(
 
     for {
       cinemaDates <- listCinemaDates()
-      cinemaEvents <- cinemaDates.parFlatTraverse(listEvents.tupled)
-    } yield cinemaEvents.flatMap(mergeCinemaEvents.tupled)
+      cinemaEvents <- listEvents.tupled(cinemaDates)
+      event <- Stream.emits(mergeCinemaEvents.tupled(cinemaEvents))
+    } yield event
 
   final case class Info(
       names: Seq[String],

@@ -13,6 +13,7 @@ import com.github.karlchan.beatthequeue.util.Notifications
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.result.UpdateResult
 import com.softwaremill.quicklens.modify
+import fs2.Stream
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import java.time.LocalDateTime
@@ -21,27 +22,33 @@ def crawl(): IO[ExitCode] =
   for {
     logger <- Slf4jLogger.create[IO]
 
-    allMerchantEvents <- findAllEvents()
-    _ <- logger.info("Finshed crawling for all events.")
-
     allUsers <- getAllUsers()
     _ <- logger.info("Got all users.")
 
-    allMatchResults = allUsers.map(findMatchesForUser(_, allMerchantEvents))
+    allMatchResults <- streamAllEvents()
+      .fold(initMatchResults(allUsers))(accumlateMatchResults)
+      .compile
+      .lastOrError
     _ <- logger.info("Got match results.")
+
+    alreadyNotifiedUserEvents = allUsers
+      .map(user => (user, user.notifications.map(_.event).toSet))
+      .toMap
+    newMatchResults = filterNewMatchResults(
+      allMatchResults,
+      alreadyNotifiedUserEvents
+    )
+    _ <- logger.info("Filtered out new match results.")
 
     _ <- allMatchResults.parTraverse(notifyUser(_))
     _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
-private def findAllEvents(): IO[Map[String, Seq[Event[_]]]] =
-  Merchants.AllByName.toSeq
-    .parTraverse((name, merchant) =>
-      for {
-        events <- merchant.eventFinder.run()
-      } yield (name, events)
-    )
-    .map(_.toMap)
+private def streamAllEvents(): Stream[IO, Event[_]] =
+  Stream
+    .emits(Merchants.AllList)
+    .map(_.eventFinder.run())
+    .parJoin(5)
 
 private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =
   for {
@@ -49,38 +56,45 @@ private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =
     users <- usersCollection.find.all
   } yield users.toSeq
 
-private def findMatchesForUser(
-    user: Models.User,
-    allMerchantEvents: Map[String, Seq[Event[_]]]
-): MatchResult =
-  MatchResult(
-    user = user,
-    matchingEventsByCriteria = user.criteria
-      .map(criteria =>
-        (
-          criteria,
-          removeDuplicates(
-            findMatchesForCriteria(criteria, allMerchantEvents),
-            user.notifications.map(_.event)
-          )
-        )
+private def initMatchResults(users: Seq[Models.User]): MatchResults =
+  users
+    .map(user =>
+      MatchResult(
+        user = user,
+        matchingEventsByCriteria = user.criteria.map((_, Seq.empty)).toMap
       )
-      .toMap
+    )
+
+private def accumlateMatchResults[M](
+    matchResults: MatchResults,
+    event: Event[M]
+): MatchResults =
+  matchResults.map(
+    _.modify(_.matchingEventsByCriteria).using(
+      _.map((criteria, events) =>
+        if criteria.merchant == event.merchant
+          && criteria.asInstanceOf[Criteria[M]].matches(event)
+        then (criteria, event +: events)
+        else (criteria, events)
+      )
+    )
   )
 
-private def findMatchesForCriteria[M](
-    criteria: Criteria[M],
-    allMerchantEvents: Map[String, Seq[Event[_]]]
-): Seq[Event[_]] =
-  val merchantEvents =
-    allMerchantEvents(criteria.merchant).asInstanceOf[Seq[Event[M]]]
-  merchantEvents.filter(criteria.matches(_))
-
-private def removeDuplicates(
-    newEvents: Seq[Event[_]],
-    oldEvents: Seq[Event[_]]
-): Seq[Event[_]] =
-  (newEvents.toSet -- oldEvents.toSet).toSeq
+private def filterNewMatchResults(
+    matchResults: MatchResults,
+    alreadyNofifiedUserEvents: Map[Models.User, Set[Event[_]]]
+): MatchResults =
+  matchResults.map(matchResult =>
+    matchResult
+      .modify(_.matchingEventsByCriteria)
+      .using(
+        _.map((criteria, events) =>
+          val newMatchResults =
+            (events.toSet -- alreadyNofifiedUserEvents(matchResult.user)).toSeq
+          (criteria, newMatchResults)
+        )
+      )
+  )
 
 private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
   val now = LocalDateTime.now
@@ -101,7 +115,9 @@ private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
     )
   } yield ()
 
-case class MatchResult(
+private case class MatchResult(
     user: Models.User,
     matchingEventsByCriteria: Map[Criteria[_], Seq[Event[_]]]
 )
+
+private type MatchResults = Seq[MatchResult]
