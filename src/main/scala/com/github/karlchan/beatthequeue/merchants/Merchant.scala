@@ -4,6 +4,7 @@ import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
+import fs2.Stream
 import io.circe.Decoder
 import io.circe.Encoder
 import io.circe.HCursor
@@ -42,7 +43,7 @@ trait Event[M]:
   val time: LocalDateTime
 
 trait EventFinder[M]:
-  def run(): IO[Seq[Event[M]]]
+  def run(): Stream[IO, Event[M]]
 
 trait Criteria[M]:
   val id: String
