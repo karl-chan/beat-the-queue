@@ -10,7 +10,7 @@ object Main extends IOApp:
     val command = parseArgs(args)
     command match
       case Command.Help =>
-        printHelp()
+        printHelp(args)
       case Command.Crawl =>
         crawl()
 
@@ -19,8 +19,11 @@ object Main extends IOApp:
       case "crawl" :: rest => Command.Crawl
       case _               => Command.Help
 
-  private def printHelp(): IO[ExitCode] =
-    IO(println("Usage: crawl")).as(ExitCode.Error)
+  private def printHelp(args: List[String]): IO[ExitCode] =
+    val message = s"""Usage: crawl
+
+    but instead received args: $args"""
+    IO(println(message)).as(ExitCode.Error)
 
 enum Command:
   case Crawl, Help
