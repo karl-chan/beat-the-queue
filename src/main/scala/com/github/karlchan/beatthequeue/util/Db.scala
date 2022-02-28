@@ -79,6 +79,9 @@ final class Db:
       )
     } yield res
 
+  def close(): IO[Unit] =
+    shutdownHook
+
 object Models:
   final case class User(
       _id: ObjectId,
