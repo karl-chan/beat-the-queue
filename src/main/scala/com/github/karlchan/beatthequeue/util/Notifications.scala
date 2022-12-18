@@ -19,7 +19,7 @@ import java.security.Security
 import scala.collection.mutable
 
 object Notifications:
-  def sendEmail(emailAddresses: Seq[String], events: Seq[Event[_]]): IO[_] =
+  def sendEmail(emailAddresses: Seq[String], events: Seq[Event[?]]): IO[?] =
     if emailAddresses.isEmpty || events.isEmpty then return IO.unit
 
     def buildMessage(): String =
@@ -47,8 +47,8 @@ object Notifications:
 
   def sendPush(
       pushSubscription: Models.PushSubscription,
-      events: Seq[Event[_]]
-  ): IO[_] =
+      events: Seq[Event[?]]
+  ): IO[?] =
     if events.isEmpty then return IO.unit
 
     val notification =

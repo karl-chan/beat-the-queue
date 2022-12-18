@@ -5,15 +5,15 @@ import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 private type Category = String
 
 object Merchants:
-  val All: Map[Category, Seq[Merchant[_, _, _]]] = Map {
+  val All: Map[Category, Seq[Merchant[?, ?, ?]]] = Map {
     "Cinema" -> Seq(
       Cineworld()
     )
   }
 
-  val AllList: Seq[Merchant[_, _, _]] = All.values.flatten.toSeq
+  val AllList: Seq[Merchant[?, ?, ?]] = All.values.flatten.toSeq
 
-  val AllByName: Map[String, Merchant[_, _, _]] =
+  val AllByName: Map[String, Merchant[?, ?, ?]] =
     AllList.collect(merchant => (merchant.name, merchant)).toMap
 
   def findMerchantFor[M](
