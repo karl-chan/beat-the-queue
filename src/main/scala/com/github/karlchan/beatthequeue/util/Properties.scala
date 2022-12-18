@@ -1,20 +1,42 @@
 package com.github.karlchan.beatthequeue.util
 
+import com.typesafe.config.Config
+import io.circe.parser.parse
 import pureconfig.ConfigSource
 
+import scala.jdk.CollectionConverters._
+
 object Properties:
-  def get(path: String): String =
-    getFromEnv(path).orElse(getFromFile(path)) match
+  def get[V](
+      path: String,
+      parseEnv: String => V = identity,
+      parseConfig: (Config, String) => V = _.getString(_)
+  ): V =
+    getFromEnv(path, parseEnv).orElse(getFromFile(path, parseConfig)) match
       case Left(err)    => throw err
       case Right(value) => value
 
-  def getBoolean(path: String): Boolean = get(path).toBoolean
+  def getBoolean(path: String): Boolean =
+    get(path, _.toBoolean, _.getBoolean(_))
 
-  def getInt(path: String): Int = get(path).toInt
+  def getInt(path: String): Int = get(path, _.toInt, _.getInt(_))
 
-  def getDouble(path: String): Double = get(path).toDouble
+  def getDouble(path: String): Double = get(path, _.toDouble, _.getDouble(_))
 
-  private def getFromFile(path: String): Either[Throwable, String] =
+  def getList(path: String): Vector[String] =
+    get(
+      path,
+      parse(_).flatMap(_.as[Vector[String]]) match {
+        case Right(list) => list
+        case Left(err)   => throw err
+      },
+      _.getStringList(_).asScala.toVector
+    )
+
+  private def getFromFile[V](
+      path: String,
+      parseConfig: (Config, String) => V
+  ): Either[Throwable, V] =
     ConfigSource
       .resources("application.secret.conf")
       .withFallback(
@@ -22,11 +44,14 @@ object Properties:
           .resources("application.conf")
       )
       .config
-      .map(_.getString(path))
+      .map(parseConfig(_, path))
       .left
       .map(failure => Exception(failure.prettyPrint(2)))
 
-  private def getFromEnv(path: String): Either[Throwable, String] =
+  private def getFromEnv[V](
+      path: String,
+      parseEnv: String => V
+  ): Either[Throwable, V] =
     sys.env.get(path) match
       case None        => Left(Exception(s"[$path] not found in env!"))
-      case Some(value) => Right(value)
+      case Some(value) => Right(parseEnv(value))

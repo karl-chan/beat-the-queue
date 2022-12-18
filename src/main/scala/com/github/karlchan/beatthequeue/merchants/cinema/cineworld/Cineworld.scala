@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 import cats.effect.IO
 import cats.implicits._
 import com.github.karlchan.beatthequeue.merchants.Merchant
+import com.github.karlchan.beatthequeue.util.Properties
 import io.circe.generic.auto._
 import io.circe.syntax._
 
@@ -11,7 +12,9 @@ final class Cineworld
   override val name = Cineworld.Name
   override val logoUrl =
     "https://classic.cineworld.co.uk/xmedia/img/10108/logo.svg"
-  override val eventFinder = CineworldCrawler()
+  override val eventFinder = CineworldCrawler(
+    cinemaIds = Some(Properties.getList("cineworld.cinemaIds"))
+  )
   override val defaultCriteria = CineworldCriteria()
   override val renderer = CineworldRenderer()
 

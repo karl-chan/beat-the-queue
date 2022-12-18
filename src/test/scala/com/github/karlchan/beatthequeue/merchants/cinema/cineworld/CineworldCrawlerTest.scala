@@ -14,16 +14,19 @@ final class CineworldCrawlerTest
     with AsyncIOSpec
     with should.Matchers:
 
+  val crawler =
+    CineworldCrawler(cinemaIds = Some(Vector("103" /* Leicester Square */ )))
+
   "run" should "return all events" in {
-    val events = CineworldCrawler().run().compile.toVector
+    val events = crawler.run().compile.toVector
     events.asserting(
-      _.length should be > 1000 // At least 1000 events on show
+      _.length should be > 100 // At least 100 events on show
     )
   }
 
-  "getCinemas" should "return list of cinemas" in {
-    CineworldCrawler()
-      .getCinemas()
+  "getAllCinemas" should "return list of all cinemas" in {
+    crawler
+      .getAllCinemas()
       .asserting(
         _.body.cinemas.find(_.id == "103").get should have(
           Symbol("displayName")("London - Leicester Square")
@@ -31,8 +34,16 @@ final class CineworldCrawlerTest
       )
   }
 
+  "getCinemas" should "return only cinemas matching cinemaId" in {
+    crawler
+      .getCinemas()
+      .asserting(
+        _.length should be(1)
+      )
+  }
+
   "getFilmEvents" should "return film timetable" in {
-    val res = CineworldCrawler().getFilmEvents(
+    val res = crawler.getFilmEvents(
       "103", // Leicester Square
       LocalDate.now
     )
@@ -44,11 +55,11 @@ final class CineworldCrawlerTest
   }
 
   "getNowPlaying" should "return non-empty list of films" in {
-    val res = CineworldCrawler().getNowPlaying()
+    val res = crawler.getNowPlaying()
     res.asserting(_.body.posters should not be empty)
   }
 
   "getComingSoon" should "return non-empty list of films" in {
-    val res = CineworldCrawler().getComingSoon()
+    val res = crawler.getComingSoon()
     res.asserting(_.body.posters should not be empty)
   }
