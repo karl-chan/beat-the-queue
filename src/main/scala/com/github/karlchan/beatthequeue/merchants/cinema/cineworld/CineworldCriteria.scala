@@ -2,7 +2,7 @@ package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
-import com.github.karlchan.beatthequeue.util.mapTruthy
+import com.github.karlchan.beatthequeue.util.mapOrTrue
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -20,8 +20,8 @@ final case class CineworldCriteria(
     val CineworldEvent(_, name, time, venue, screenType) =
       event.asInstanceOf[CineworldEvent]
 
-    filmNames.mapTruthy(_ == name) &&
-    startTime.mapTruthy(!_.isAfter(time)) &&
-    endTime.mapTruthy(!_.isBefore(time)) &&
-    venues.mapTruthy(_ == venue) &&
-    screenTypes.mapTruthy(t => screenType.toLowerCase.contains(t.toLowerCase))
+    filmNames.mapOrTrue(_ == name) &&
+    startTime.mapOrTrue(!_.isAfter(time)) &&
+    endTime.mapOrTrue(!_.isBefore(time)) &&
+    venues.mapOrTrue(_ == venue) &&
+    screenTypes.mapOrTrue(t => screenType.toLowerCase.contains(t.toLowerCase))

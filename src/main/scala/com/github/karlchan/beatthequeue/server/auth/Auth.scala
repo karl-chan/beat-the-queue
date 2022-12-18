@@ -9,7 +9,7 @@ import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
-import com.github.karlchan.beatthequeue.util.mapFalsy
+import com.github.karlchan.beatthequeue.util.mapOrFalse
 import com.softwaremill.quicklens.modify
 import mongo4cats.bson.ObjectId
 import mongo4cats.collection.operations.Filter
