@@ -6,7 +6,7 @@ import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
-import com.github.karlchan.beatthequeue.util.mapTruthy
+import com.github.karlchan.beatthequeue.util.mapOrTrue
 import com.github.karlchan.beatthequeue.util.shortFormat
 import com.softwaremill.quicklens.modify
 import fs2.Stream
@@ -109,7 +109,7 @@ final class CineworldCrawler(
     for {
       allCinemas <- getAllCinemas()
     } yield allCinemas.body.cinemas.filter(cinema =>
-      cinemaIds.mapTruthy(_.contains(cinema.id))
+      cinemaIds.mapOrTrue(_.contains(cinema.id))
     )
 
   private[cineworld] def getBookableDates(
