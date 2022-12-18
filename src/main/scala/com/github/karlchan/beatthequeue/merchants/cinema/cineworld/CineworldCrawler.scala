@@ -6,7 +6,9 @@ import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
+import com.github.karlchan.beatthequeue.util.mapTruthy
 import com.github.karlchan.beatthequeue.util.shortFormat
+import com.softwaremill.quicklens.modify
 import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -20,17 +22,18 @@ import java.time.LocalDateTime
 import java.time.Period
 
 final class CineworldCrawler(
+    cinemaIds: Option[Seq[String]] = None,
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
 ) extends EventFinder[Cineworld]:
   private val http =
     Http(maxParallelism = Properties.getInt("cineworld.max.parallelism"))
 
   override def run(): Stream[IO, CineworldEvent] =
-    def listCinemaDates()
-        : Stream[IO, (CinemasResponse.Cinema, List[LocalDate])] =
+    def listCinemaDates(
+        cinemas: Stream[IO, CinemasResponse.Cinema]
+    ): Stream[IO, (CinemasResponse.Cinema, List[LocalDate])] =
       for {
-        cinemasResponse <- Stream.eval(getCinemas())
-        cinema <- Stream.emits(cinemasResponse.body.cinemas)
+        cinema <- cinemas
         datesResponse <- Stream.eval(getBookableDates(cinema.id))
         dates = datesResponse.body.dates.map(LocalDate.parse)
       } yield (cinema, dates)
@@ -71,8 +74,9 @@ final class CineworldCrawler(
           )
         )
 
+    val cinemas = Stream.evalSeq(getCinemas())
     for {
-      cinemaDates <- listCinemaDates()
+      cinemaDates <- listCinemaDates(cinemas)
       cinemaEvents <- listEvents.tupled(cinemaDates)
       event <- Stream.emits(mergeCinemaEvents.tupled(cinemaEvents))
     } yield event
@@ -84,7 +88,7 @@ final class CineworldCrawler(
   )
   def getInfo(): IO[Info] =
     for {
-      cinemasRes <- getCinemas()
+      cinemasRes <- getAllCinemas()
       res <- Seq(getNowPlaying(), getComingSoon()).parSequence
       Seq(nowPlayingRes, comingSoonRes) = res
       posters = nowPlayingRes.body.posters ::: comingSoonRes.body.posters
@@ -96,9 +100,16 @@ final class CineworldCrawler(
       screenTypes = BaseFormats ::: SpecialFormats
     )
 
-  private[cineworld] def getCinemas(): IO[CinemasResponse.Cinemas] =
+  private[cineworld] def getAllCinemas(): IO[CinemasResponse.Cinemas] =
     http.get[CinemasResponse.Cinemas](
       s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
+    )
+
+  private[cineworld] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
+    for {
+      allCinemas <- getAllCinemas()
+    } yield allCinemas.body.cinemas.filter(cinema =>
+      cinemaIds.mapTruthy(_.contains(cinema.id))
     )
 
   private[cineworld] def getBookableDates(
