@@ -60,16 +60,16 @@ final class CineworldCrawler(
       )
 
     def toScreenType(attributeIds: Set[String]): String =
-      for
-        format <- SpecialFormats
-        if attributeIds.contains(format.toLowerCase)
-      do return s"${format} ${toScreenType(attributeIds - format.toLowerCase)}"
-
-      for
-        format <- BaseFormats
-        if attributeIds.contains(format.toLowerCase)
-      do return format
-      throw IllegalArgumentException(s"Unknown screen type: ${attributeIds}")
+      SpecialFormats
+        .find(format => attributeIds.contains(format.toLowerCase))
+        .orElse(
+          BaseFormats.find(format => attributeIds.contains(format.toLowerCase))
+        )
+        .getOrElse(
+          throw IllegalArgumentException(
+            s"Unknown screen type: ${attributeIds}"
+          )
+        )
 
     for {
       cinemaDates <- listCinemaDates()

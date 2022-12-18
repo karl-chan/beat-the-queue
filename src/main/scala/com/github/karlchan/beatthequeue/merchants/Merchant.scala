@@ -56,8 +56,8 @@ given [M]: Encoder[Criteria[M]] = new {
     merchant.criteriaEncoder.apply(criteria)
 }
 
-given Decoder[Criteria[_]] = new {
-  final def apply(c: HCursor): Decoder.Result[Criteria[_]] =
+given Decoder[Criteria[?]] = new {
+  final def apply(c: HCursor): Decoder.Result[Criteria[?]] =
     for {
       name <- c.get[String]("merchant")
       merchant = Merchants.AllByName(name)
@@ -65,7 +65,7 @@ given Decoder[Criteria[_]] = new {
     } yield result
 }
 
-given EntityDecoder[IO, Criteria[_]] = jsonOf[IO, Criteria[_]]
+given EntityDecoder[IO, Criteria[?]] = jsonOf[IO, Criteria[?]]
 
 given [M]: Encoder[Event[M]] = new {
   final def apply(event: Event[M]): Json =
@@ -73,8 +73,8 @@ given [M]: Encoder[Event[M]] = new {
     merchant.eventEncoder.apply(event)
 }
 
-given Decoder[Event[_]] = new {
-  final def apply(c: HCursor): Decoder.Result[Event[_]] =
+given Decoder[Event[?]] = new {
+  final def apply(c: HCursor): Decoder.Result[Event[?]] =
     for {
       name <- c.get[String]("merchant")
       merchant = Merchants.AllByName(name)

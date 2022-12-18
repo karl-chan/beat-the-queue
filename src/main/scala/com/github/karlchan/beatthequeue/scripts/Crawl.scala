@@ -44,7 +44,7 @@ def crawl(): IO[ExitCode] =
     _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
-private def streamAllEvents(): Stream[IO, Event[_]] =
+private def streamAllEvents(): Stream[IO, Event[?]] =
   Stream
     .emits(Merchants.AllList)
     .map(_.eventFinder.run())
@@ -82,7 +82,7 @@ private def accumlateMatchResults[M](
 
 private def filterNewMatchResults(
     matchResults: MatchResults,
-    alreadyNofifiedUserEvents: Map[Models.User, Set[Event[_]]]
+    alreadyNofifiedUserEvents: Map[Models.User, Set[Event[?]]]
 ): MatchResults =
   matchResults.map(matchResult =>
     matchResult
@@ -117,7 +117,7 @@ private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
 
 private case class MatchResult(
     user: Models.User,
-    matchingEventsByCriteria: Map[Criteria[_], Seq[Event[_]]]
+    matchingEventsByCriteria: Map[Criteria[?], Seq[Event[?]]]
 )
 
 private type MatchResults = Seq[MatchResult]

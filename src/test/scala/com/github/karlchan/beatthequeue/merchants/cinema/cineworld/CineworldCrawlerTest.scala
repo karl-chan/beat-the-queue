@@ -15,7 +15,7 @@ final class CineworldCrawlerTest
     with should.Matchers:
 
   "run" should "return all events" in {
-    val events = CineworldCrawler().run()
+    val events = CineworldCrawler().run().compile.toVector
     events.asserting(
       _.length should be > 1000 // At least 1000 events on show
     )

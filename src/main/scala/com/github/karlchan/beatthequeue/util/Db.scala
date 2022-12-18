@@ -8,7 +8,6 @@ import com.github.karlchan.beatthequeue.merchants.Merchant
 import com.github.karlchan.beatthequeue.merchants.Merchants
 import com.github.karlchan.beatthequeue.merchants.given_Decoder_Criteria
 import com.github.karlchan.beatthequeue.merchants.given_Decoder_Event
-import com.github.karlchan.beatthequeue.merchants.given_Encoder_Criteria
 import com.github.karlchan.beatthequeue.merchants.given_Encoder_Event
 import com.github.karlchan.beatthequeue.server.auth.AuthUser
 import com.mongodb.client.result.UpdateResult
@@ -116,3 +115,9 @@ object Fields:
   val Username = "username"
   val Criteria = "criteria"
   val CriteriaId = "id"
+
+given Encoder[Criteria[?]] = new {
+  final def apply(criteria: Criteria[?]): Json =
+    val merchant = Merchants.findMerchantFor(criteria)
+    merchant.criteriaEncoder.apply(criteria)
+}

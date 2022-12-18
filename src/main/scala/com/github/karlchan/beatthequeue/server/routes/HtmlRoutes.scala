@@ -56,7 +56,7 @@ private val privateRoutes: HttpRoutes[IO] =
       req.request.params
         .get("criteria")
         .map(criteriaString =>
-          decode[Criteria[_]](criteriaString) match {
+          decode[Criteria[?]](criteriaString) match {
             case Left(err) =>
               BadRequest(
                 s"$criteriaString is not a valid criteria!"

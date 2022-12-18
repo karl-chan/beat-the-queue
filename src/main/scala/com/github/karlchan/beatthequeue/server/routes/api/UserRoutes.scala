@@ -27,7 +27,7 @@ private val privateRoutes: HttpRoutes[IO] = Auth.service(
   TSecAuthService {
     case req @ POST -> Root / "criteria" asAuthed user =>
       for {
-        criteria <- req.request.as[Criteria[_]]
+        criteria <- req.request.as[Criteria[?]]
         _ <- upsertCriteria(user, criteria)
         res <- Ok()
       } yield res
@@ -51,7 +51,7 @@ private val privateRoutes: HttpRoutes[IO] = Auth.service(
 
 val userRoutes: HttpRoutes[IO] = privateRoutes
 
-private def upsertCriteria(authUser: AuthUser, criteria: Criteria[_])(using
+private def upsertCriteria(authUser: AuthUser, criteria: Criteria[?])(using
     db: Db
 ): IO[UpdateResult] =
   for {
