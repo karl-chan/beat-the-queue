@@ -32,13 +32,27 @@ final case class MultiSelectInputField(
         label
       ),
       // User input field
-      input(
-        `type` := "text",
-        cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
-        xModel := "inputText",
-        placeholder := "Click to change",
-        attr("x-on:click") := "show = true",
-        attr("x-on:click.outside") := "show = false; inputText = ''"
+      div(
+        cls := "relative inline-block",
+        // "Click to change" placeholder text
+        input(
+          `type` := "text",
+          cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
+          xModel := "inputText",
+          placeholder := "Click to change",
+          attr("x-on:click") := "show = true",
+          attr("x-on:click.outside") := "show = false; inputText = ''"
+        ),
+        // Clear button
+        span(
+          cls := "absolute right-0",
+          styledButton(
+            color = "yellow",
+            `type` := "button",
+            attr("x-on:click") := "selectedOptions = {}",
+            materialIcon("backspace")
+          )
+        )
       ),
       // Dropdown
       div(
