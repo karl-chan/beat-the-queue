@@ -9,6 +9,7 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.Mul
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.StringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateTimeInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiAutocompleteInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 
 class CineworldRenderer
@@ -25,7 +26,7 @@ class CineworldRenderer
     for {
       info <- CineworldCrawler().getInfo()
     } yield Seq(
-      MultiSelectInputField(
+      MultiAutocompleteInputField(
         label = "Film names",
         name = "filmNames",
         options = info.names,

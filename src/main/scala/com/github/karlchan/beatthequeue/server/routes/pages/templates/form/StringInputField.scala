@@ -24,6 +24,7 @@ final case class StringInputField(
         `type` := inputType,
         xModel := s"formData.$name",
         cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
-        attr("name") := name
+        attr("name") := name,
+        attr("x-on:keydown.enter.prevent") := ""
       )
     )

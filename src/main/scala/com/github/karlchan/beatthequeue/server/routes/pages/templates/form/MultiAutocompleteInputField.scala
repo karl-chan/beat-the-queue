@@ -8,7 +8,7 @@ import scalatags.Text.all._
 
 import java.util.UUID
 
-final case class MultiSelectInputField(
+final case class MultiAutocompleteInputField(
     override val label: String,
     override val name: String,
     override val value: Seq[String] = Seq.empty,
@@ -19,9 +19,19 @@ final case class MultiSelectInputField(
       xData := s"""
       {
         show: false,
-        options: ${options.asJson},
         selectedOptions: ${value.asJson}.reduce((acc,curr)=> (acc[curr]=true,acc),{}),
-        inputText: ''
+        inputText: '',
+        get options() {
+          const rawOptions = ${options.asJson}
+          const rawOptionsSet = new Set(rawOptions)
+          const customOptions = Object.keys(this.selectedOptions).sort().filter(v => !rawOptionsSet.has(v))
+          const o = [
+            ...customOptions,
+            ... rawOptions
+          ]
+          console.log(o)
+          return o
+        },
       }
       """,
       xInit := s"$$watch('selectedOptions', value => formData.$name = Object.keys(value))",
@@ -40,7 +50,8 @@ final case class MultiSelectInputField(
           cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
           xModel := "inputText",
           placeholder := "Click to change",
-          attr("x-on:keydown.enter.prevent") := "",
+          attr("x-on:keydown.enter.prevent") :=
+            "if (inputText.trim()) { selectedOptions[inputText.trim()] = true }",
           attr("x-on:click") := "show = true",
           attr("x-on:click.outside") := "show = false; inputText = ''"
         ),
