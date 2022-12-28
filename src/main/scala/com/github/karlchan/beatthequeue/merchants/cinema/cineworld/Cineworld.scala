@@ -12,9 +12,7 @@ final class Cineworld
   override val name = Cineworld.Name
   override val logoUrl =
     "https://classic.cineworld.co.uk/xmedia/img/10108/logo.svg"
-  override val eventFinder = CineworldCrawler(
-    cinemaIds = Some(Properties.getList("cineworld.cinemaIds"))
-  )
+  override val eventFinder = CineworldCrawler()
   override val defaultCriteria = CineworldCriteria()
   override val renderer = CineworldRenderer()
 

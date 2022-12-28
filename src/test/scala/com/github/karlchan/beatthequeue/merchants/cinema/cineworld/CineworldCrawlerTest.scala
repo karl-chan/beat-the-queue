@@ -24,16 +24,6 @@ final class CineworldCrawlerTest
     )
   }
 
-  "getAllCinemas" should "return list of all cinemas" in {
-    crawler
-      .getAllCinemas()
-      .asserting(
-        _.body.cinemas.find(_.id == "103").get should have(
-          Symbol("displayName")("London - Leicester Square")
-        )
-      )
-  }
-
   "getCinemas" should "return only cinemas matching cinemaId" in {
     crawler
       .getCinemas()
@@ -45,7 +35,7 @@ final class CineworldCrawlerTest
   "getFilmEvents" should "return film timetable" in {
     val res = crawler.getFilmEvents(
       "103", // Leicester Square
-      LocalDate.now
+      LocalDate.now.plusDays(1)
     )
     res.asserting(filmEventsResponse =>
       filmEventsResponse.body.events.map(
