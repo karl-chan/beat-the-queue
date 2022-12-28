@@ -15,7 +15,5 @@ extension [T](option: Option[T])
   def mapOrFalse(f: T => Boolean): Boolean = option.map(f).getOrElse(false)
 
 extension [T](seq: Seq[T])
-  def mapOrTrue(f: T => Boolean): Boolean =
-    if seq.nonEmpty then seq.forall(f) else true
-  def mapOrFalse(f: T => Boolean): Boolean =
-    if seq.nonEmpty then seq.forall(f) else false
+  def any(f: T => Boolean): Boolean =
+    if seq.nonEmpty then seq.exists(f) else true

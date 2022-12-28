@@ -27,14 +27,8 @@ final class ExtensionsTest extends AnyFlatSpec with should.Matchers:
     Some(1).mapOrFalse(_ == 2) should be(false)
   }
 
-  "Seq.mapOrTrue" should "return decide correctly" in {
-    Seq().mapOrTrue(_ => false) should be(true)
-    Seq(1, 1).mapOrTrue(_ == 1) should be(true)
-    Seq(1, 2).mapOrTrue(_ == 1) should be(false)
-  }
-
-  "Seq.mapOrFalse" should "return decide correctly" in {
-    Seq().mapOrFalse(_ => true) should be(false)
-    Seq(1, 1).mapOrFalse(_ == 1) should be(true)
-    Seq(1, 2).mapOrFalse(_ == 1) should be(false)
+  "Seq.any" should "default to true if empty" in {
+    Seq().any(_ => false) should be(true)
+    Seq(1, 1).any(_ == 1) should be(true)
+    Seq(2, 2).any(_ == 1) should be(false)
   }

@@ -2,6 +2,7 @@ package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
+import com.github.karlchan.beatthequeue.util.any
 import com.github.karlchan.beatthequeue.util.containsIgnoreCase
 import com.github.karlchan.beatthequeue.util.mapOrTrue
 
@@ -21,8 +22,8 @@ final case class CineworldCriteria(
     val CineworldEvent(_, name, time, venue, screenType) =
       event.asInstanceOf[CineworldEvent]
 
-    filmNames.mapOrTrue(name.containsIgnoreCase(_)) &&
+    filmNames.any(name.containsIgnoreCase(_)) &&
     startTime.mapOrTrue(!_.isAfter(time)) &&
     endTime.mapOrTrue(!_.isBefore(time)) &&
-    venues.mapOrTrue(_ == venue) &&
-    screenTypes.mapOrTrue(screenType.containsIgnoreCase(_))
+    venues.any(_ == venue) &&
+    screenTypes.forall(screenType.containsIgnoreCase(_))
