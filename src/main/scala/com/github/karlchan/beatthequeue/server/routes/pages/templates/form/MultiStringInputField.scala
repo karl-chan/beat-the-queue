@@ -38,7 +38,8 @@ final case class MultiStringInputField(
             input(
               `type` := inputType,
               xModel := s"values[index]",
-              cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none"
+              cls := "rounded-lg shadow-md mb-2 px-4 py-2 focus:ring-1 focus:ring-gray-400 focus:outline-none",
+              attr("x-on:keydown.enter.prevent") := ""
             ),
             styledButton(
               color = "red",
