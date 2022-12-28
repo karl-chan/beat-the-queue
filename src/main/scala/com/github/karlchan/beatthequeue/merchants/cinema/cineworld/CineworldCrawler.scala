@@ -22,7 +22,9 @@ import java.time.LocalDateTime
 import java.time.Period
 
 final class CineworldCrawler(
-    cinemaIds: Option[Seq[String]] = None,
+    cinemaIds: Option[Seq[String]] = Some(
+      Properties.getList("cineworld.cinemaIds")
+    ),
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
 ) extends EventFinder[Cineworld]:
   private val http =
@@ -88,26 +90,24 @@ final class CineworldCrawler(
   )
   def getInfo(): IO[Info] =
     for {
-      cinemasRes <- getAllCinemas()
       res <- Seq(getNowPlaying(), getComingSoon()).parSequence
       Seq(nowPlayingRes, comingSoonRes) = res
       posters = nowPlayingRes.body.posters ::: comingSoonRes.body.posters
       names = posters.map(_.featureTitle)
-      venues = cinemasRes.body.cinemas.map(_.displayName)
+
+      cinemas <- getCinemas()
+      venues = cinemas.map(_.displayName)
     } yield Info(
       names = names,
       venues = venues,
       screenTypes = BaseFormats ::: SpecialFormats
     )
 
-  private[cineworld] def getAllCinemas(): IO[CinemasResponse.Cinemas] =
-    http.get[CinemasResponse.Cinemas](
-      s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
-    )
-
   private[cineworld] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
     for {
-      allCinemas <- getAllCinemas()
+      allCinemas <- http.get[CinemasResponse.Cinemas](
+        s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
+      )
     } yield allCinemas.body.cinemas.filter(cinema =>
       cinemaIds.mapOrTrue(_.contains(cinema.id))
     )
