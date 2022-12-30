@@ -4,6 +4,7 @@ val circeVersion = "0.14.1"
 val emilVersion = "0.10.0-M3"
 val http4sVersion = "0.23.0"
 val mongo4catsVersion = "0.4.2"
+val sttpVersion = "3.8.5"
 
 lazy val root = project
   .in(file("."))
@@ -20,12 +21,15 @@ lazy val root = project
       "com.github.eikek" %% "emil-common" % emilVersion,
       "com.github.eikek" %% "emil-javamail" % emilVersion,
       "com.softwaremill.quicklens" %% "quicklens" % "1.8.2",
+      "com.softwaremill.sttp.client3" %% "cats" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "circe" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "core" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "slf4j-backend" % sttpVersion,
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.github.jmcardon" %% "tsec-http4s" % "0.4.0",
       "io.github.kirill5k" %% "mongo4cats-circe" % mongo4catsVersion,
       "io.github.kirill5k" %% "mongo4cats-core" % mongo4catsVersion,
-      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
