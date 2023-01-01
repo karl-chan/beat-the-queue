@@ -18,33 +18,36 @@ import sttp.client3.circe.asJson
 import sttp.client3.httpclient.cats.HttpClientCatsBackend
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.Uri
+import sttp.model.headers.CookieWithMeta
 
 import scala.concurrent.ExecutionContext
 
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRetries: Int = Properties.getInt("http.max.retries"),
-    retryDelay: Int = Properties.getInt("http.retry.delay.ms")
+    retryDelay: Int = Properties.getInt("http.retry.delay.ms"),
+    persistCookies: Boolean = false
 ):
 
   def getHtml(uri: Uri): IO[String] =
     request(basicRequest.get(uri), asStringAlways).map(_.body)
 
-  def postHtml(uri: Uri): IO[String] =
-    request(basicRequest.post(uri), asStringAlways).map(_.body)
-
   def get[R](uri: Uri)(using d: Decoder[R]): IO[R] =
     request(basicRequest.get(uri), asJson[R].getRight).map(_.body)
+
+  def getFullResponse(uri: Uri): IO[Response[String]] =
+    request(basicRequest.get(uri), asStringAlways)
+
+  def postHtml(uri: Uri): IO[String] =
+    request(basicRequest.post(uri), asStringAlways).map(_.body)
 
   def post[R](uri: Uri)(using d: Decoder[R]): IO[R] =
     request(basicRequest.post(uri), asJson[R].getRight).map(_.body)
 
   private def request[R](
-      r: Request[Either[String, String], Any],
+      req: Request[Either[String, String], Any],
       decodeFn: ResponseAs[R, Any]
-  )(using
-      d: Decoder[R]
-  ): IO[Response[R]] =
+  )(using d: Decoder[R]): IO[Response[R]] =
     clientResource.use { backend =>
       val backendWithMiddleware =
         RetryingBackend(
@@ -55,10 +58,22 @@ final class Http(
           maxRetries,
           retryDelay
         )
-      r.response(decodeFn).send(backendWithMiddleware)
+
+      var res = req
+        .cookies(cookies)
+        .response(decodeFn)
+        .send(backendWithMiddleware)
+
+      if (persistCookies) {
+        res = res.map(r => {
+          Http.this.cookies = r.unsafeCookies
+          r
+        })
+      }
+      res
     }
 
-  private val clientResource =
-    HttpClientCatsBackend.resource[IO]()
-
+  private val clientResource = HttpClientCatsBackend.resource[IO]()
   private val semaphore = Semaphore[IO](maxParallelism).unsafeRunSync()
+
+  private var cookies: Seq[CookieWithMeta] = Seq.empty

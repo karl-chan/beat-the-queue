@@ -1,5 +1,6 @@
 package com.github.karlchan.beatthequeue.merchants
 
+import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 
 private type Category = String
@@ -7,6 +8,7 @@ private type Category = String
 object Merchants:
   val All: Map[Category, Seq[Merchant[?, ?, ?]]] = Map {
     "Cinema" -> Seq(
+      BFI(),
       Cineworld()
     )
   }
