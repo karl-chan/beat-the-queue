@@ -25,7 +25,8 @@ import scala.concurrent.ExecutionContext
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRetries: Int = Properties.getInt("http.max.retries"),
-    retryDelay: Int = Properties.getInt("http.retry.delay.ms")
+    retryDelay: Int = Properties.getInt("http.retry.delay.ms"),
+    persistCookies: Boolean = false
 ):
 
   def getHtml(uri: Uri): IO[String] =
@@ -57,11 +58,22 @@ final class Http(
           maxRetries,
           retryDelay
         )
-      req
+
+      var res = req
+        .cookies(cookies)
         .response(decodeFn)
         .send(backendWithMiddleware)
+
+      if (persistCookies) {
+        res = res.map(r => {
+          Http.this.cookies = r.unsafeCookies
+          r
+        })
+      }
+      res
     }
 
   private val clientResource = HttpClientCatsBackend.resource[IO]()
-
   private val semaphore = Semaphore[IO](maxParallelism).unsafeRunSync()
+
+  private var cookies: Seq[CookieWithMeta] = Seq.empty
