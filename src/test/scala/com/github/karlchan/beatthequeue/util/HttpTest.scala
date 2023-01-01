@@ -3,13 +3,14 @@ package com.github.karlchan.beatthequeue.util
 import cats.effect.testing.scalatest.AsyncIOSpec
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should
+import sttp.client3._
 
 final class HttpTest
     extends AsyncFlatSpec
     with AsyncIOSpec
     with should.Matchers:
-  "get" should "return html as string" in {
+  "getHtml" should "return html as string" in {
     Http()
-      .get[String]("https://duckduckgo.com")
+      .getHtml(uri"https://duckduckgo.com")
       .asserting(_ should include("<!DOCTYPE html>"))
   }
