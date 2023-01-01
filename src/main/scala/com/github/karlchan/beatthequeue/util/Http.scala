@@ -18,6 +18,7 @@ import sttp.client3.circe.asJson
 import sttp.client3.httpclient.cats.HttpClientCatsBackend
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.Uri
+import sttp.model.headers.CookieWithMeta
 
 import scala.concurrent.ExecutionContext
 
@@ -30,21 +31,22 @@ final class Http(
   def getHtml(uri: Uri): IO[String] =
     request(basicRequest.get(uri), asStringAlways).map(_.body)
 
-  def postHtml(uri: Uri): IO[String] =
-    request(basicRequest.post(uri), asStringAlways).map(_.body)
-
   def get[R](uri: Uri)(using d: Decoder[R]): IO[R] =
     request(basicRequest.get(uri), asJson[R].getRight).map(_.body)
+
+  def getFullResponse(uri: Uri): IO[Response[String]] =
+    request(basicRequest.get(uri), asStringAlways)
+
+  def postHtml(uri: Uri): IO[String] =
+    request(basicRequest.post(uri), asStringAlways).map(_.body)
 
   def post[R](uri: Uri)(using d: Decoder[R]): IO[R] =
     request(basicRequest.post(uri), asJson[R].getRight).map(_.body)
 
   private def request[R](
-      r: Request[Either[String, String], Any],
+      req: Request[Either[String, String], Any],
       decodeFn: ResponseAs[R, Any]
-  )(using
-      d: Decoder[R]
-  ): IO[Response[R]] =
+  )(using d: Decoder[R]): IO[Response[R]] =
     clientResource.use { backend =>
       val backendWithMiddleware =
         RetryingBackend(
@@ -55,10 +57,11 @@ final class Http(
           maxRetries,
           retryDelay
         )
-      r.response(decodeFn).send(backendWithMiddleware)
+      req
+        .response(decodeFn)
+        .send(backendWithMiddleware)
     }
 
-  private val clientResource =
-    HttpClientCatsBackend.resource[IO]()
+  private val clientResource = HttpClientCatsBackend.resource[IO]()
 
   private val semaphore = Semaphore[IO](maxParallelism).unsafeRunSync()
