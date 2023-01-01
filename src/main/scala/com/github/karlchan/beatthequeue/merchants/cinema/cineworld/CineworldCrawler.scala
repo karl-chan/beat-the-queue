@@ -12,10 +12,7 @@ import com.softwaremill.quicklens.modify
 import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.http4s.EntityDecoder
-import org.http4s.Uri
-import org.http4s.circe.CirceEntityDecoder._
-import org.http4s.implicits.uri
+import sttp.client3._
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -106,7 +103,7 @@ final class CineworldCrawler(
   private[cineworld] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
     for {
       allCinemas <- http.get[CinemasResponse.Cinemas](
-        s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
+        uri"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/cinemas/with-event/until/${untilDate.shortFormat}"
       )
     } yield allCinemas.body.cinemas.filter(cinema =>
       cinemaIds.mapOrTrue(_.contains(cinema.id))
@@ -116,7 +113,7 @@ final class CineworldCrawler(
       cinemaId: String
   ): IO[BookableDatesResponse.Dates] =
     http.get[BookableDatesResponse.Dates](
-      s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/dates/in-cinema/${cinemaId}/until/${untilDate.shortFormat}"
+      uri"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/dates/in-cinema/${cinemaId}/until/${untilDate.shortFormat}"
     )
 
   private[cineworld] def getFilmEvents(
@@ -124,17 +121,17 @@ final class CineworldCrawler(
       date: LocalDate
   ): IO[FilmEventsResponse.FilmEvents] =
     http.get[FilmEventsResponse.FilmEvents](
-      s"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/film-events/in-cinema/${cinemaId}/at-date/${date.shortFormat}"
+      uri"https://www.cineworld.co.uk/uk/data-api-service/v1/quickbook/10108/film-events/in-cinema/${cinemaId}/at-date/${date.shortFormat}"
     )
 
   private[cineworld] def getNowPlaying(): IO[FeedResponse.Feed] =
     http.get[FeedResponse.Feed](
-      "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/now-playing"
+      uri"https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/now-playing"
     )
 
   private[cineworld] def getComingSoon(): IO[FeedResponse.Feed] =
     http.get[FeedResponse.Feed](
-      "https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/coming-soon"
+      uri"https://www.cineworld.co.uk/uk/data-api-service/v1/feed/10108/byName/coming-soon"
     )
 
 private[cineworld] object CinemasResponse:
