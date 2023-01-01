@@ -26,3 +26,22 @@ final class HttpTest
       .map(_.unsafeCookies.map(_.name))
       .asserting(_ should contain("AV-Cookie"))
   }
+
+  "perisistCookies" should "preserve cookies across requests" in {
+    val http = Http(persistCookies = true)
+    val cookieNames = for {
+      // The first call sets the AV-Cookie
+      _ <- http
+        .getHtml(
+          uri"https://whatson.bfi.org.uk/imax/Online/default.asp"
+        )
+      // The second call does NOT set the AV-Cookie
+      _ <- http
+        .getHtml(
+          uri"https://whatson.bfi.org.uk/imax/Online/default.asp"
+        )
+      // AV-Cookie should remain in the cookies jar
+    } yield http.inspectCookies.map(_.name)
+    cookieNames
+      .asserting(_ should contain("AV-Cookie"))
+  }

@@ -44,6 +44,8 @@ final class Http(
   def post[R](uri: Uri)(using d: Decoder[R]): IO[R] =
     request(basicRequest.post(uri), asJson[R].getRight).map(_.body)
 
+  def inspectCookies: Vector[CookieWithMeta] = cookies.toVector
+
   private def request[R](
       req: Request[Either[String, String], Any],
       decodeFn: ResponseAs[R, Any]
@@ -64,9 +66,23 @@ final class Http(
         .response(decodeFn)
         .send(backendWithMiddleware)
 
+      def mergeCookies(
+          oldCookies: Seq[CookieWithMeta],
+          newCookies: Seq[CookieWithMeta]
+      ): Seq[CookieWithMeta] = {
+        if (newCookies.isEmpty) {
+          oldCookies
+        } else {
+          val newCookieNames = newCookies.map(_.name).toSet
+          newCookies ++ oldCookies.filterNot(cookie =>
+            newCookieNames.contains(cookie.name)
+          )
+        }
+      }
+
       if (persistCookies) {
         res = res.map(r => {
-          Http.this.cookies = r.unsafeCookies
+          Http.this.cookies = mergeCookies(Http.this.cookies, r.unsafeCookies)
           r
         })
       }
