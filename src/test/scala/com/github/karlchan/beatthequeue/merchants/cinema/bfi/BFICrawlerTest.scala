@@ -16,6 +16,19 @@ final class BFICrawlerTest
 
   val crawler = BFICrawler()
 
+  "run" should "return all events" in {
+    val events = crawler.run().compile.toVector
+    events.asserting(
+      _.length should be > 20 // At least 20 events on show
+    )
+  }
+
+  "getFilmEvents" should "return upcoming film events" in {
+    crawler
+      .getFilmEvents(LocalDate.now, LocalDate.now.plusMonths(3))
+      .asserting(_ should not be empty)
+  }
+
   "getToken" should "return valid sToken" in {
     crawler
       .getToken()
@@ -28,6 +41,6 @@ final class BFICrawlerTest
     crawler
       .getToken()
       .asserting(
-        _.articleId should include("-")
+        _.articleSearchId should include("-")
       )
   }

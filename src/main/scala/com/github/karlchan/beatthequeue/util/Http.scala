@@ -38,11 +38,13 @@ final class Http(
   def getFullResponse(uri: Uri): IO[Response[String]] =
     request(basicRequest.get(uri), asStringAlways)
 
-  def postHtml(uri: Uri): IO[String] =
-    request(basicRequest.post(uri), asStringAlways).map(_.body)
+  def postHtml(uri: Uri, body: Map[String, String] = Map.empty): IO[String] =
+    request(basicRequest.post(uri).body(body), asStringAlways).map(_.body)
 
-  def post[R](uri: Uri)(using d: Decoder[R]): IO[R] =
-    request(basicRequest.post(uri), asJson[R].getRight).map(_.body)
+  def post[R](uri: Uri, body: Map[String, String] = Map.empty)(using
+      d: Decoder[R]
+  ): IO[R] =
+    request(basicRequest.post(uri).body(body), asJson[R].getRight).map(_.body)
 
   def inspectCookies: Vector[CookieWithMeta] = cookies.toVector
 
@@ -54,7 +56,10 @@ final class Http(
       val backendWithMiddleware =
         RetryingBackend(
           ThrottleBackend(
-            Slf4jLoggingBackend(UserAgentBackend(backend)),
+            Slf4jLoggingBackend(
+              UserAgentBackend(backend),
+              logRequestBody = true
+            ),
             semaphore
           ),
           maxRetries,
