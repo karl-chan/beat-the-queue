@@ -1,6 +1,7 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.bfi
 
 import cats.effect.IO
+import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
@@ -8,12 +9,14 @@ import fs2.Stream
 import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.parser.decode
+import org.jsoup.Jsoup
 import sttp.client3._
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import scala.jdk.CollectionConverters._
 
 final class BFICrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
@@ -41,7 +44,20 @@ final class BFICrawler(
       venues: Seq[String],
       screenTypes: Seq[String]
   )
-  def getInfo(): IO[Info] = ???
+  def getInfo(): IO[Info] =
+    for {
+      res <- Seq(
+        getFilmEvents(LocalDate.now, untilDate),
+        getComingSoon()
+      ).parSequence
+      filmEvents = res.get(0).get.asInstanceOf[Vector[FilmEvent]]
+      comingSoonFilmNames = res.get(1).get.asInstanceOf[Vector[String]]
+    } yield Info(
+      names =
+        comingSoonFilmNames ++ filmEvents.map(_.description).sorted.distinct,
+      venues = filmEvents.map(_.venue).sorted.distinct,
+      screenTypes = filmEvents.map(_.screenType).sorted.distinct
+    )
 
   final private[bfi] case class FilmEvent(
       id: String,
@@ -131,6 +147,20 @@ final class BFICrawler(
       .getOrElse(
         throw IllegalArgumentException("Failed to parse searchResults as JSON!")
       )
+
+  private[bfi] def getComingSoon(): IO[Vector[String]] =
+    for {
+      html <- http.getHtml(
+        uri"https://whatson.bfi.org.uk/imax/Online/default.asp"
+      )
+      filmNames = Jsoup
+        .parse(html)
+        .getElementsByClass("Card__heading")
+        .iterator()
+        .asScala
+        .map(_.text())
+        .toVector
+    } yield filmNames
 
   private[bfi] def getToken(): IO[Token] = {
     val sTokenMatchRegex = raw"sToken: \"([^\"]+)\"".r

@@ -15,6 +15,7 @@ lazy val root = project
     libraryDependencies ++= Seq(
       // java dependencies
       "ch.qos.logback" % "logback-classic" % "1.2.6",
+      "org.jsoup" % "jsoup" % "1.15.3",
       "nl.martijndwars" % "web-push" % "5.1.1"
     ) ++ Seq(
       // scala 3 dependencies
