@@ -29,6 +29,10 @@ final class BFICrawlerTest
       .asserting(_ should not be empty)
   }
 
+  "getComingSoon" should "return film names" in {
+    crawler.getComingSoon().asserting(_ should not be empty)
+  }
+
   "getToken" should "return valid sToken" in {
     crawler
       .getToken()
