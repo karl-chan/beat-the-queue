@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.bfi
 
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFICrawler
@@ -13,6 +15,10 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.Multi
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 
 class BFIRenderer extends Renderer[BFI, BFICriteria, BFIEvent]:
+
+  private val cachedInfo: IO[BFICrawler#Info] =
+    BFICrawler().getInfo().memoize.unsafeRunSync()
+
   override def toFields(criteria: BFICriteria) = Seq(
     MultiStringField(label = "Film names", value = criteria.filmNames),
     DateTimeField(label = "Start time", value = criteria.startTime),
@@ -23,7 +29,7 @@ class BFIRenderer extends Renderer[BFI, BFICriteria, BFIEvent]:
 
   override def toInputFields(criteria: BFICriteria) =
     for {
-      info <- BFICrawler().getInfo()
+      info <- cachedInfo
     } yield Seq(
       MultiAutocompleteInputField(
         label = "Film names",
