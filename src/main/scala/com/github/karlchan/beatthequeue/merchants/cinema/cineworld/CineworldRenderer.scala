@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldCrawler
@@ -14,6 +16,10 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.Multi
 
 class CineworldRenderer
     extends Renderer[Cineworld, CineworldCriteria, CineworldEvent]:
+
+  private val cachedInfo: IO[CineworldCrawler#Info] =
+    CineworldCrawler().getInfo().memoize.unsafeRunSync()
+
   override def toFields(criteria: CineworldCriteria) = Seq(
     MultiStringField(label = "Film names", value = criteria.filmNames),
     DateTimeField(label = "Start time", value = criteria.startTime),
@@ -24,7 +30,7 @@ class CineworldRenderer
 
   override def toInputFields(criteria: CineworldCriteria) =
     for {
-      info <- CineworldCrawler().getInfo()
+      info <- cachedInfo
     } yield Seq(
       MultiAutocompleteInputField(
         label = "Film names",

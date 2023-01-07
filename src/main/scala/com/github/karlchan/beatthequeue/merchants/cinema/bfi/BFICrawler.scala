@@ -46,12 +46,8 @@ final class BFICrawler(
   )
   def getInfo(): IO[Info] =
     for {
-      res <- Seq(
-        getFilmEvents(LocalDate.now, untilDate),
-        getComingSoon()
-      ).parSequence
-      filmEvents = res.get(0).get.asInstanceOf[Vector[FilmEvent]]
-      comingSoonFilmNames = res.get(1).get.asInstanceOf[Vector[String]]
+      comingSoonFilmNames <- getComingSoon()
+      filmEvents <- getFilmEvents(LocalDate.now, untilDate)
     } yield Info(
       names =
         comingSoonFilmNames ++ filmEvents.map(_.description).sorted.distinct,
