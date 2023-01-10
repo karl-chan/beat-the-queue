@@ -40,7 +40,7 @@ def crawl(): IO[ExitCode] =
     )
     _ <- logger.info("Filtered out new match results.")
 
-    _ <- allMatchResults.parTraverse(notifyUser(_))
+    _ <- newMatchResults.parTraverse(notifyUser(_))
     _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
