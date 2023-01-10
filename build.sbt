@@ -1,7 +1,7 @@
 val scala3Version = "3.2.1"
 
 val circeVersion = "0.14.1"
-val emilVersion = "0.10.0-M3"
+val emilVersion = "0.13.0"
 val http4sVersion = "0.23.0"
 val mongo4catsVersion = "0.4.2"
 val sttpVersion = "3.8.5"
