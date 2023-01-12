@@ -11,11 +11,15 @@ import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.github.karlchan.beatthequeue.util.mapOrFalse
 import com.softwaremill.quicklens.modify
+import concurrent.duration.DurationInt
+import java.time.Instant
+import java.util.UUID
 import mongo4cats.bson.ObjectId
-import mongo4cats.collection.operations.Filter
+import mongo4cats.operations.Filter
 import org.http4s.HttpRoutes
 import org.http4s.Request
 import org.http4s.Response
+import scala.collection.mutable
 import tsec.authentication.AuthenticatedCookie
 import tsec.authentication.BackingStore
 import tsec.authentication.SecuredRequest
@@ -27,12 +31,6 @@ import tsec.mac.jca.HMACSHA256
 import tsec.mac.jca.MacSigningKey
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.HardenedSCrypt
-
-import java.time.Instant
-import java.util.UUID
-import scala.collection.mutable
-
-import concurrent.duration.DurationInt
 
 final case class AuthUser(
     id: String,

@@ -5,18 +5,18 @@ import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
+import com.github.karlchan.beatthequeue.util.given_HttpConnection
 import fs2.Stream
 import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.parser.decode
-import org.jsoup.Jsoup
-import sttp.client3._
-
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import org.jsoup.Jsoup
 import scala.jdk.CollectionConverters._
+import sttp.client3._
 
 final class BFICrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))

@@ -8,7 +8,6 @@ import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Fields
 import com.github.karlchan.beatthequeue.util.given_Db
 import mongo4cats.bson.ObjectId
-import mongo4cats.collection.operations.Filter
 import scalatags.Text.all._
 
 object HomePage:
