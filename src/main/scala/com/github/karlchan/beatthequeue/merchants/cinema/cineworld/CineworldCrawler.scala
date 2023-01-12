@@ -6,17 +6,17 @@ import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
 import com.github.karlchan.beatthequeue.util.Properties
+import com.github.karlchan.beatthequeue.util.given_HttpConnection
 import com.github.karlchan.beatthequeue.util.mapOrTrue
 import com.github.karlchan.beatthequeue.util.shortFormat
 import com.softwaremill.quicklens.modify
 import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
-import sttp.client3._
-
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import sttp.client3._
 
 final class CineworldCrawler(
     cinemaIds: Option[Seq[String]] = Some(

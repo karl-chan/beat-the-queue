@@ -24,14 +24,12 @@ import sttp.model.headers.CookieWithMeta
 
 import scala.concurrent.ExecutionContext
 
-private val backend = ArmeriaCatsBackend.usingDefaultClient[IO]()
-
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRetries: Int = Properties.getInt("http.max.retries"),
     retryDelay: Int = Properties.getInt("http.retry.delay.ms"),
     persistCookies: Boolean = false
-):
+)(using httpConnection: HttpConnection):
 
   def getHtml(uri: Uri): IO[String] =
     request(basicRequest.get(uri), asStringAlways).map(_.body)
@@ -60,7 +58,7 @@ final class Http(
       RetryingBackend(
         ThrottleBackend(
           Slf4jLoggingBackend(
-            UserAgentBackend(backend),
+            UserAgentBackend(httpConnection.backend),
             logRequestBody = true
           ),
           semaphore
@@ -100,3 +98,9 @@ final class Http(
   private val semaphore = Semaphore[IO](maxParallelism).unsafeRunSync()
 
   private var cookies: Seq[CookieWithMeta] = Seq.empty
+
+given HttpConnection = HttpConnection()
+final class HttpConnection:
+  val backend = ArmeriaCatsBackend.usingDefaultClient[IO]()
+
+  def close(): IO[Unit] = backend.close()
