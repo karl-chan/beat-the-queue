@@ -1,10 +1,10 @@
 val scala3Version = "3.2.1"
 
-val circeVersion = "0.14.1"
+val circeVersion = "0.14.3"
 val emilVersion = "0.13.0"
-val http4sVersion = "0.23.0"
-val mongo4catsVersion = "0.4.2"
-val sttpVersion = "3.8.5"
+val http4sVersion = "0.23.13"
+val mongo4catsVersion = "0.6.5"
+val sttpVersion = "3.8.8"
 
 lazy val root = project
   .in(file("."))
@@ -14,14 +14,15 @@ lazy val root = project
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
       // java dependencies
-      "ch.qos.logback" % "logback-classic" % "1.2.6",
+      "ch.qos.logback" % "logback-classic" % "1.4.5",
       "org.jsoup" % "jsoup" % "1.15.3",
       "nl.martijndwars" % "web-push" % "5.1.1"
     ) ++ Seq(
       // scala 3 dependencies
       "com.github.eikek" %% "emil-common" % emilVersion,
       "com.github.eikek" %% "emil-javamail" % emilVersion,
-      "com.softwaremill.quicklens" %% "quicklens" % "1.8.2",
+      "com.softwaremill.quicklens" %% "quicklens" % "1.9.0",
+      "com.softwaremill.sttp.client3" %% "armeria-backend-cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "circe" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "core" % sttpVersion,
@@ -34,15 +35,15 @@ lazy val root = project
       "org.http4s" %% "http4s-blaze-server" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
-      "org.scalatest" %% "scalatest" % "3.2.10" % Test,
-      "org.typelevel" %% "cats-core" % "2.6.1",
-      "org.typelevel" %% "cats-effect" % "3.2.9",
-      "org.typelevel" %% "cats-effect-testing-scalatest" % "1.3.0" % Test,
-      "org.typelevel" %% "log4cats-slf4j" % "2.1.1"
+      "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+      "org.typelevel" %% "cats-core" % "2.9.0",
+      "org.typelevel" %% "cats-effect" % "3.4.4",
+      "org.typelevel" %% "cats-effect-testing-scalatest" % "1.5.0" % Test,
+      "org.typelevel" %% "log4cats-slf4j" % "2.5.0"
     ) ++ Seq(
       // scala 2 dependencies
-      "com.github.pureconfig" %% "pureconfig" % "0.17.0",
-      "com.lihaoyi" %% "scalatags" % "0.10.0"
+      "com.github.pureconfig" %% "pureconfig" % "0.17.2",
+      "com.lihaoyi" %% "scalatags" % "0.12.0"
     ).map(_.cross(CrossVersion.for3Use2_13)),
     // plugin configurations
     mainClass in (Compile, run) := Some(

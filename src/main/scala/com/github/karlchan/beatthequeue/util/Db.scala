@@ -21,7 +21,7 @@ import mongo4cats.bson.ObjectId
 import mongo4cats.circe._
 import mongo4cats.client.MongoClient
 import mongo4cats.collection.MongoCollection
-import mongo4cats.collection.operations.Filter
+import mongo4cats.operations.Filter
 
 import java.time.LocalDateTime
 import java.util.UUID
