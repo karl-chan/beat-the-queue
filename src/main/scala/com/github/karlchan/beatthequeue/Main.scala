@@ -16,8 +16,6 @@ object Main extends IOApp:
     for {
       exitCode <- runCommand(command, args)
       _ <- shutdown()
-      // Hack to force shutdown because of AsyncHttpClient non-daemon threads
-      _ <- IO(Runtime.getRuntime.halt(0))
     } yield exitCode
 
   private def parseArgs(args: List[String]): Command =
@@ -45,9 +43,12 @@ object Main extends IOApp:
     for {
       logger <- Slf4jLogger.create[IO]
       _ <- db.close()
-      _ <- logger.info("Closed db.")
+      _ <- logger.info("Shutdown db.")
       _ <- httpConnection.close()
-      _ <- logger.info("Closed http connection.")
+      _ <- logger.info("Shutdown http connection.")
+      // Hack to force shutdown because of AsyncHttpClient non-daemon threads
+      _ <- logger.info("Terminating JVM...")
+      _ <- IO(Runtime.getRuntime.halt(0))
     } yield ()
 
 enum Command:
