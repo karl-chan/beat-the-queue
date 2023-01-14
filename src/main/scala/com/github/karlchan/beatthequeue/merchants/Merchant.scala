@@ -14,6 +14,7 @@ import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
 
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
@@ -41,6 +42,9 @@ trait Event[M]:
   val merchant: String
   val name: String
   val time: LocalDateTime
+
+given Ordering[Event[?]] =
+  Ordering.by[Event[?], Long](_.time.toEpochSecond(ZoneOffset.UTC))
 
 trait EventFinder[M]:
   def run(): Stream[IO, Event[M]]
