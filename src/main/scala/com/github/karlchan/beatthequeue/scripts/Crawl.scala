@@ -7,6 +7,7 @@ import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.Merchant
 import com.github.karlchan.beatthequeue.merchants.Merchants
+import com.github.karlchan.beatthequeue.merchants.given_Ordering_Event
 import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.Notifications
@@ -99,7 +100,8 @@ private def filterNewMatchResults(
 private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
   val now = LocalDateTime.now
   val settings = matchResult.user.notificationSettings
-  val newEvents = matchResult.matchingEventsByCriteria.values.flatten.toSeq
+  val newEvents =
+    matchResult.matchingEventsByCriteria.values.flatten.toSeq.sorted
   val newNotifications =
     newEvents.map(event => Models.Notification(event = event, published = now))
   for {
