@@ -101,10 +101,13 @@ abstract class Renderer[M, C <: Criteria[M], E <: Event[M]]:
     val merchant = Merchants.findMerchantFor(notification.event)
     card(
       cls := "flex flex-col space-y-2 max-w-md",
-      img(
-        cls := "bg-gray-200",
-        src := merchant.logoUrl,
-        alt := merchant.name
+      div(
+        cls := "flex",
+        img(
+          cls := "bg-gray-200 h-8",
+          src := merchant.logoUrl,
+          alt := merchant.name
+        )
       ),
       toFields(notification.event.asInstanceOf[E]).map(_.render)
     )
