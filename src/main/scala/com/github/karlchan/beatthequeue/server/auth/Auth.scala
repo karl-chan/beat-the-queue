@@ -23,10 +23,9 @@ import tsec.authentication.SecuredRequestHandler
 import tsec.authentication.SignedCookieAuthenticator
 import tsec.authentication.TSecAuthService
 import tsec.authentication.TSecCookieSettings
+import tsec.common._
+import tsec.hashing.jca._
 import tsec.mac.jca.HMACSHA256
-import tsec.mac.jca.MacSigningKey
-import tsec.passwordhashers.PasswordHash
-import tsec.passwordhashers.jca.SCrypt
 
 import java.time.Instant
 import java.util.UUID
@@ -64,9 +63,9 @@ object Auth:
         response <- maybeExistingUser match {
           case Some(_) => onFailure("Username already taken")
           case None =>
+            val hash = password.utf8Bytes.hash[SHA512].toB64String
+            val userId = ObjectId()
             for {
-              hash <- SCrypt.hashpw[IO](password)
-              userId = ObjectId()
               _ <- usersCollection.insertOne(
                 Models.User(
                   _id = userId,
@@ -104,9 +103,9 @@ object Auth:
       response <- maybeDbUser match {
         case None => onFailure
         case Some(dbUser) =>
+          val success =
+            password.utf8Bytes.hash[SHA512].toB64String == dbUser.hash
           for {
-            success <- SCrypt
-              .checkpwBool[IO](password, PasswordHash(dbUser.hash))
             response <-
               if success then
                 for {
