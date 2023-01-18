@@ -26,4 +26,4 @@ final case class CineworldCriteria(
     startTime.mapOrTrue(!_.isAfter(time)) &&
     endTime.mapOrTrue(!_.isBefore(time)) &&
     venues.any(_ == venue) &&
-    screenTypes.forall(screenType.containsIgnoreCase(_))
+    screenTypes.any(screenType.containsIgnoreCase(_))

@@ -11,15 +11,11 @@ import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.github.karlchan.beatthequeue.util.mapOrFalse
 import com.softwaremill.quicklens.modify
-import concurrent.duration.DurationInt
-import java.time.Instant
-import java.util.UUID
 import mongo4cats.bson.ObjectId
 import mongo4cats.operations.Filter
 import org.http4s.HttpRoutes
 import org.http4s.Request
 import org.http4s.Response
-import scala.collection.mutable
 import tsec.authentication.AuthenticatedCookie
 import tsec.authentication.BackingStore
 import tsec.authentication.SecuredRequest
@@ -27,10 +23,15 @@ import tsec.authentication.SecuredRequestHandler
 import tsec.authentication.SignedCookieAuthenticator
 import tsec.authentication.TSecAuthService
 import tsec.authentication.TSecCookieSettings
+import tsec.common._
+import tsec.hashing.jca._
 import tsec.mac.jca.HMACSHA256
-import tsec.mac.jca.MacSigningKey
-import tsec.passwordhashers.PasswordHash
-import tsec.passwordhashers.jca.HardenedSCrypt
+
+import java.time.Instant
+import java.util.UUID
+import scala.collection.mutable
+
+import concurrent.duration.DurationInt
 
 final case class AuthUser(
     id: String,
@@ -62,9 +63,9 @@ object Auth:
         response <- maybeExistingUser match {
           case Some(_) => onFailure("Username already taken")
           case None =>
+            val hash = password.utf8Bytes.hash[SHA512].toB64String
+            val userId = ObjectId()
             for {
-              hash <- HardenedSCrypt.hashpw[IO](password)
-              userId = ObjectId()
               _ <- usersCollection.insertOne(
                 Models.User(
                   _id = userId,
@@ -102,9 +103,9 @@ object Auth:
       response <- maybeDbUser match {
         case None => onFailure
         case Some(dbUser) =>
+          val success =
+            password.utf8Bytes.hash[SHA512].toB64String == dbUser.hash
           for {
-            success <- HardenedSCrypt
-              .checkpwBool[IO](password, PasswordHash(dbUser.hash))
             response <-
               if success then
                 for {

@@ -13,10 +13,11 @@ import com.softwaremill.quicklens.modify
 import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
+import sttp.client3._
+
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
-import sttp.client3._
 
 final class CineworldCrawler(
     cinemaIds: Option[Seq[String]] = Some(
@@ -62,16 +63,16 @@ final class CineworldCrawler(
       )
 
     def toScreenType(attributeIds: Set[String]): String =
-      SpecialFormats
+      val maybeSpecialFormat =
+        SpecialFormats.find(format => attributeIds.contains(format.toLowerCase))
+      val baseFormat = BaseFormats
         .find(format => attributeIds.contains(format.toLowerCase))
-        .orElse(
-          BaseFormats.find(format => attributeIds.contains(format.toLowerCase))
-        )
         .getOrElse(
           throw IllegalArgumentException(
-            s"Unknown screen type: ${attributeIds}"
+            s"Unknown base format: ${attributeIds}"
           )
         )
+      maybeSpecialFormat.map(_ + " ").getOrElse("") + baseFormat
 
     val cinemas = Stream.evalSeq(getCinemas())
     for {
@@ -97,7 +98,10 @@ final class CineworldCrawler(
     } yield Info(
       names = names,
       venues = venues,
-      screenTypes = BaseFormats ::: SpecialFormats
+      screenTypes = BaseFormats ::: SpecialFormats ::: (for {
+        baseFormat <- BaseFormats
+        specialFormat <- SpecialFormats
+      } yield s"$specialFormat $baseFormat")
     )
 
   private[cineworld] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
@@ -232,5 +236,6 @@ private[cineworld] object FeedResponse:
       url: String
   )
 
-private[this] val BaseFormats = List("2D", "3D")
-private[this] val SpecialFormats = List("IMAX", "4DX", "Superscreen")
+private[this] val BaseFormats = List("3D", "2D")
+private[this] val SpecialFormats =
+  List("IMAX", "4DX", "ScreenX", "Superscreen", "VIP")
