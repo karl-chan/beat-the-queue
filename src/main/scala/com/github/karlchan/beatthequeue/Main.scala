@@ -27,7 +27,7 @@ object Main extends IOApp:
     val message = s"""Usage: crawl
 
     but instead received args: $args"""
-    IO(println(message)).as(ExitCode.Error)
+    IO.println(message).as(ExitCode.Error)
 
   private def runCommand(command: Command, args: List[String]): IO[ExitCode] =
     command match

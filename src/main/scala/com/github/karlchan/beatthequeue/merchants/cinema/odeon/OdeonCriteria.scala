@@ -1,4 +1,4 @@
-package com.github.karlchan.beatthequeue.merchants.cinema.bfi
+package com.github.karlchan.beatthequeue.merchants.cinema.odeon
 
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
@@ -9,18 +9,18 @@ import com.github.karlchan.beatthequeue.util.mapOrTrue
 import java.time.LocalDateTime
 import java.util.UUID
 
-final case class BFICriteria(
+final case class OdeonCriteria(
     override val id: String = UUID.randomUUID.toString,
-    override val merchant: String = BFI.Name,
+    override val merchant: String = Odeon.Name,
     filmNames: Seq[String] = Seq.empty,
     startTime: Option[LocalDateTime] = None,
     endTime: Option[LocalDateTime] = None,
     venues: Seq[String] = Seq.empty,
     screenTypes: Seq[String] = Seq.empty
-) extends Criteria[BFI]:
-  def matches(event: Event[BFI]) =
-    val BFIEvent(_, name, time, venue, screenType) =
-      event.asInstanceOf[BFIEvent]
+) extends Criteria[Odeon]:
+  def matches(event: Event[Odeon]) =
+    val OdeonEvent(_, name, time, venue, screenType) =
+      event.asInstanceOf[OdeonEvent]
 
     filmNames.any(name.containsIgnoreCase(_)) &&
     startTime.mapOrTrue(!_.isAfter(time)) &&
