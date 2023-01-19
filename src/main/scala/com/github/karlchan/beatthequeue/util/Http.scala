@@ -31,22 +31,40 @@ final class Http(
     persistCookies: Boolean = false
 )(using httpConnection: HttpConnection):
 
-  def getHtml(uri: Uri): IO[String] =
-    request(basicRequest.get(uri), asStringAlways).map(_.body)
+  def getHtml(uri: Uri, headers: Map[String, String] = Map.empty): IO[String] =
+    request(basicRequest.get(uri).headers(headers), asStringAlways).map(_.body)
 
-  def get[R](uri: Uri)(using d: Decoder[R]): IO[R] =
-    request(basicRequest.get(uri), asJson[R].getRight).map(_.body)
-
-  def getFullResponse(uri: Uri): IO[Response[String]] =
-    request(basicRequest.get(uri), asStringAlways)
-
-  def postHtml(uri: Uri, body: Map[String, String] = Map.empty): IO[String] =
-    request(basicRequest.post(uri).body(body), asStringAlways).map(_.body)
-
-  def post[R](uri: Uri, body: Map[String, String] = Map.empty)(using
+  def get[R](uri: Uri, headers: Map[String, String] = Map.empty)(using
       d: Decoder[R]
   ): IO[R] =
-    request(basicRequest.post(uri).body(body), asJson[R].getRight).map(_.body)
+    request(basicRequest.get(uri).headers(headers), asJson[R].getRight)
+      .map(_.body)
+
+  def getFullResponse(
+      uri: Uri,
+      headers: Map[String, String] = Map.empty
+  ): IO[Response[String]] =
+    request(basicRequest.get(uri).headers(headers), asStringAlways)
+
+  def postHtml(
+      uri: Uri,
+      body: Map[String, String] = Map.empty,
+      headers: Map[String, String] = Map.empty
+  ): IO[String] =
+    request(basicRequest.post(uri).body(body).headers(headers), asStringAlways)
+      .map(_.body)
+
+  def post[R](
+      uri: Uri,
+      body: Map[String, String] = Map.empty,
+      headers: Map[String, String] = Map.empty
+  )(using
+      d: Decoder[R]
+  ): IO[R] =
+    request(
+      basicRequest.post(uri).body(body).headers(headers),
+      asJson[R].getRight
+    ).map(_.body)
 
   def inspectCookies: Vector[CookieWithMeta] = cookies.toVector
 
@@ -58,8 +76,7 @@ final class Http(
       RetryingBackend(
         ThrottleBackend(
           Slf4jLoggingBackend(
-            UserAgentBackend(httpConnection.backend),
-            logRequestBody = true
+            UserAgentBackend(httpConnection.backend)
           ),
           semaphore
         ),

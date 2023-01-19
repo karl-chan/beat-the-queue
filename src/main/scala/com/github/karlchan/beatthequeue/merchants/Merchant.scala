@@ -54,6 +54,9 @@ trait Criteria[M]:
   val merchant: String
   def matches(event: Event[M]): Boolean
 
+given Ordering[Criteria[?]] =
+  Ordering.by[Criteria[?], String](_.merchant).orElseBy(_.id)
+
 given [M]: Encoder[Criteria[M]] = new {
   final def apply(criteria: Criteria[M]): Json =
     val merchant = Merchants.findMerchantFor(criteria)
