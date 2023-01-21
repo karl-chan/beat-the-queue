@@ -21,6 +21,7 @@ import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.result.UpdateResult
+import com.softwaremill.quicklens.eachWhere
 import com.softwaremill.quicklens.modify
 import io.circe.generic.auto._
 import io.circe.parser.decode
@@ -176,5 +177,10 @@ private def hideNotifications(authUser: AuthUser, published: LocalDateTime)(
 ): IO[UpdateResult] =
   db.updateUser(
     authUser,
-    _.modify(_.notifications).using(_.filterNot(_.published == published))
+    _.modify(
+      _.notifications
+        .eachWhere(_.published == published)
+        .hidden
+    )
+      .setTo(true)
   )
