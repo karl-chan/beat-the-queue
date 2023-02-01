@@ -33,8 +33,6 @@ final class OdeonCrawler(
     getToken().memoize.unsafeRunSync()
 
   override def run(): Stream[IO, OdeonEvent] =
-    def toScreenType(attributeIds: Seq[String]): String = ???
-
     for {
       sites <- Stream.eval(getSites())
       availability <- Stream.eval(getAvailability())
