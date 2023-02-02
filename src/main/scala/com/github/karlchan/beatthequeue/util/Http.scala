@@ -96,8 +96,14 @@ final class Http(
       if (newCookies.isEmpty) {
         oldCookies
       } else {
-        val newCookieNames = newCookies.map(_.name).toSet
-        newCookies ++ oldCookies.filterNot(cookie =>
+        // The last cookie with the same name takes precedence.
+        val newCookiesDeduped =
+          newCookies
+            .groupMapReduce(_.name)(identity)((_, last) => last)
+            .values
+            .toVector
+        val newCookieNames = newCookiesDeduped.map(_.name).toSet
+        newCookiesDeduped ++ oldCookies.filterNot(cookie =>
           newCookieNames.contains(cookie.name)
         )
       }
