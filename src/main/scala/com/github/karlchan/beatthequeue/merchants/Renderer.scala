@@ -26,7 +26,7 @@ abstract class Renderer[M, C <: Criteria[M], E <: Event[M]]:
       div(
         cls := "flex justify-between items-center",
         img(
-          cls := "bg-gray-200",
+          cls := "bg-gray-200 h-12",
           src := merchant.logoUrl,
           alt := merchant.name
         ),
@@ -142,7 +142,11 @@ object Renderer:
                           .toString
                       )
                       .toString,
-                    img(src := merchant.logoUrl, alt := merchant.name)
+                    img(
+                      cls := "h-24",
+                      src := merchant.logoUrl,
+                      alt := merchant.name
+                    )
                   )
                 )
             )

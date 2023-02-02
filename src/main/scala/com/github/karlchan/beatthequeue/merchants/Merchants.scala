@@ -3,17 +3,21 @@ package com.github.karlchan.beatthequeue.merchants
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 import com.github.karlchan.beatthequeue.merchants.cinema.odeon.Odeon
+import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSB
 
 private type Category = String
 
 object Merchants:
-  val All: Map[Category, Seq[Merchant[?, ?, ?]]] = Map {
+  val All: Map[Category, Seq[Merchant[?, ?, ?]]] = Map(
     "Cinema" -> Seq(
       BFI(),
       Cineworld(),
       Odeon()
+    ),
+    "Haircut" -> Seq(
+      LSB()
     )
-  }
+  )
 
   val AllList: Seq[Merchant[?, ?, ?]] = All.values.flatten.toSeq
 
