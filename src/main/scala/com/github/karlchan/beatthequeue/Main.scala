@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
+import com.github.karlchan.beatthequeue.scripts.cleanup
 import com.github.karlchan.beatthequeue.scripts.crawl
 import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.HttpConnection
@@ -20,11 +21,12 @@ object Main extends IOApp:
 
   private def parseArgs(args: List[String]): Command =
     args match
-      case "crawl" :: rest => Command.Crawl
-      case _               => Command.Help
+      case "crawl" :: rest   => Command.Crawl
+      case "cleanup" :: rest => Command.Cleanup
+      case _                 => Command.Help
 
   private def printHelp(args: List[String]): IO[ExitCode] =
-    val message = s"""Usage: crawl
+    val message = s"""Usage: crawl, cleanup
 
     but instead received args: $args"""
     IO.println(message).as(ExitCode.Error)
@@ -35,6 +37,8 @@ object Main extends IOApp:
         printHelp(args)
       case Command.Crawl =>
         crawl()
+      case Command.Cleanup =>
+        cleanup()
 
   private def shutdown()(using
       db: Db,
@@ -52,4 +56,4 @@ object Main extends IOApp:
     } yield ()
 
 enum Command:
-  case Crawl, Help
+  case Crawl, Cleanup, Help
