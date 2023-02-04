@@ -6,13 +6,19 @@ import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFICrawler
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFICriteria
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateTimeField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DayOfWeekField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.MultiStringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.StringField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.TimeField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateTimeInputField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DayOfWeekInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiAutocompleteInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.TimeInputField
 
 class BFIRenderer extends Renderer[BFI, BFICriteria, BFIEvent]:
 
@@ -21,8 +27,11 @@ class BFIRenderer extends Renderer[BFI, BFICriteria, BFIEvent]:
 
   override def toFields(criteria: BFICriteria) = Seq(
     MultiStringField(label = "Film names", value = criteria.filmNames),
-    DateTimeField(label = "Start time", value = criteria.startTime),
-    DateTimeField(label = "End time", value = criteria.endTime),
+    DateField(label = "Start date", value = criteria.startDate),
+    DateField(label = "End date", value = criteria.endDate),
+    TimeField(label = "Start time", value = criteria.startTime),
+    TimeField(label = "End time", value = criteria.endTime),
+    DayOfWeekField(label = "Days of week", value = criteria.daysOfWeek),
     MultiStringField(label = "Venues", value = criteria.venues),
     MultiStringField(label = "Screen types", value = criteria.screenTypes)
   )
@@ -37,15 +46,30 @@ class BFIRenderer extends Renderer[BFI, BFICriteria, BFIEvent]:
         options = info.names,
         value = criteria.filmNames
       ),
-      DateTimeInputField(
+      DateInputField(
+        label = "Start date",
+        name = "startDate",
+        value = criteria.startDate
+      ),
+      DateInputField(
+        label = "End date",
+        name = "endDate",
+        value = criteria.endDate
+      ),
+      TimeInputField(
         label = "Start time",
         name = "startTime",
         value = criteria.startTime
       ),
-      DateTimeInputField(
+      TimeInputField(
         label = "End time",
         name = "endTime",
         value = criteria.endTime
+      ),
+      DayOfWeekInputField(
+        label = "Days of week",
+        name = "daysOfWeek",
+        value = criteria.daysOfWeek
       ),
       MultiSelectInputField(
         label = "Venues",

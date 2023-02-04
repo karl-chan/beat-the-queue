@@ -10,14 +10,14 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers.all
 
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 final class MerchantTest extends AnyFlatSpec with should.Matchers:
   "criteria" should "be encodable to / decodable from json losslessly" in {
     val criteria: Criteria[Cineworld] = CineworldCriteria(
       filmNames = Seq("Dune", "No Time To Die"),
-      startTime = Some(LocalDateTime.of(2021, 10, 15, 0, 0)),
-      endTime = None,
+      startDate = Some(LocalDate.of(2021, 10, 15)),
+      endDate = None,
       venues = Seq("Leicester Square"),
       screenTypes = Seq.empty
     )
