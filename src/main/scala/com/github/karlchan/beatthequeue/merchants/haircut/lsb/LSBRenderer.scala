@@ -7,9 +7,11 @@ import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSB
 import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSBCrawler
 import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSBCriteria
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateTimeField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DayOfWeekField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.MultiStringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.StringField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DateTimeInputField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DayOfWeekInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 
@@ -21,6 +23,7 @@ class LSBRenderer extends Renderer[LSB, LSBCriteria, LSBEvent]:
   override def toFields(criteria: LSBCriteria) = Seq(
     DateTimeField(label = "Start time", value = criteria.startTime),
     DateTimeField(label = "End time", value = criteria.endTime),
+    DayOfWeekField(label = "Days of week", value = criteria.daysOfWeek),
     MultiStringField(label = "Categories", value = criteria.categories),
     MultiStringField(label = "Services", value = criteria.services)
   )
@@ -38,6 +41,11 @@ class LSBRenderer extends Renderer[LSB, LSBCriteria, LSBEvent]:
         label = "End time",
         name = "endTime",
         value = criteria.endTime
+      ),
+      DayOfWeekInputField(
+        label = "Days of week",
+        name = "daysOfWeek",
+        value = criteria.daysOfWeek
       ),
       MultiSelectInputField(
         label = "Categories",
