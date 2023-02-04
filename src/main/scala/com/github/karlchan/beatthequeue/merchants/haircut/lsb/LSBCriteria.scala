@@ -5,15 +5,19 @@ import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.util.any
 import com.github.karlchan.beatthequeue.util.containsIgnoreCase
 import com.github.karlchan.beatthequeue.util.mapOrTrue
+import io.circe.Decoder
+import io.circe.Encoder
 
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.util.UUID
-
+import scala.util.Try
 final case class LSBCriteria(
     override val id: String = UUID.randomUUID.toString,
     override val merchant: String = LSB.Name,
     startTime: Option[LocalDateTime] = None,
     endTime: Option[LocalDateTime] = None,
+    daysOfWeek: Seq[DayOfWeek] = Seq.empty,
     categories: Seq[String] = Seq.empty,
     services: Seq[String] = Seq.empty
 ) extends Criteria[LSB]:
@@ -23,5 +27,16 @@ final case class LSBCriteria(
 
     startTime.mapOrTrue(!_.isAfter(time)) &&
     endTime.mapOrTrue(!_.isBefore(time)) &&
+    daysOfWeek.any(_ == time.getDayOfWeek()) &&
     categories.any(_ == category) &&
     services.any(_ == service)
+
+given [M]: Encoder[DayOfWeek] =
+  Encoder.encodeInt.contramap[DayOfWeek](_.getValue() % 7)
+
+given Decoder[DayOfWeek] = Decoder.decodeInt.emapTry { i =>
+  Try(i match
+    case 0 => DayOfWeek.SUNDAY
+    case _ => DayOfWeek.of(i)
+  )
+}
