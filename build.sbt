@@ -55,3 +55,4 @@ lazy val root = project
     Revolver.enableDebugging()
   )
   .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)
