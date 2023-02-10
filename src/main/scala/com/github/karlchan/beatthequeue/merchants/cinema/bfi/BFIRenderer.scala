@@ -3,9 +3,6 @@ package com.github.karlchan.beatthequeue.merchants.cinema.bfi
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import com.github.karlchan.beatthequeue.merchants.Renderer
-import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
-import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFICrawler
-import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFICriteria
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateTimeField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DayOfWeekField
