@@ -46,7 +46,7 @@ final class LSBCrawler(
         .toMap
 
       category <- Stream.emits(categories)
-      (serviceId, timeSlots) <- Stream.evals(
+      (serviceId, timeSlots) <- Stream.evalSeq(
         category.events.parTraverse(serviceId =>
           getTimeSlots(
             from = LocalDate.now,

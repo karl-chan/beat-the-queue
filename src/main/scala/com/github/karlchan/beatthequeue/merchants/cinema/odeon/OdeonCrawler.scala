@@ -36,7 +36,7 @@ final class OdeonCrawler(
     for {
       sites <- Stream.eval(getSites())
       availability <- Stream.eval(getAvailability())
-      date <- Stream.evals(
+      date <- Stream.evalSeq(
         getScreeningDates()
           .map(_.filmScreeningDates.map(_.businessDate).map(LocalDate.parse))
       )
