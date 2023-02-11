@@ -8,16 +8,19 @@ import cats.syntax.all._
 import com.github.karlchan.beatthequeue.util.middleware.RetryingBackend
 import com.github.karlchan.beatthequeue.util.middleware.ThrottleBackend
 import com.github.karlchan.beatthequeue.util.middleware.UserAgentBackend
+import com.linecorp.armeria.client.ClientFactory
+import com.linecorp.armeria.client.WebClient
+import com.linecorp.armeria.client.encoding.DecodingClient
 import io.circe.Decoder
 import sttp.capabilities.WebSockets
 import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.ResponseAs
 import sttp.client3.SttpBackend
+import sttp.client3.armeria.cats.ArmeriaCatsBackend
 import sttp.client3.asStringAlways
 import sttp.client3.basicRequest
 import sttp.client3.circe.asJson
-import sttp.client3.httpclient.cats.HttpClientCatsBackend
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
@@ -140,30 +143,18 @@ final class Http(
 
 given HttpConnection = HttpConnection()
 final class HttpConnection:
-  val (backend, cleanup) =
-    HttpClientCatsBackend
-      .resourceUsingClient[IO](
-        HttpClient
-          .newBuilder()
-          .sslContext({
-            val ssl = SSLContext.getInstance("TLS")
-            ssl.init(null, Array(TrustAllX509TrustManager()), SecureRandom())
-            ssl
-          })
-          .build()
+  val backend = ArmeriaCatsBackend.usingClient[IO](
+    WebClient
+      .builder()
+      .decorator(
+        DecodingClient
+          .builder()
+          .autoFillAcceptEncoding(false)
+          .strictContentEncoding(true)
+          .newDecorator()
       )
-      .allocated
-      .unsafeRunSync()
+      .factory(ClientFactory.insecure())
+      .build()
+  )
 
-  def close(): IO[Unit] = cleanup
-
-  private final class TrustAllX509TrustManager extends X509TrustManager:
-    override def getAcceptedIssuers = Array[X509Certificate]()
-    override def checkClientTrusted(
-        certs: Array[X509Certificate],
-        authType: String
-    ) = {}
-    override def checkServerTrusted(
-        certs: Array[X509Certificate],
-        authType: String
-    ) = {}
+  def close(): IO[Unit] = backend.close()
