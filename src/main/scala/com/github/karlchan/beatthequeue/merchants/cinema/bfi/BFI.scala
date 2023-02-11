@@ -16,4 +16,4 @@ final class BFI extends Merchant[BFI, BFICriteria, BFIEvent]:
   override val renderer = BFIRenderer()
 
 object BFI:
-  val Name = "bfi"
+  val Name = "BFI"

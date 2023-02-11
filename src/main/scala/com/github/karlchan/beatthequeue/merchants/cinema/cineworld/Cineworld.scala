@@ -17,4 +17,4 @@ final class Cineworld
   override val renderer = CineworldRenderer()
 
 object Cineworld:
-  val Name = "cineworld"
+  val Name = "Cineworld"

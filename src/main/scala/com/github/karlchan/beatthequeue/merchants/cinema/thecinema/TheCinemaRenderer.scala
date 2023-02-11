@@ -1,4 +1,4 @@
-package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
+package com.github.karlchan.beatthequeue.merchants.cinema.thecinema
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
@@ -17,13 +17,13 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.Multi
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.TimeInputField
 
-class CineworldRenderer
-    extends Renderer[Cineworld, CineworldCriteria, CineworldEvent]:
+class TheCinemaRenderer
+    extends Renderer[TheCinema, TheCinemaCriteria, TheCinemaEvent]:
 
-  private val cachedInfo: IO[CineworldCrawler#Info] =
-    CineworldCrawler().getInfo().memoize.unsafeRunSync()
+  private val cachedInfo: IO[TheCinemaCrawler#Info] =
+    TheCinemaCrawler().getInfo().memoize.unsafeRunSync()
 
-  override def toFields(criteria: CineworldCriteria) = Seq(
+  override def toFields(criteria: TheCinemaCriteria) = Seq(
     MultiStringField(label = "Film names", value = criteria.filmNames),
     DateField(label = "Start date", value = criteria.startDate),
     DateField(label = "End date", value = criteria.endDate),
@@ -34,7 +34,7 @@ class CineworldRenderer
     MultiStringField(label = "Screen types", value = criteria.screenTypes)
   )
 
-  override def toInputFields(criteria: CineworldCriteria) =
+  override def toInputFields(criteria: TheCinemaCriteria) =
     for {
       info <- cachedInfo
     } yield Seq(
@@ -83,7 +83,7 @@ class CineworldRenderer
       )
     )
 
-  override def toFields(event: CineworldEvent) = Seq(
+  override def toFields(event: TheCinemaEvent) = Seq(
     StringField(label = "Film name", value = Some(event.name)),
     DateTimeField(label = "Time", value = Some(event.time)),
     StringField(label = "Venue", value = Some(event.venue)),

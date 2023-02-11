@@ -10,10 +10,8 @@ import com.github.karlchan.beatthequeue.util.given_HttpConnection
 import com.github.karlchan.beatthequeue.util.shortFormat
 import fs2.Stream
 import io.circe.Decoder
-import io.circe.HCursor
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.jsoup.Jsoup
 import sttp.client3._
 import sttp.model.Uri
 
@@ -36,7 +34,7 @@ final class OdeonCrawler(
     for {
       sites <- Stream.eval(getSites())
       availability <- Stream.eval(getAvailability())
-      date <- Stream.evals(
+      date <- Stream.evalSeq(
         getScreeningDates()
           .map(_.filmScreeningDates.map(_.businessDate).map(LocalDate.parse))
       )

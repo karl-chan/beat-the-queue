@@ -8,7 +8,7 @@ import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.SttpBackend
 
-class ThrottleBackend[P](
+final class ThrottleBackend[P](
     delegate: SttpBackend[IO, P],
     semaphore: Semaphore[IO]
 ) extends DelegateSttpBackend[IO, P](delegate):

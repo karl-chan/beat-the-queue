@@ -16,4 +16,4 @@ final class Odeon extends Merchant[Odeon, OdeonCriteria, OdeonEvent]:
   override val renderer = OdeonRenderer()
 
 object Odeon:
-  val Name = "odeon"
+  val Name = "Odeon"

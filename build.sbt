@@ -22,7 +22,6 @@ lazy val root = project
       "com.github.eikek" %% "emil-common" % emilVersion,
       "com.github.eikek" %% "emil-javamail" % emilVersion,
       "com.softwaremill.quicklens" %% "quicklens" % "1.9.0",
-      "com.softwaremill.sttp.client3" %% "armeria-backend-cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "circe" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "core" % sttpVersion,
@@ -55,3 +54,4 @@ lazy val root = project
     Revolver.enableDebugging()
   )
   .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)

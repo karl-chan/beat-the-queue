@@ -3,9 +3,6 @@ package com.github.karlchan.beatthequeue.merchants.cinema.odeon
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import com.github.karlchan.beatthequeue.merchants.Renderer
-import com.github.karlchan.beatthequeue.merchants.cinema.odeon.Odeon
-import com.github.karlchan.beatthequeue.merchants.cinema.odeon.OdeonCrawler
-import com.github.karlchan.beatthequeue.merchants.cinema.odeon.OdeonCriteria
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DateTimeField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.fields.DayOfWeekField
