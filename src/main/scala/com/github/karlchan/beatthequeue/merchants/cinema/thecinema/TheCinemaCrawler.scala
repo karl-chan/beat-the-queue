@@ -156,7 +156,7 @@ final class TheCinemaCrawler() extends EventFinder[TheCinema]:
   }
 
 private[thecinema] enum ScreenType(val description: String):
-  case Regular extends ScreenType("")
+  case Regular extends ScreenType("2D")
   case ThreeD extends ScreenType("3D")
   case DolbyCinema extends ScreenType("Dolby Cinema")
   case DolbyAtmos extends ScreenType("Dolby Atmos")
