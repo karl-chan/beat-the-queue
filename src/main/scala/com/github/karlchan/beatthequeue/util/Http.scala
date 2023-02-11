@@ -76,13 +76,15 @@ final class Http(
     val backendWithMiddleware =
       RetryingBackend(
         ThrottleBackend(
-          Slf4jLoggingBackend(
-            UserAgentBackend(httpConnection.backend),
-            logRequestBody = Logging.isDebug,
-            logResponseBody = Logging.isDebug,
-            sensitiveHeaders =
-              if Logging.isDebug then Set.empty
-              else HeaderNames.SensitiveHeaders
+          UserAgentBackend(
+            Slf4jLoggingBackend(
+              httpConnection.backend,
+              logRequestBody = Logging.isDebug,
+              logResponseBody = Logging.isDebug,
+              sensitiveHeaders =
+                if Logging.isDebug then Set.empty
+                else HeaderNames.SensitiveHeaders
+            )
           ),
           semaphore
         ),
