@@ -19,6 +19,7 @@ import sttp.client3.asStringAlways
 import sttp.client3.basicRequest
 import sttp.client3.circe.asJson
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
+import sttp.model.HeaderNames
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
 
@@ -76,7 +77,12 @@ final class Http(
       RetryingBackend(
         ThrottleBackend(
           Slf4jLoggingBackend(
-            UserAgentBackend(httpConnection.backend)
+            UserAgentBackend(httpConnection.backend),
+            logRequestBody = Logging.isDebug,
+            logResponseBody = Logging.isDebug,
+            sensitiveHeaders =
+              if Logging.isDebug then Set.empty
+              else HeaderNames.SensitiveHeaders
           ),
           semaphore
         ),
