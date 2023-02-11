@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue.merchants
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 import com.github.karlchan.beatthequeue.merchants.cinema.odeon.Odeon
+import com.github.karlchan.beatthequeue.merchants.cinema.thecinema.TheCinema
 import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSB
 
 private type Category = String
@@ -12,7 +13,8 @@ object Merchants:
     "Cinema" -> Seq(
       BFI(),
       Cineworld(),
-      Odeon()
+      Odeon(),
+      TheCinema()
     ),
     "Haircut" -> Seq(
       LSB()
