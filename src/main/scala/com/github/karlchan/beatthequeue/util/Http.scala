@@ -110,10 +110,12 @@ final class Http(
       if (newCookies.isEmpty) {
         oldCookies
       } else {
-        // The last cookie with the same name takes precedence.
+        // The last cookie with the same name in the same domain takes precendence.
         val newCookiesDeduped =
           newCookies
-            .groupMapReduce(_.name)(identity)((_, last) => last)
+            .groupMapReduce(c => (c.domain, c.name))(identity)((_, last) =>
+              last
+            )
             .values
             .toVector
         val newCookieNames = newCookiesDeduped.map(_.name).toSet
