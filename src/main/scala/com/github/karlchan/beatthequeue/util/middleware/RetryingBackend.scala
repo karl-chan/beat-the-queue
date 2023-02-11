@@ -10,7 +10,7 @@ import sttp.client3.SttpBackend
 
 import concurrent.duration.DurationInt
 
-class RetryingBackend[P](
+final class RetryingBackend[P](
     delegate: SttpBackend[IO, P],
     maxRetries: Int,
     retryDelay: Int,
