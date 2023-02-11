@@ -16,4 +16,4 @@ final class LSB extends Merchant[LSB, LSBCriteria, LSBEvent]:
   override val renderer = LSBRenderer()
 
 object LSB:
-  val Name = "lsb"
+  val Name = "London School of Barbering"

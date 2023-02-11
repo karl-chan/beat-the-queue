@@ -17,4 +17,4 @@ final class TheCinema
   override val renderer = TheCinemaRenderer()
 
 object TheCinema:
-  val Name = "theCinema"
+  val Name = "The Cinema"
