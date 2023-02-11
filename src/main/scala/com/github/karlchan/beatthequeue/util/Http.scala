@@ -14,15 +14,21 @@ import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.ResponseAs
 import sttp.client3.SttpBackend
-import sttp.client3.armeria.cats.ArmeriaCatsBackend
 import sttp.client3.asStringAlways
 import sttp.client3.basicRequest
 import sttp.client3.circe.asJson
+import sttp.client3.httpclient.cats.HttpClientCatsBackend
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
 
+import java.net.http.HttpClient
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 import scala.concurrent.ExecutionContext
 
 final class Http(
@@ -132,6 +138,30 @@ final class Http(
 
 given HttpConnection = HttpConnection()
 final class HttpConnection:
-  val backend = ArmeriaCatsBackend.usingDefaultClient[IO]()
+  val (backend, cleanup) =
+    HttpClientCatsBackend
+      .resourceUsingClient[IO](
+        HttpClient
+          .newBuilder()
+          .sslContext({
+            val ssl = SSLContext.getInstance("TLS")
+            ssl.init(null, Array(TrustAllX509TrustManager()), SecureRandom())
+            ssl
+          })
+          .build()
+      )
+      .allocated
+      .unsafeRunSync()
 
-  def close(): IO[Unit] = backend.close()
+  def close(): IO[Unit] = cleanup
+
+  private final class TrustAllX509TrustManager extends X509TrustManager:
+    override def getAcceptedIssuers = Array[X509Certificate]()
+    override def checkClientTrusted(
+        certs: Array[X509Certificate],
+        authType: String
+    ) = {}
+    override def checkServerTrusted(
+        certs: Array[X509Certificate],
+        authType: String
+    ) = {}
