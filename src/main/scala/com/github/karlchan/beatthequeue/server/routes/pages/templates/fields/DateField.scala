@@ -13,7 +13,7 @@ final case class DateField(
   override def render: Html =
     div(
       span(cls := "font-semibold", s"$label: "),
-      span(s"${value.map(_.format(Formatter)).getOrElse("N/A")}")
+      span(
+        s"${value.map(_.format(DateTimeFormatter.ofPattern("LLL d (EE)"))).getOrElse("N/A")}"
+      )
     )
-
-private val Formatter = DateTimeFormatter.ofPattern("LLL d (EE)");

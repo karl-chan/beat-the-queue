@@ -13,7 +13,7 @@ final case class TimeField(
   override def render: Html =
     div(
       span(cls := "font-semibold", s"$label: "),
-      span(s"${value.map(_.format(Formatter)).getOrElse("N/A")}")
+      span(
+        s"${value.map(DateTimeFormatter.ofPattern("h:mm a")).getOrElse("N/A")}"
+      )
     )
-
-private val Formatter = DateTimeFormatter.ofPattern("h:mm a");
