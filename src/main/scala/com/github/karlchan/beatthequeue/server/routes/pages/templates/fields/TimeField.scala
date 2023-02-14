@@ -14,6 +14,6 @@ final case class TimeField(
     div(
       span(cls := "font-semibold", s"$label: "),
       span(
-        s"${value.map(DateTimeFormatter.ofPattern("h:mm a")).getOrElse("N/A")}"
+        s"${value.map(_.format(DateTimeFormatter.ofPattern("h:mm a"))).getOrElse("N/A")}"
       )
     )
