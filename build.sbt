@@ -21,6 +21,7 @@ lazy val root = project
       // scala 3 dependencies
       "com.github.eikek" %% "emil-common" % emilVersion,
       "com.github.eikek" %% "emil-javamail" % emilVersion,
+      "com.github.jwt-scala" %% "jwt-circe" % "9.1.2",
       "com.softwaremill.quicklens" %% "quicklens" % "1.9.0",
       "com.softwaremill.sttp.client3" %% "armeria-backend-cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "cats" % sttpVersion,
