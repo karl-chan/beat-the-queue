@@ -35,7 +35,7 @@ final class CineworldCrawlerTest
   "getFilmEvents" should "return film timetable" in {
     val res = crawler.getFilmEvents(
       "103", // Leicester Square
-      LocalDate.now.plusDays(1)
+      LocalDate.now.plusDays(7)
     )
     res.asserting(filmEventsResponse =>
       filmEventsResponse.body.events.map(

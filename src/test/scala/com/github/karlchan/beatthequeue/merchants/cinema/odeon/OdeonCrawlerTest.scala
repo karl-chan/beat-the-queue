@@ -43,7 +43,7 @@ final class OdeonCrawlerTest
 
   "getShowtimes" should "return json with available times" in {
     crawler
-      .getShowtimes(LocalDate.now().plusDays(1))
+      .getShowtimes(LocalDate.now().plusDays(7))
       .asserting(_.showtimes should not be empty)
   }
 
