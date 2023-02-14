@@ -15,6 +15,7 @@ import com.github.karlchan.beatthequeue.util.given_Db
 import com.mongodb.client.result.UpdateResult
 import com.softwaremill.quicklens.modify
 import fs2.Stream
+import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import java.time.LocalDateTime
@@ -26,7 +27,7 @@ def crawl(): IO[ExitCode] =
     allUsers <- getAllUsers()
     _ <- logger.info("Got all users.")
 
-    allMatchResults <- streamAllEvents()
+    allMatchResults <- streamAllEvents(logger)
       .fold(initMatchResults(allUsers))(accumlateMatchResults)
       .compile
       .lastOrError
@@ -45,10 +46,13 @@ def crawl(): IO[ExitCode] =
     _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
-private def streamAllEvents(): Stream[IO, Event[?]] =
+private def streamAllEvents(logger: Logger[IO]): Stream[IO, Event[?]] =
+  def logError(e: Throwable) =
+    Stream.eval(IO(logger.error(e))) >> Stream.empty
+
   Stream
     .emits(Merchants.AllList)
-    .map(_.eventFinder.run())
+    .map(_.eventFinder.run().handleErrorWith(logError))
     .parJoin(5)
 
 private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =
