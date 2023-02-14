@@ -12,12 +12,16 @@ import fs2.Stream
 import io.circe.Decoder
 import io.circe.generic.auto._
 import io.circe.syntax._
+import pdi.jwt.JwtCirce
+import pdi.jwt.JwtOptions
 import sttp.client3._
 import sttp.model.Uri
 
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 final class OdeonCrawler(
@@ -132,7 +136,7 @@ final class OdeonCrawler(
     for {
       html <- http
         .getHtml(
-          uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk"
+          uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/films/"
         )
 
       authToken = authTokenRegex
@@ -141,6 +145,18 @@ final class OdeonCrawler(
           throw IllegalArgumentException(s"authToken not found in html!")
         )
         .group(1)
+
+      expiry = Instant.ofEpochSecond(
+        JwtCirce
+          .decode(authToken, JwtOptions(signature = false, expiration = false))
+          .get
+          .expiration
+          .get
+      )
+
+      _ = if (expiry.isBefore(Instant.now())) {
+        throw IllegalStateException(s"authToken already expired at $expiry!")
+      }
     } yield Token(authToken)
   }
 
