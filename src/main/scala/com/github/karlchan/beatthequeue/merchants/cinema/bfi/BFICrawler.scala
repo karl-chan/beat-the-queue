@@ -10,13 +10,14 @@ import fs2.Stream
 import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.parser.decode
+import org.jsoup.Jsoup
+import sttp.client3._
+
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
-import org.jsoup.Jsoup
 import scala.jdk.CollectionConverters._
-import sttp.client3._
 
 final class BFICrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
@@ -117,11 +118,9 @@ final class BFICrawler(
           Map(
             "sToken" -> token.sToken,
             "BOset::WScontent::SearchCriteria::search_from" -> startDate
-              .atStartOfDay()
-              .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+              .format(DateTimeFormatter.ISO_LOCAL_DATE),
             "BOset::WScontent::SearchCriteria::search_to" -> endDate
-              .atTime(23, 59, 59)
-              .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+              .format(DateTimeFormatter.ISO_LOCAL_DATE),
             "BOset::WScontent::SearchCriteria::venue_filter" -> "",
             "BOset::WScontent::SearchCriteria::city_filter" -> "",
             "BOset::WScontent::SearchCriteria::month_filter" -> "",
