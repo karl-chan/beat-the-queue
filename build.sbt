@@ -57,3 +57,4 @@ lazy val root = project
   )
   .enablePlugins(JavaAppPackaging)
   .enablePlugins(DockerPlugin)
+  .enablePlugins(GraalVMNativeImagePlugin)
