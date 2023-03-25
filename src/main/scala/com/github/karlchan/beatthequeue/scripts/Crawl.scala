@@ -27,7 +27,7 @@ def crawl(): IO[ExitCode] =
     allUsers <- getAllUsers()
     _ <- logger.info("Got all users.")
 
-    allMatchResults <- streamAllEvents(logger)
+    allMatchResults <- streamAllEvents()
       .fold(initMatchResults(allUsers))(accumlateMatchResults)
       .compile
       .lastOrError
@@ -46,9 +46,9 @@ def crawl(): IO[ExitCode] =
     _ <- logger.info("Notified all users.")
   } yield ExitCode.Success
 
-private def streamAllEvents(logger: Logger[IO]): Stream[IO, Event[?]] =
+private def streamAllEvents(): Stream[IO, Event[?]] =
   def logError(e: Throwable) =
-    Stream.eval(IO(logger.error(e))) >> Stream.empty
+    Stream.eval(IO(e.printStackTrace())) >> Stream.empty
 
   Stream
     .emits(Merchants.AllList)
