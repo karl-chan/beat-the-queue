@@ -133,20 +133,27 @@ final class OdeonCrawler(
   private[odeon] def getToken(): IO[Token] = {
     val authTokenRegex = raw"\"authToken\":\"([^\"]+)\"".r
 
-    for {
-      html <- http
-        .getHtml(
-          uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/films/"
-        )
+    val trySites = Seq(
+      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/",
+      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/cinemas/",
+      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/films/"
+    )
 
-      authToken = authTokenRegex
-        .findFirstMatchIn(html)
-        .getOrElse(
-          throw IllegalArgumentException(s"authToken not found in html!")
-        )
-        .group(1)
+    def fetchAuthToken(url: Uri): IO[String] =
+      for {
+        html <- http
+          .getHtml(url)
 
-      expiry = Instant.ofEpochSecond(
+        authToken = authTokenRegex
+          .findFirstMatchIn(html)
+          .getOrElse(
+            throw IllegalArgumentException(s"authToken not found in html!")
+          )
+          .group(1)
+      } yield authToken
+
+    def getExpiry(authToken: String): Instant =
+      Instant.ofEpochSecond(
         JwtCirce
           .decode(authToken, JwtOptions(signature = false, expiration = false))
           .get
@@ -154,10 +161,20 @@ final class OdeonCrawler(
           .get
       )
 
-      _ = if (expiry.isBefore(Instant.now())) {
-        throw IllegalStateException(s"authToken already expired at $expiry!")
+    def isExpired(authToken: String): Boolean =
+      getExpiry(authToken).isBefore(Instant.now())
+
+    for {
+      authTokenCandidates <- trySites.traverse(fetchAuthToken)
+      authToken = authTokenCandidates.find(!isExpired(_))
+
+      _ = if (authToken.isEmpty) {
+        val lastAuthTokenExpiry = authTokenCandidates.map(getExpiry).max
+        throw IllegalStateException(
+          s"authToken already expired at $lastAuthTokenExpiry!"
+        )
       }
-    } yield Token(authToken)
+    } yield Token(authToken.get)
   }
 
   final private[odeon] case class Token(
