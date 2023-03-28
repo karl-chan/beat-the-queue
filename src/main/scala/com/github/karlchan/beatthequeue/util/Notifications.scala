@@ -62,11 +62,11 @@ object Notifications:
     IO.fromCompletableFuture(IO(pushService.send(notification)))
 
   private val emailClient = JavaMailEmil[IO]()
-  private val senderAddress = Properties.get("mail.server.user")
+  private val senderAddress = Properties.get("mail.server.from")
   private val smtpConf =
     MailConfig(
       Properties.get("mail.server.smtp.address"),
-      senderAddress,
+      Properties.get("mail.server.user"),
       Properties.get("mail.server.password"),
       SSLType.StartTLS
     )
