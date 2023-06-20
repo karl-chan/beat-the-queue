@@ -26,7 +26,7 @@ abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
   val name: String
   val logoUrl: String
   val eventFinder: EventFinder[M]
-  val defaultCriteria: C
+  val criteriaFactory: () => C
   val renderer: Renderer[M, C, E]
 
   final val criteriaEncoder: Encoder[Criteria[M]] =

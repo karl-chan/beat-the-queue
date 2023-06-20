@@ -12,7 +12,7 @@ final class Odeon extends Merchant[Odeon, OdeonCriteria, OdeonEvent]:
   override val logoUrl =
     "https://upload.wikimedia.org/wikipedia/commons/2/26/Odeon_logo.svg"
   override val eventFinder = OdeonCrawler()
-  override val defaultCriteria = OdeonCriteria()
+  override val criteriaFactory = () => OdeonCriteria()
   override val renderer = OdeonRenderer()
 
 object Odeon:
