@@ -12,7 +12,7 @@ final class Vue extends Merchant[Vue, VueCriteria, VueEvent]:
   override val logoUrl =
     "https://www.myvue.com/assets/images/logos/logo-header-vue.png"
   override val eventFinder = VueCrawler()
-  override val defaultCriteria = VueCriteria()
+  override val criteriaFactory = () => VueCriteria()
   override val renderer = VueRenderer()
 
 object Vue:

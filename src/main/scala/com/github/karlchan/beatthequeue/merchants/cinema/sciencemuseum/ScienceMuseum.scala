@@ -13,7 +13,7 @@ final class ScienceMuseum
   override val logoUrl =
     "https://logos-download.com/wp-content/uploads/2021/01/Science_Museum_Logo.png"
   override val eventFinder = ScienceMuseumCrawler()
-  override val defaultCriteria = ScienceMuseumCriteria()
+  override val criteriaFactory = () => ScienceMuseumCriteria()
   override val renderer = ScienceMuseumRenderer()
 
 object ScienceMuseum:

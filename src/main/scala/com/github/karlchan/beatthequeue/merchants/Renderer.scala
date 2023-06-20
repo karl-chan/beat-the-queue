@@ -138,7 +138,7 @@ object Renderer:
                       .withQueryParam(
                         "criteria",
                         merchant.criteriaEncoder
-                          .apply(merchant.defaultCriteria)
+                          .apply(merchant.criteriaFactory.apply)
                           .toString
                       )
                       .toString,

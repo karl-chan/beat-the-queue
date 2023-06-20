@@ -12,7 +12,7 @@ final class BFI extends Merchant[BFI, BFICriteria, BFIEvent]:
   override val logoUrl =
     "https://www.bfi.org.uk/dist/server/e51a86bb7ce82a9e9741a54d1f877a9c.svg"
   override val eventFinder = BFICrawler()
-  override val defaultCriteria = BFICriteria()
+  override val criteriaFactory = () => BFICriteria()
   override val renderer = BFIRenderer()
 
 object BFI:

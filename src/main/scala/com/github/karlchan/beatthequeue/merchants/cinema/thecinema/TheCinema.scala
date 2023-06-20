@@ -13,7 +13,7 @@ final class TheCinema
   override val logoUrl =
     "https://www.thecinemainthepowerstation.com/assets/images/cinema_2/cinema-logo.png"
   override val eventFinder = TheCinemaCrawler()
-  override val defaultCriteria = TheCinemaCriteria()
+  override val criteriaFactory = () => TheCinemaCriteria()
   override val renderer = TheCinemaRenderer()
 
 object TheCinema:
