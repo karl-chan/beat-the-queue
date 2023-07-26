@@ -1,13 +1,13 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import java.time.LocalDateTime
+
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import scalatags.Text.all._
-
-import java.time.LocalDateTime
 
 final case class MultiStringInputField(
     override val label: String,

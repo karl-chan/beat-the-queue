@@ -1,5 +1,8 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.time.LocalDateTime
+import java.util.UUID
+
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import com.github.karlchan.beatthequeue.merchants.Criteria
@@ -22,9 +25,6 @@ import mongo4cats.circe._
 import mongo4cats.client.MongoClient
 import mongo4cats.collection.MongoCollection
 import mongo4cats.operations.Filter
-
-import java.time.LocalDateTime
-import java.util.UUID
 
 given Db = Db()
 

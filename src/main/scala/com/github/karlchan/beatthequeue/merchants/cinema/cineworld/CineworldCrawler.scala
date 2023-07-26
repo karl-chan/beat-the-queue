@@ -1,5 +1,9 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Period
+
 import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.Event
@@ -14,10 +18,6 @@ import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client3._
-
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Period
 
 final class CineworldCrawler(
     cinemaIds: Option[Seq[String]] = Some(

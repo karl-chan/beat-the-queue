@@ -1,10 +1,10 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.fields
 
-import com.github.karlchan.beatthequeue.server.routes.pages.Html
-import scalatags.Text.all._
-
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+import com.github.karlchan.beatthequeue.server.routes.pages.Html
+import scalatags.Text.all._
 
 final case class DateTimeField(
     override val label: String,

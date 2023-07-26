@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.scripts
 
+import java.time.LocalDateTime
+
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.syntax.all._
@@ -17,8 +19,6 @@ import com.softwaremill.quicklens.modify
 import fs2.Stream
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-
-import java.time.LocalDateTime
 
 def crawl(): IO[ExitCode] =
   for {

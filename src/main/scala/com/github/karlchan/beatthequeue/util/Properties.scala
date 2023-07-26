@@ -1,10 +1,10 @@
 package com.github.karlchan.beatthequeue.util
 
+import scala.jdk.CollectionConverters._
+
 import com.typesafe.config.Config
 import io.circe.parser.parse
 import pureconfig.ConfigSource
-
-import scala.jdk.CollectionConverters._
 
 object Properties:
   def get[V](

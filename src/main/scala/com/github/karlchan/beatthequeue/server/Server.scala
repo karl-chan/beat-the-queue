@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.server
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
@@ -15,8 +17,6 @@ import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.middleware.GZip
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object Server extends IOApp:
 

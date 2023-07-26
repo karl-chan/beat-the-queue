@@ -1,5 +1,8 @@
 package com.github.karlchan.beatthequeue.server.routes.api
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.given_EntityDecoder_IO_Criteria
@@ -18,10 +21,6 @@ import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.dsl.io._
 import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
-
-import scala.collection.mutable.ArrayBuffer
-
-import collection.JavaConverters._
 
 private val privateRoutes: HttpRoutes[IO] = Auth.service(
   TSecAuthService {

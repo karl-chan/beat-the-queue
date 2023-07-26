@@ -1,10 +1,10 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import java.time.LocalTime
+
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
 import scalatags.Text.all._
-
-import java.time.LocalTime
 
 final case class TimeInputField(
     override val label: String,

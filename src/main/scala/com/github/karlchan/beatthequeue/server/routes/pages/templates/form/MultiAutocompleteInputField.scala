@@ -1,12 +1,12 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import java.util.UUID
+
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import io.circe.syntax._
 import scalatags.Text.all._
-
-import java.util.UUID
 
 final case class MultiAutocompleteInputField(
     override val label: String,

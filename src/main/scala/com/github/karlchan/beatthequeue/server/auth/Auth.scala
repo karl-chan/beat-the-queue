@@ -1,5 +1,11 @@
 package com.github.karlchan.beatthequeue.server.auth
 
+import java.time.Instant
+import java.util.UUID
+
+import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
+
 import cats.Id
 import cats.data.Kleisli
 import cats.data.OptionT
@@ -26,12 +32,6 @@ import tsec.authentication.TSecCookieSettings
 import tsec.common._
 import tsec.hashing.jca._
 import tsec.mac.jca.HMACSHA256
-
-import java.time.Instant
-import java.util.UUID
-import scala.collection.mutable
-
-import concurrent.duration.DurationInt
 
 final case class AuthUser(
     id: String,

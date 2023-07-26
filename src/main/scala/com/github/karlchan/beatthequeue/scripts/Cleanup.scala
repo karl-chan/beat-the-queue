@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.scripts
 
+import java.time.LocalDateTime
+
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.syntax.all._
@@ -8,8 +10,6 @@ import com.github.karlchan.beatthequeue.util.Models
 import com.github.karlchan.beatthequeue.util.given_Db
 import com.softwaremill.quicklens.modify
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-
-import java.time.LocalDateTime
 
 def cleanup()(using db: Db): IO[ExitCode] =
   for {

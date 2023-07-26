@@ -1,5 +1,14 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.net.http.HttpClient
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+
+import scala.concurrent.ExecutionContext
+
 import cats.effect.IO
 import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
@@ -25,14 +34,6 @@ import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
-
-import java.net.http.HttpClient
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-import scala.concurrent.ExecutionContext
 
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),

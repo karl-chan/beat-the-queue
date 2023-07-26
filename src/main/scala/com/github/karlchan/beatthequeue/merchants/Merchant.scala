@@ -1,5 +1,9 @@
 package com.github.karlchan.beatthequeue.merchants
 
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.UUID
+
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Renderer
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
@@ -12,10 +16,6 @@ import io.circe.Json
 import mongo4cats.codecs.MongoCodecProvider
 import org.http4s.EntityDecoder
 import org.http4s.circe.jsonOf
-
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.util.UUID
 
 abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
     actualCriteriaEncoder: Encoder[C],

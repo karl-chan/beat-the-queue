@@ -1,5 +1,11 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.vue
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Period
+import java.time.format.DateTimeFormatter
+
 import cats.effect.IO
 import cats.syntax.all._
 import cats.syntax.show
@@ -15,12 +21,6 @@ import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client3._
-
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.Period
-import java.time.format.DateTimeFormatter
 
 final class VueCrawler(
     cinemaIds: Option[Seq[String]] = Some(

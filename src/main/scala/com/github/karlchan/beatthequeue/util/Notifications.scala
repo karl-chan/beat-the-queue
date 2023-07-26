@@ -1,5 +1,9 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.security.Security
+
+import scala.collection.mutable
+
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.given_Encoder_Event
@@ -14,9 +18,6 @@ import nl.martijndwars.webpush.PushAsyncService
 import nl.martijndwars.webpush.Subscription
 import nl.martijndwars.webpush.Subscription.Keys
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-
-import java.security.Security
-import scala.collection.mutable
 
 object Notifications:
   def sendEmail(emailAddresses: Seq[String], events: Seq[Event[?]]): IO[?] =

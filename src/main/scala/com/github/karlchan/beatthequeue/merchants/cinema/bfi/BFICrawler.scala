@@ -1,5 +1,12 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.bfi
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.format.DateTimeFormatter
+
+import scala.jdk.CollectionConverters._
+
 import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.EventFinder
@@ -12,12 +19,6 @@ import io.circe.HCursor
 import io.circe.parser.decode
 import org.jsoup.Jsoup
 import sttp.client3._
-
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.format.DateTimeFormatter
-import scala.jdk.CollectionConverters._
 
 final class BFICrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
