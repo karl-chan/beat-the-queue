@@ -1,11 +1,11 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.time.LocalDateTime
+
 import cats.effect.testing.scalatest.AsyncIOSpec
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldEvent
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should
-
-import java.time.LocalDateTime
 
 final class NotificationsTest
     extends AsyncFlatSpec

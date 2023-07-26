@@ -1,13 +1,13 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import java.time.DayOfWeek
+import java.util.UUID
+
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.widgets._
 import io.circe.syntax._
 import scalatags.Text.all._
-
-import java.time.DayOfWeek
-import java.util.UUID
 
 final case class DayOfWeekInputField(
     override val label: String,

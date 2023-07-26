@@ -1,5 +1,11 @@
 package com.github.karlchan.beatthequeue.merchants.haircut.lsb
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Period
+import java.time.format.DateTimeFormatter
+
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all._
@@ -15,12 +21,6 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client3._
 import sttp.model.Uri
-
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.Period
-import java.time.format.DateTimeFormatter
 
 final class LSBCrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofMonths(1))

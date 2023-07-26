@@ -1,13 +1,13 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.thecinema
 
+import java.time.LocalDate
+
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import org.scalatest.PrivateMethodTester
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers.all
-
-import java.time.LocalDate
 
 final class TheCinemaCrawlerTest
     extends AsyncFlatSpec

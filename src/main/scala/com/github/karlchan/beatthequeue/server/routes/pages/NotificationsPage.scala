@@ -1,5 +1,9 @@
 package com.github.karlchan.beatthequeue.server.routes.pages
 
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.Merchant
@@ -13,9 +17,6 @@ import com.github.karlchan.beatthequeue.util.Db
 import com.github.karlchan.beatthequeue.util.Models
 import io.circe.generic.auto._
 import io.circe.syntax._
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import org.http4s.Uri
 import scalatags.Text.all._
 

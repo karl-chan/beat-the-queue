@@ -1,8 +1,8 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.bfi
 
-import com.github.karlchan.beatthequeue.merchants.Event
-
 import java.time.LocalDateTime
+
+import com.github.karlchan.beatthequeue.merchants.Event
 
 final case class BFIEvent(
     override val merchant: String = BFI.Name,

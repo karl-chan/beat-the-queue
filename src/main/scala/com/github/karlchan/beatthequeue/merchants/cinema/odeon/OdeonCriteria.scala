@@ -1,5 +1,10 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.odeon
 
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
+import java.util.UUID
+
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.util.any
@@ -9,11 +14,6 @@ import com.github.karlchan.beatthequeue.util.dayOfWeekEncoder
 import com.github.karlchan.beatthequeue.util.mapOrTrue
 import io.circe.Decoder
 import io.circe.Encoder
-
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
-import java.util.UUID
 
 final case class OdeonCriteria(
     override val id: String = UUID.randomUUID.toString,

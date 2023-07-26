@@ -1,9 +1,9 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.time.LocalDate
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-
-import java.time.LocalDate
 
 final class ExtensionsTest extends AnyFlatSpec with should.Matchers:
   "LocalDate.shortFormat" should "return short format" in {

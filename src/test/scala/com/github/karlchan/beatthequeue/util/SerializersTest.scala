@@ -1,10 +1,10 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.time.DayOfWeek
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.prop.TableDrivenPropertyChecks
-
-import java.time.DayOfWeek
 
 final class SerializersTest
     extends AnyFlatSpec

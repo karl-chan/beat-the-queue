@@ -1,5 +1,13 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.thecinema
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
+
+import scala.jdk.CollectionConverters._
+
 import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.EventFinder
@@ -9,13 +17,6 @@ import fs2.Stream
 import org.jsoup.Jsoup
 import sttp.client3._
 import sttp.model.Uri
-
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoField
-import scala.jdk.CollectionConverters._
 
 final class TheCinemaCrawler() extends EventFinder[TheCinema]:
   private val http = Http(persistCookies = true)

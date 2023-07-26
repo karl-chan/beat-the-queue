@@ -1,8 +1,8 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.sciencemuseum
 
-import com.github.karlchan.beatthequeue.merchants.Event
-
 import java.time.LocalDateTime
+
+import com.github.karlchan.beatthequeue.merchants.Event
 
 final case class ScienceMuseumEvent(
     override val merchant: String = ScienceMuseum.Name,

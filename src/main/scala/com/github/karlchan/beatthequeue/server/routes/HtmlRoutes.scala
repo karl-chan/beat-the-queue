@@ -1,5 +1,8 @@
 package com.github.karlchan.beatthequeue.server.routes
 
+import java.io.File
+import java.time.LocalDateTime
+
 import cats.data.Kleisli
 import cats.effect.IO
 import cats.syntax.all._
@@ -37,9 +40,6 @@ import scalatags.Text.TypedTag
 import scalatags.Text.all._
 import tsec.authentication.TSecAuthService
 import tsec.authentication.asAuthed
-
-import java.io.File
-import java.time.LocalDateTime
 
 private val privateRoutes: HttpRoutes[IO] =
   Auth.service(TSecAuthService {

@@ -1,12 +1,12 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.fields
 
-import com.github.karlchan.beatthequeue.server.routes.pages.Html
-import scalatags.Text.all._
-
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
+
+import com.github.karlchan.beatthequeue.server.routes.pages.Html
+import scalatags.Text.all._
 
 final case class DayOfWeekField(
     override val label: String,

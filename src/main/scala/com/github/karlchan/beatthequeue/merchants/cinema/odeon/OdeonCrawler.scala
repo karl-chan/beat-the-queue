@@ -1,5 +1,12 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.odeon
 
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all._
@@ -16,13 +23,6 @@ import pdi.jwt.JwtCirce
 import pdi.jwt.JwtOptions
 import sttp.client3._
 import sttp.model.Uri
-
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Period
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 final class OdeonCrawler(
     siteIds: Option[Seq[String]] = Some(Properties.getList("odeon.siteIds")),

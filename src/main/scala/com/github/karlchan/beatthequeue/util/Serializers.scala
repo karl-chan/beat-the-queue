@@ -1,9 +1,11 @@
 package com.github.karlchan.beatthequeue.util
 
+import java.time.DayOfWeek
+
+import scala.util.Try
+
 import io.circe.Decoder
 import io.circe.Encoder
-import scala.util.Try
-import java.time.DayOfWeek
 
 val dayOfWeekEncoder: Encoder[DayOfWeek] =
   Encoder.encodeInt.contramap[DayOfWeek](_.getValue() % 7)

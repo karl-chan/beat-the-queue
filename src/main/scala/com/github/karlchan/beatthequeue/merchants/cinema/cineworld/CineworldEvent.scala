@@ -1,8 +1,8 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 
-import com.github.karlchan.beatthequeue.merchants.Event
-
 import java.time.LocalDateTime
+
+import com.github.karlchan.beatthequeue.merchants.Event
 
 final case class CineworldEvent(
     override val merchant: String = Cineworld.Name,

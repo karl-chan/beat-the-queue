@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.merchants.cinema.sciencemuseum
 
+import java.time.LocalDateTime
+
 import cats.effect.IO
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.EventFinder
@@ -11,8 +13,6 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client3._
 import sttp.model.Uri
-
-import java.time.LocalDateTime
 
 final class ScienceMuseumCrawler extends EventFinder[ScienceMuseum]:
   private val http = Http()

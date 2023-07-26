@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.util.middleware
 
+import scala.concurrent.duration.DurationInt
+
 import cats.effect.IO
 import sttp.capabilities.Effect
 import sttp.client3.DelegateSttpBackend
@@ -8,8 +10,6 @@ import sttp.client3.Response
 import sttp.client3.RetryWhen
 import sttp.client3.SttpBackend
 import sttp.client3.SttpClientException
-
-import concurrent.duration.DurationInt
 
 final class RetryingBackend[P](
     delegate: SttpBackend[IO, P],

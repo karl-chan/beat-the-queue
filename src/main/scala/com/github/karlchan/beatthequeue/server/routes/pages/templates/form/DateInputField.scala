@@ -1,10 +1,10 @@
 package com.github.karlchan.beatthequeue.server.routes.pages.templates.form
 
+import java.time.LocalDate
+
 import com.github.karlchan.beatthequeue.server.routes.pages.Html
 import com.github.karlchan.beatthequeue.server.routes.pages.templates._
 import scalatags.Text.all._
-
-import java.time.LocalDate
 
 final case class DateInputField(
     override val label: String,

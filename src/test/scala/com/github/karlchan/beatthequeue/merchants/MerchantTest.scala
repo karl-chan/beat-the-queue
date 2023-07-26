@@ -1,5 +1,7 @@
 package com.github.karlchan.beatthequeue.merchants
 
+import java.time.LocalDate
+
 import cats.effect.IO
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.CineworldCriteria
@@ -9,8 +11,6 @@ import org.scalatest.EitherValues._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatest.matchers.should.Matchers.all
-
-import java.time.LocalDate
 
 final class MerchantTest extends AnyFlatSpec with should.Matchers:
   "criteria" should "be encodable to / decodable from json losslessly" in {
