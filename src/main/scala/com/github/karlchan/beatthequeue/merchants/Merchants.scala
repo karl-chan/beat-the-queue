@@ -3,6 +3,7 @@ package com.github.karlchan.beatthequeue.merchants
 import com.github.karlchan.beatthequeue.merchants.cinema.bfi.BFI
 import com.github.karlchan.beatthequeue.merchants.cinema.cineworld.Cineworld
 import com.github.karlchan.beatthequeue.merchants.cinema.odeon.Odeon
+import com.github.karlchan.beatthequeue.merchants.cinema.picturehouse.Picturehouse
 import com.github.karlchan.beatthequeue.merchants.cinema.sciencemuseum.ScienceMuseum
 import com.github.karlchan.beatthequeue.merchants.cinema.thecinema.TheCinema
 import com.github.karlchan.beatthequeue.merchants.cinema.vue.Vue
@@ -16,6 +17,7 @@ object Merchants:
       BFI(),
       Cineworld(),
       Odeon(),
+      Picturehouse(),
       ScienceMuseum(),
       TheCinema(),
       Vue()

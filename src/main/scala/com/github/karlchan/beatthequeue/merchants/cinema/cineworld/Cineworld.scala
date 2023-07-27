@@ -3,7 +3,6 @@ package com.github.karlchan.beatthequeue.merchants.cinema.cineworld
 import cats.effect.IO
 import cats.implicits._
 import com.github.karlchan.beatthequeue.merchants.Merchant
-import com.github.karlchan.beatthequeue.util.Properties
 import io.circe.generic.auto._
 import io.circe.syntax._
 
