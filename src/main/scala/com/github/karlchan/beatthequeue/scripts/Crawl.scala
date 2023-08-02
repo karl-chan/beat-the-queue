@@ -66,7 +66,7 @@ private def initMatchResults(users: Seq[Models.User]): MatchResults =
     .map(user =>
       MatchResult(
         user = user,
-        matchingEventsByCriteria = user.criteria.map((_, Seq.empty)).toMap
+        matchingEventsByCriteria = user.criteria.map((_, Set.empty)).toMap
       )
     )
 
@@ -79,7 +79,7 @@ private def accumlateMatchResults[M](
       _.map((criteria, events) =>
         if criteria.merchant == event.merchant
           && criteria.asInstanceOf[Criteria[M]].matches(event)
-        then (criteria, event +: events)
+        then (criteria, events + event)
         else (criteria, events)
       )
     )
@@ -95,7 +95,7 @@ private def filterNewMatchResults(
       .using(
         _.map((criteria, events) =>
           val newMatchResults =
-            (events.toSet -- alreadyNofifiedUserEvents(matchResult.user)).toSeq
+            events -- alreadyNofifiedUserEvents(matchResult.user)
           (criteria, newMatchResults)
         )
       )
@@ -105,7 +105,7 @@ private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
   val now = LocalDateTime.now
   val settings = matchResult.user.notificationSettings
   val newEvents =
-    matchResult.matchingEventsByCriteria.values.flatten.toSeq.sorted
+    matchResult.matchingEventsByCriteria.values.flatten.toSeq.sorted.distinct
   val newNotifications =
     newEvents.map(event => Models.Notification(event = event, published = now))
   for {
@@ -123,7 +123,7 @@ private def notifyUser(matchResult: MatchResult)(using db: Db): IO[Unit] =
 
 private case class MatchResult(
     user: Models.User,
-    matchingEventsByCriteria: Map[Criteria[?], Seq[Event[?]]]
+    matchingEventsByCriteria: Map[Criteria[?], Set[Event[?]]]
 )
 
 private type MatchResults = Seq[MatchResult]
