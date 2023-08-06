@@ -34,11 +34,14 @@ import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
+import scala.concurrent.duration.FiniteDuration
+import concurrent.duration.DurationInt
 
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),
     maxRetries: Int = Properties.getInt("http.max.retries"),
-    retryDelay: Int = Properties.getInt("http.retry.delay.ms"),
+    retryDelay: FiniteDuration =
+      Properties.getInt("http.retry.delay.ms").milliseconds,
     persistCookies: Boolean = false
 )(using httpConnection: HttpConnection):
 
