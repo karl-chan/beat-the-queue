@@ -30,11 +30,13 @@ final class Horizon22Crawler extends EventFinder[Horizon22]:
         .toSeq
         .sorted
       date <- Stream.emits(availableDates)
-      session <- Stream.evals(getSessions(date))
+      sessions <- Stream.eval(getSessions(date))
+      availableSessions = sessions.filter(!_.sold_out)
+      availableSession <- Stream.emits(availableSessions)
       dateTime =
         LocalDateTime.ofInstant(
           Instant.from(
-            DateTimeFormatter.ISO_INSTANT.parse(session.start_datetime)
+            DateTimeFormatter.ISO_INSTANT.parse(availableSession.start_datetime)
           ),
           ZoneOffset.UTC
         )
