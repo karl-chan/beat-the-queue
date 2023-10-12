@@ -33,7 +33,7 @@ final class RetryingBackend[P](
       for {
         logger <- Slf4jLogger.create[IO]
         _ <- logger.warn(
-          s"Retrying ${request.method} request to ${request.uri} on failed attempt ${retries}. Waiting ${retryDelay.toMillis}ms..."
+          s"Retrying ${request.method} request to ${request.uri} on failed attempt ${retries + 1} out of ${maxRetries}. Waiting ${retryDelay.toMillis}ms..."
         )
         _ <- IO.sleep(retryDelay)
         res <- sendWithRetryCounter(request, retries + 1)

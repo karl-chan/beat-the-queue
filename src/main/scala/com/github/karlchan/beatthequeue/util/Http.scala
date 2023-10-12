@@ -8,6 +8,8 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.FiniteDuration
 
 import cats.effect.IO
 import cats.effect.std.Semaphore
@@ -34,8 +36,6 @@ import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
-import scala.concurrent.duration.FiniteDuration
-import concurrent.duration.DurationInt
 
 final class Http(
     maxParallelism: Int = Properties.getInt("http.max.parallelism"),

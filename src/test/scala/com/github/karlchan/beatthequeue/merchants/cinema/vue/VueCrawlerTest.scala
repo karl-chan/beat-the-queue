@@ -34,19 +34,24 @@ final class VueCrawlerTest
       )
   }
 
-  "getShowings" should "return film timetable" in {
-    val res = crawler.getShowings(
-      "10030" /* Vue West End (Leicester Square) */
-    )
-    res.asserting(_.flatMap(_.showings.flatMap(_.times)) should not be empty)
-  }
-
   "getFilms" should "return non-empty list of films" in {
-    val res = crawler.getFilms()
-    res.asserting(_.length should be > (10))
+    crawler
+      .getFilms()
+      .asserting(_.length should be > (10))
   }
 
-  "getLabels" should "return all labels" in {
-    val res = crawler.getLabels()
-    res.asserting(_.screeningtype.map(_.code) should contain("IMAX3D"))
+  "getShowings" should "return film timetable" in {
+    crawler
+      .getShowings(
+        "10030" /* Vue West End (Leicester Square) */
+      )
+      .asserting(
+        _.flatMap(_.showingGroups.flatMap(_.sessions)) should not be empty
+      )
+  }
+
+  "getAttributes" should "return all attributes" in {
+    crawler
+      .getAttributes()
+      .asserting(_ should contain("IMAX3D"))
   }
