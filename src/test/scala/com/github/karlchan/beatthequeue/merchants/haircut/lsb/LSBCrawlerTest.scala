@@ -30,16 +30,19 @@ final class LSBCrawlerTest
         _ should contain(
           CategoryResponse.Category(
             id = "4",
-            name = "GUARANTEED APPOINTMENT £0-£5  (NON REFUNDABLE) ",
+            name = "GUARANTEED APPOINTMENT £0-£7 (NON REFUNDABLE) ",
             events = Vector(
               "47",
               "125",
               "113",
               "127",
               "140",
+              "176",
               "139",
               "132",
               "135",
+              "179",
+              "178",
               "84",
               "40",
               "153",
