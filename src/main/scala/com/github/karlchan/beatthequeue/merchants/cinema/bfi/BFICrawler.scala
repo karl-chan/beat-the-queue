@@ -93,10 +93,10 @@ final class BFICrawler(
         screenType <- c.downN(2).as[String]
         description <- c.downN(6).as[String]
         startTime <- c.downN(7).as[String]
-        venue <- c.downN(63).as[String]
+        venue <- c.downN(64).as[String]
         onSaleDate <- c.downN(13).as[String]
-        minPrice <- c.downN(80).as[String]
-        maxPrice <- c.downN(81).as[String]
+        minPrice <- c.downN(81).as[String]
+        maxPrice <- c.downN(82).as[String]
       } yield FilmEvent(
         id = id,
         screenType = screenType,
