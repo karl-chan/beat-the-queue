@@ -45,38 +45,61 @@ final class Http(
     persistCookies: Boolean = false
 )(using httpConnection: HttpConnection):
 
-  def getHtml(uri: Uri, headers: Map[String, String] = Map.empty): IO[String] =
-    request(basicRequest.get(uri).headers(headers), asStringAlways).map(_.body)
+  def getHtml(
+      uri: Uri,
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
+  ): IO[String] =
+    request(
+      basicRequest.get(uri).headers(headers).cookies(cookies),
+      asStringAlways
+    ).map(_.body)
 
-  def get[R](uri: Uri, headers: Map[String, String] = Map.empty)(using
+  def get[R](
+      uri: Uri,
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
+  )(using
       d: Decoder[R]
   ): IO[R] =
-    request(basicRequest.get(uri).headers(headers), asJson[R].getRight)
+    request(
+      basicRequest.get(uri).headers(headers).cookies(cookies),
+      asJson[R].getRight
+    )
       .map(_.body)
 
   def getFullResponse(
       uri: Uri,
-      headers: Map[String, String] = Map.empty
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
   ): IO[Response[String]] =
-    request(basicRequest.get(uri).headers(headers), asStringAlways)
+    request(
+      basicRequest.get(uri).headers(headers).cookies(cookies),
+      asStringAlways
+    )
 
   def postHtml(
       uri: Uri,
       body: Map[String, String] = Map.empty,
-      headers: Map[String, String] = Map.empty
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
   ): IO[String] =
-    request(basicRequest.post(uri).body(body).headers(headers), asStringAlways)
+    request(
+      basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
+      asStringAlways
+    )
       .map(_.body)
 
   def post[R](
       uri: Uri,
       body: Map[String, String] = Map.empty,
-      headers: Map[String, String] = Map.empty
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
   )(using
       d: Decoder[R]
   ): IO[R] =
     request(
-      basicRequest.post(uri).body(body).headers(headers),
+      basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
       asJson[R].getRight
     ).map(_.body)
 

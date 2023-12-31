@@ -131,50 +131,11 @@ final class OdeonCrawler(
     } yield body
 
   private[odeon] def getToken(): IO[Token] = {
-    val authTokenRegex = raw"\"authToken\":\"([^\"]+)\"".r
-
-    val trySites = Seq(
-      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/",
-      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/cinemas/",
-      uri"https://webcache.googleusercontent.com/search?q=cache:https://www.odeon.co.uk/films/"
-    )
-
-    def fetchAuthToken(url: Uri): IO[String] =
-      for {
-        html <- http
-          .getHtml(url)
-
-        authToken = authTokenRegex
-          .findFirstMatchIn(html)
-          .getOrElse(
-            throw IllegalArgumentException(s"authToken not found in html!")
-          )
-          .group(1)
-      } yield authToken
-
-    def getExpiry(authToken: String): Instant =
-      Instant.ofEpochSecond(
-        JwtCirce
-          .decode(authToken, JwtOptions(signature = false, expiration = false))
-          .get
-          .expiration
-          .get
-      )
-
-    def isExpired(authToken: String): Boolean =
-      getExpiry(authToken).isBefore(Instant.now())
-
     for {
-      authTokenCandidates <- trySites.traverse(fetchAuthToken)
-      authToken = authTokenCandidates.find(!isExpired(_))
-
-      _ = if (authToken.isEmpty) {
-        val lastAuthTokenExpiry = authTokenCandidates.map(getExpiry).max
-        throw IllegalStateException(
-          s"authToken already expired at $lastAuthTokenExpiry!"
-        )
-      }
-    } yield Token(authToken.get)
+      body <- http.get[TokenResponse.Body](
+        Uri.unsafeParse(Properties.get("odeon.token.url"))
+      )
+    } yield Token(body.jwtToken)
   }
 
   final private[odeon] case class Token(
@@ -264,4 +225,9 @@ private[odeon] object ShowtimesResponse:
   )
   final case class FilmTitle(
       text: String
+  )
+
+private[odeon] object TokenResponse:
+  final case class Body(
+      jwtToken: String
   )
