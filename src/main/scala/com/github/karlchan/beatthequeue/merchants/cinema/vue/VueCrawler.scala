@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.duration.DurationInt
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
@@ -19,6 +20,8 @@ import fs2.Stream
 import io.circe.generic.auto._
 import io.circe.syntax._
 import sttp.client3._
+import sttp.model.Uri
+import sttp.model.headers.CookieWithMeta
 
 final class VueCrawler(
     cinemaIds: Option[Seq[String]] = Some(
@@ -32,6 +35,9 @@ final class VueCrawler(
       maxRetries = Properties.getInt("vue.max.retries"),
       retryDelay = Properties.getInt("vue.retry.delay.ms").milliseconds
     )
+
+  private val cachedToken: IO[Token] =
+    getToken().memoize.unsafeRunSync()
 
   override def run(): Stream[IO, VueEvent] =
     for {
@@ -76,8 +82,10 @@ final class VueCrawler(
 
   private[vue] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
     for {
+      token <- cachedToken
       body <- http.get[CinemasResponse.Body](
-        uri"https://www.myvue.com/api/microservice/showings/cinemas"
+        uri"https://www.myvue.com/api/microservice/showings/cinemas",
+        cookies = token.cookies
       )
     } yield body.result
       .flatMap(_.cinemas)
@@ -85,9 +93,11 @@ final class VueCrawler(
 
   private[vue] def getFilms(): IO[Seq[FilmsResponse.Film]] =
     for {
+      token <- cachedToken
       body <-
         http.get[FilmsResponse.Body](
-          uri"https://www.myvue.com/api/microservice/showings/films"
+          uri"https://www.myvue.com/api/microservice/showings/films",
+          cookies = token.cookies
         )
     } yield body.result
 
@@ -95,23 +105,40 @@ final class VueCrawler(
       cinemaId: String
   ): IO[Seq[ShowingsResponse.Result]] =
     for {
+      token <- cachedToken
       body <-
         http.get[ShowingsResponse.Body](
-          uri"https://www.myvue.com/api/microservice/showings/cinemas/${cinemaId}/films?minEmbargoLevel=3&includesSession=true&includeSessionAttributes=true"
+          uri"https://www.myvue.com/api/microservice/showings/cinemas/${cinemaId}/films?minEmbargoLevel=3&includesSession=true&includeSessionAttributes=true",
+          cookies = token.cookies
         )
     } yield body.result
 
   private[vue] def getAttributes(): IO[Seq[String]] =
     for {
+      token <- cachedToken
       body <-
         http.get[AttributesResponse.Body](
-          uri"https://www.myvue.com/api/microservice/showings/attributes/showingAttributeGroups"
+          uri"https://www.myvue.com/api/microservice/showings/attributes/showingAttributeGroups",
+          cookies = token.cookies
         )
     } yield body.result
       .find(_.name == "Filter By Screening Type")
       .get
       .showingAttributes
       .map(_.name)
+
+  private[vue] def getToken(): IO[Token] = {
+    for {
+      body <- http.get[TokenResponse.Body](
+        Uri.unsafeParse(Properties.get("vue.token.url"))
+      )
+      cookies = body.cookies.map(c => CookieWithMeta(c.name, c.value))
+    } yield Token(cookies)
+  }
+
+  final private[vue] case class Token(
+      cookies: Seq[CookieWithMeta]
+  )
 
 private[vue] object CinemasResponse:
   final case class Body(
@@ -167,4 +194,13 @@ private[vue] object AttributesResponse:
 
   final case class Attribute(
       name: String
+  )
+
+private[vue] object TokenResponse:
+  final case class Body(
+      cookies: Seq[NameValuePair]
+  )
+  final case class NameValuePair(
+      name: String,
+      value: String
   )

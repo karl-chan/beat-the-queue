@@ -53,5 +53,5 @@ final class VueCrawlerTest
   "getAttributes" should "return all attributes" in {
     crawler
       .getAttributes()
-      .asserting(_ should contain("IMAX3D"))
+      .asserting(_ should contain allOf ("IMAX", "Dolby Atmos"))
   }
