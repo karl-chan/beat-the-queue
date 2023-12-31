@@ -71,12 +71,13 @@ final class Http(
   def post[R](
       uri: Uri,
       body: Map[String, String] = Map.empty,
-      headers: Map[String, String] = Map.empty
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
   )(using
       d: Decoder[R]
   ): IO[R] =
     request(
-      basicRequest.post(uri).body(body).headers(headers),
+      basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
       asJson[R].getRight
     ).map(_.body)
 
