@@ -29,12 +29,7 @@ final class VueCrawler(
     ),
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
 ) extends EventFinder[Vue]:
-  private val http =
-    Http(
-      maxParallelism = Properties.getInt("vue.max.parallelism"),
-      maxRetries = Properties.getInt("vue.max.retries"),
-      retryDelay = Properties.getInt("vue.retry.delay.ms").milliseconds
-    )
+  private val http = Http()
 
   private val cachedToken: IO[Token] =
     getToken().memoize.unsafeRunSync()
