@@ -28,6 +28,7 @@ abstract class Merchant[M, C <: Criteria[M], E <: Event[M]](using
   val eventFinder: EventFinder[M]
   val criteriaFactory: () => C
   val renderer: Renderer[M, C, E]
+  val enabled: Boolean = true
 
   final val criteriaEncoder: Encoder[Criteria[M]] =
     actualCriteriaEncoder.contramap(_.asInstanceOf[C])

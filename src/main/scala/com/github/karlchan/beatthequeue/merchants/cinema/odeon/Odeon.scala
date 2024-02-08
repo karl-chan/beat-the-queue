@@ -13,6 +13,7 @@ final class Odeon extends Merchant[Odeon, OdeonCriteria, OdeonEvent]:
   override val eventFinder = OdeonCrawler()
   override val criteriaFactory = () => OdeonCriteria()
   override val renderer = OdeonRenderer()
+  override val enabled = false // Disable until WAF is fixed
 
 object Odeon:
   val Name = "Odeon"
