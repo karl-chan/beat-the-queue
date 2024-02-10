@@ -16,6 +16,7 @@ import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
 import cats.instances.parallel
 import cats.syntax.all._
+import com.github.karlchan.beatthequeue.util.middleware.FollowRedirectsBackend
 import com.github.karlchan.beatthequeue.util.middleware.RetryingBackend
 import com.github.karlchan.beatthequeue.util.middleware.ThrottleBackend
 import com.github.karlchan.beatthequeue.util.middleware.UserAgentBackend
@@ -110,22 +111,24 @@ final class Http(
       decodeFn: ResponseAs[R, Any]
   )(using d: Decoder[R]): IO[Response[R]] =
     val backendWithMiddleware =
-      RetryingBackend(
-        ThrottleBackend(
-          UserAgentBackend(
-            Slf4jLoggingBackend(
-              httpConnection.backend,
-              logRequestBody = Logging.isDebug,
-              logResponseBody = Logging.isDebug,
-              sensitiveHeaders =
-                if Logging.isDebug then Set.empty
-                else HeaderNames.SensitiveHeaders
-            )
+      new FollowRedirectsBackend(
+        RetryingBackend(
+          ThrottleBackend(
+            UserAgentBackend(
+              Slf4jLoggingBackend(
+                httpConnection.backend,
+                logRequestBody = Logging.isDebug,
+                logResponseBody = Logging.isDebug,
+                sensitiveHeaders =
+                  if Logging.isDebug then Set.empty
+                  else HeaderNames.SensitiveHeaders
+              )
+            ),
+            semaphore
           ),
-          semaphore
-        ),
-        maxRetries,
-        retryDelay
+          maxRetries,
+          retryDelay
+        )
       )
 
     var res = req
@@ -133,31 +136,9 @@ final class Http(
       .response(decodeFn)
       .send(backendWithMiddleware)
 
-    def mergeCookies(
-        oldCookies: Seq[CookieWithMeta],
-        newCookies: Seq[CookieWithMeta]
-    ): Seq[CookieWithMeta] = {
-      if (newCookies.isEmpty) {
-        oldCookies
-      } else {
-        // The last cookie with the same name in the same domain takes precendence.
-        val newCookiesDeduped =
-          newCookies
-            .groupMapReduce(c => (c.domain, c.name))(identity)((_, last) =>
-              last
-            )
-            .values
-            .toVector
-        val newCookieNames = newCookiesDeduped.map(_.name).toSet
-        newCookiesDeduped ++ oldCookies.filterNot(cookie =>
-          newCookieNames.contains(cookie.name)
-        )
-      }
-    }
-
     if (persistCookies) {
       res.map(r => {
-        Http.this.cookies = mergeCookies(Http.this.cookies, r.unsafeCookies)
+        Http.this.cookies = Cookies.merge(Http.this.cookies, r.unsafeCookies)
         r
       })
     } else {

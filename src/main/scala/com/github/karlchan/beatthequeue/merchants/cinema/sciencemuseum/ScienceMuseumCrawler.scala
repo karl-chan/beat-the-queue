@@ -46,7 +46,7 @@ final class ScienceMuseumCrawler(
         endDate = untilDate
       )
     } yield Info(
-      names = productionSeasons.map(_.productionTitle),
+      names = productionSeasons.map(_.productionTitle).distinct,
       productTypeIds = productionSeasons
         .flatMap(_.performances.map(_.productTypeId))
         .sorted

@@ -52,6 +52,7 @@ private def streamAllEvents(): Stream[IO, Event[?]] =
 
   Stream
     .emits(Merchants.AllList)
+    .filter(_.enabled)
     .map(_.eventFinder.run().handleErrorWith(logError))
     .parJoin(5)
 

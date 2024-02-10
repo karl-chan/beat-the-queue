@@ -23,10 +23,11 @@ object Main extends IOApp:
     args match
       case "crawl" :: rest   => Command.Crawl
       case "cleanup" :: rest => Command.Cleanup
+      case "loop-crawl" :: rest   => Command.LoopCrawl
       case _                 => Command.Help
 
   private def printHelp(args: List[String]): IO[ExitCode] =
-    val message = s"""Usage: crawl, cleanup
+    val message = s"""Usage: crawl, cleanup, loop-crawl
 
     but instead received args: $args"""
     IO.println(message).as(ExitCode.Error)
@@ -39,6 +40,8 @@ object Main extends IOApp:
         crawl()
       case Command.Cleanup =>
         cleanup()
+      case Command.LoopCrawl =>
+        crawl().foreverM
 
   private def shutdown()(using
       db: Db,
@@ -56,4 +59,4 @@ object Main extends IOApp:
     } yield ()
 
 enum Command:
-  case Crawl, Cleanup, Help
+  case Crawl, Cleanup, LoopCrawl, Help
