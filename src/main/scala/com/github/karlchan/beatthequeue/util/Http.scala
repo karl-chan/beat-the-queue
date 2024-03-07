@@ -1,12 +1,5 @@
 package com.github.karlchan.beatthequeue.util
 
-import java.net.http.HttpClient
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
@@ -14,7 +7,6 @@ import scala.concurrent.duration.FiniteDuration
 import cats.effect.IO
 import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
-import cats.instances.parallel
 import cats.syntax.all._
 import com.github.karlchan.beatthequeue.util.middleware.FollowRedirectsBackend
 import com.github.karlchan.beatthequeue.util.middleware.RetryingBackend
@@ -24,11 +16,9 @@ import com.linecorp.armeria.client.ClientFactory
 import com.linecorp.armeria.client.WebClient
 import com.linecorp.armeria.client.encoding.DecodingClient
 import io.circe.Decoder
-import sttp.capabilities.WebSockets
 import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.ResponseAs
-import sttp.client3.SttpBackend
 import sttp.client3.armeria.cats.ArmeriaCatsBackend
 import sttp.client3.asStringAlways
 import sttp.client3.basicRequest
