@@ -128,7 +128,7 @@ final class Http(
 
     if (persistCookies) {
       res.map(r => {
-        Http.this.cookies = Cookies.merge(Http.this.cookies, r.unsafeCookies)
+        Http.this.cookies = Cookies.merge(Http.this.cookies, Cookies.parse(r))
         r
       })
     } else {
