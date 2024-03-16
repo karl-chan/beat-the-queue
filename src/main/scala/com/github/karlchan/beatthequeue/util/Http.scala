@@ -107,6 +107,8 @@ final class Http(
             UserAgentBackend(
               Slf4jLoggingBackend(
                 httpConnection.backend,
+                beforeCurlInsteadOfShow = Logging.isDebug,
+                logRequestHeaders = Logging.isDebug,
                 logRequestBody = Logging.isDebug,
                 logResponseBody = Logging.isDebug,
                 sensitiveHeaders =
