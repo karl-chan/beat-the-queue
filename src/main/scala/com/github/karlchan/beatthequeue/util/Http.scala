@@ -16,6 +16,7 @@ import com.linecorp.armeria.client.ClientFactory
 import com.linecorp.armeria.client.WebClient
 import com.linecorp.armeria.client.encoding.DecodingClient
 import io.circe.Decoder
+import io.circe.Encoder
 import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.ResponseAs
@@ -23,6 +24,7 @@ import sttp.client3.armeria.cats.ArmeriaCatsBackend
 import sttp.client3.asStringAlways
 import sttp.client3.basicRequest
 import sttp.client3.circe.asJson
+import sttp.client3.circe.circeBodySerializer
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
@@ -94,6 +96,20 @@ final class Http(
       asJson[R].getRight
     ).map(_.body)
 
+  def postJson[J, R](
+      uri: Uri,
+      json: J = None,
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
+  )(using
+      e: Encoder[J],
+      d: Decoder[R]
+  ): IO[R] =
+    request(
+      basicRequest.post(uri).body(json).headers(headers).cookies(cookies),
+      asJson[R].getRight
+    ).map(_.body)
+
   def inspectCookies: Vector[CookieWithMeta] = cookies.toVector
 
   private def request[R](
@@ -110,6 +126,7 @@ final class Http(
                 beforeCurlInsteadOfShow = Logging.isDebug,
                 logRequestHeaders = Logging.isDebug,
                 logRequestBody = Logging.isDebug,
+                logResponseHeaders = Logging.isDebug,
                 logResponseBody = Logging.isDebug,
                 sensitiveHeaders =
                   if Logging.isDebug then Set.empty
