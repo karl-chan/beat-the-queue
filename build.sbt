@@ -1,4 +1,4 @@
-val scala3Version = "3.3.0"
+val scala3Version = "3.4.1"
 
 val circeVersion = "0.14.3"
 val emilVersion = "0.13.0"
@@ -12,7 +12,6 @@ lazy val root = project
     name := "Beat the Queue",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
-    scalaVersion := "3.3.0",
     semanticdbEnabled := true,
     libraryDependencies ++= Seq(
       // java dependencies
