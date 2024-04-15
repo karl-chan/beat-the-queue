@@ -23,6 +23,7 @@ import pdi.jwt.JwtCirce
 import pdi.jwt.JwtOptions
 import sttp.client3._
 import sttp.model.Uri
+import sttp.model.headers.CookieWithMeta
 
 final class OdeonCrawler(
     siteIds: Option[Seq[String]] = Some(Properties.getList("odeon.siteIds")),
@@ -126,7 +127,8 @@ final class OdeonCrawler(
       body <-
         http.get[R](
           uri,
-          headers = Map("Authorization" -> s"Bearer ${token.authToken}")
+          headers = Map("Authorization" -> s"Bearer ${token.authToken}"),
+          cookies = token.cookies
         )
     } yield body
 
@@ -135,11 +137,15 @@ final class OdeonCrawler(
       body <- http.get[TokenResponse.Body](
         Uri.unsafeParse(Properties.get("odeon.token.url"))
       )
-    } yield Token(body.jwtToken)
+    } yield Token(
+      body.jwtToken,
+      body.cookies.map(c => CookieWithMeta(c.name, c.value))
+    )
   }
 
   final private[odeon] case class Token(
-      authToken: String
+      authToken: String,
+      cookies: Seq[CookieWithMeta]
   )
 
   private val siteIdsQueryParams: Seq[(String, String)] =
@@ -229,5 +235,10 @@ private[odeon] object ShowtimesResponse:
 
 private[odeon] object TokenResponse:
   final case class Body(
-      jwtToken: String
+      jwtToken: String,
+      cookies: Seq[NameValuePair]
+  )
+  final case class NameValuePair(
+      name: String,
+      value: String
   )
