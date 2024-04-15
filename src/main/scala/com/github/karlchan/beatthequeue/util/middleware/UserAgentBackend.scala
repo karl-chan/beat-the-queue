@@ -12,7 +12,7 @@ class UserAgentBackend[P](
     delegate: SttpBackend[IO, P]
 ) extends DelegateSttpBackend[IO, P](delegate):
 
-  override def send[T, R >: P with Effect[IO]](
+  override def send[T, R >: P & Effect[IO]](
       request: Request[T, R]
   ): IO[Response[T]] =
     delegate.send(

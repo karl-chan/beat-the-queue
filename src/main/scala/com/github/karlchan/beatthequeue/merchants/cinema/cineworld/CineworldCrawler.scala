@@ -236,6 +236,6 @@ private[cineworld] object FeedResponse:
       url: String
   )
 
-private[this] val BaseFormats = List("3D", "2D")
-private[this] val SpecialFormats =
+private val BaseFormats = List("3D", "2D")
+private val SpecialFormats =
   List("IMAX", "4DX", "ScreenX", "Superscreen", "VIP")

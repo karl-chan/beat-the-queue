@@ -7,8 +7,8 @@ sealed trait InputField:
   val name: String
   def render: Html
 
-private[this] trait SingleInputField[V] extends InputField:
+private trait SingleInputField[V] extends InputField:
   val value: Option[V]
 
-private[this] trait MultiInputField[V] extends InputField:
+private trait MultiInputField[V] extends InputField:
   val value: Seq[V]
