@@ -9,7 +9,7 @@ import scala.concurrent.duration.DurationInt
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
@@ -17,9 +17,9 @@ import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_HttpConnection
 import com.github.karlchan.beatthequeue.util.mapOrTrue
 import fs2.Stream
-import io.circe.generic.auto._
-import io.circe.syntax._
-import sttp.client3._
+import io.circe.generic.auto.*
+import io.circe.syntax.*
+import sttp.client3.*
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
 
@@ -116,11 +116,12 @@ final class VueCrawler(
           uri"https://www.myvue.com/api/microservice/showings/attributes/showingAttributeGroups",
           cookies = token.cookies
         )
-    } yield body.result
+    } yield (body.result
       .find(_.name == "Filter By Screening Type")
       .get
       .showingAttributes
       .map(_.name)
+      ++ Attributes).distinct
 
   private[vue] def getToken(): IO[Token] = {
     for {
@@ -199,3 +200,6 @@ private[vue] object TokenResponse:
       name: String,
       value: String
   )
+
+// Hardcode attributes not shown on website
+private val Attributes = Vector("VueXtreme")
