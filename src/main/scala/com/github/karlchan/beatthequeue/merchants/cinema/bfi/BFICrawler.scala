@@ -19,6 +19,7 @@ import io.circe.HCursor
 import io.circe.parser.decode
 import org.jsoup.Jsoup
 import sttp.client3._
+import sttp.model.Uri
 
 final class BFICrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
@@ -48,11 +49,9 @@ final class BFICrawler(
   )
   def getInfo(): IO[Info] =
     for {
-      comingSoonFilmNames <- getComingSoon()
       filmEvents <- getFilmEvents(LocalDate.now, untilDate)
     } yield Info(
-      names =
-        comingSoonFilmNames ++ filmEvents.map(_.description).sorted.distinct,
+      names = filmEvents.map(_.description).sorted.distinct,
       venues = filmEvents.map(_.venue).sorted.distinct,
       screenTypes = filmEvents.map(_.screenType).sorted.distinct
     )
@@ -111,73 +110,6 @@ final class BFICrawler(
         maxPrice = parsePrice(maxPrice)
       )
 
-    for {
-      token <- getToken()
-      html <- http
-        .postHtml(
-          uri"https://whatson.bfi.org.uk/imax/Online/default.asp",
-          Map(
-            "sToken" -> token.sToken,
-            "BOset::WScontent::SearchCriteria::search_from" -> startDate
-              .format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "BOset::WScontent::SearchCriteria::search_to" -> endDate
-              .format(DateTimeFormatter.ISO_LOCAL_DATE),
-            "BOset::WScontent::SearchCriteria::venue_filter" -> "",
-            "BOset::WScontent::SearchCriteria::city_filter" -> "",
-            "BOset::WScontent::SearchCriteria::month_filter" -> "",
-            "BOset::WScontent::SearchCriteria::object_type_filter" -> "",
-            "BOset::WScontent::SearchCriteria::category_filter" -> "",
-            "BOset::WScontent::SearchCriteria::search_criteria" -> "",
-            "BOparam::WScontent::search::article_search_id" -> token.articleSearchId,
-            "doWork::WScontent::search" -> "1"
-          )
-        )
-
-      searchResultsJson = searchResultsRegex
-        .findFirstMatchIn(html)
-        .getOrElse(
-          throw IllegalArgumentException("searchResults not found in html!")
-        )
-        .group(1)
-    } yield decode[Vector[FilmEvent]](searchResultsJson)
-      .getOrElse(
-        throw IllegalArgumentException("Failed to parse searchResults as JSON!")
-      )
-
-  private[bfi] def getComingSoon(): IO[Vector[String]] =
-    for {
-      html <- http.getHtml(
-        uri"https://whatson.bfi.org.uk/imax/Online/default.asp"
-      )
-      filmNames = Jsoup
-        .parse(html)
-        .getElementsByClass("Card__heading")
-        .iterator()
-        .asScala
-        .map(_.text())
-        .toVector
-    } yield filmNames
-
-  private[bfi] def getToken(): IO[Token] = {
-    val sTokenMatchRegex = raw"sToken: \"([^\"]+)\"".r
-    val articleSearchIdRegex =
-      raw"<input type=\"hidden\" name=\"BOparam::WScontent::search::article_search_id\" value=\"([^\"]+)\">".r
-
-    for {
-      html <- http
-        .getHtml(uri"https://whatson.bfi.org.uk/imax/Online/default.asp")
-
-      sToken = sTokenMatchRegex
-        .findFirstMatchIn(html)
-        .getOrElse(throw IllegalArgumentException(s"sToken not found in html!"))
-        .group(1)
-
-      articleSearchId = articleSearchIdRegex
-        .findFirstMatchIn(html)
-        .getOrElse(
-          throw IllegalArgumentException("articleSearchId not found in html!")
-        )
-        .group(1)
-
-    } yield Token(sToken = sToken, articleSearchId = articleSearchId)
-  }
+    http.get[Vector[FilmEvent]](
+      Uri.unsafeParse(Properties.get("bfi.cache.url"))
+    )

@@ -28,23 +28,3 @@ final class BFICrawlerTest
       .getFilmEvents(LocalDate.now, LocalDate.now.plusMonths(3))
       .asserting(_ should not be empty)
   }
-
-  "getComingSoon" should "return film names" in {
-    crawler.getComingSoon().asserting(_ should not be empty)
-  }
-
-  "getToken" should "return valid sToken" in {
-    crawler
-      .getToken()
-      .asserting(
-        _.sToken should include(",")
-      )
-  }
-
-  "getToken" should "return valid articleId" in {
-    crawler
-      .getToken()
-      .asserting(
-        _.articleSearchId should include("-")
-      )
-  }

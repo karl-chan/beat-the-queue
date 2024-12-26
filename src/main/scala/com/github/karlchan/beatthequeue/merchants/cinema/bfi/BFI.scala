@@ -13,7 +13,6 @@ final class BFI extends Merchant[BFI, BFICriteria, BFIEvent]:
   override val eventFinder = BFICrawler()
   override val criteriaFactory = () => BFICriteria()
   override val renderer = BFIRenderer()
-  override val enabled = false // Disable until WAF is fixed
 
 object BFI:
   val Name = "BFI"
