@@ -31,9 +31,6 @@ final class VueCrawler(
 ) extends EventFinder[Vue]:
   private val http = Http()
 
-  private val cachedToken: IO[Token] =
-    getToken().memoize.unsafeRunSync()
-
   override def run(): Stream[IO, VueEvent] =
     for {
       attributes <- Stream.eval(getAttributes())
@@ -77,7 +74,7 @@ final class VueCrawler(
 
   private[vue] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <- http.get[CinemasResponse.Body](
         uri"https://www.myvue.com/api/microservice/showings/cinemas",
         cookies = token.cookies
@@ -88,7 +85,7 @@ final class VueCrawler(
 
   private[vue] def getFilms(): IO[Seq[FilmsResponse.Film]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[FilmsResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/films",
@@ -100,7 +97,7 @@ final class VueCrawler(
       cinemaId: String
   ): IO[Seq[ShowingsResponse.Result]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[ShowingsResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/cinemas/${cinemaId}/films?minEmbargoLevel=3&includesSession=true&includeSessionAttributes=true",
@@ -110,7 +107,7 @@ final class VueCrawler(
 
   private[vue] def getAttributes(): IO[Seq[String]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[AttributesResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/attributes/showingAttributeGroups",
