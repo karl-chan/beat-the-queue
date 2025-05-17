@@ -7,7 +7,7 @@ import scala.concurrent.duration.FiniteDuration
 import cats.effect.IO
 import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.github.karlchan.beatthequeue.util.middleware.FollowRedirectsBackend
 import com.github.karlchan.beatthequeue.util.middleware.RetryingBackend
 import com.github.karlchan.beatthequeue.util.middleware.ThrottleBackend
@@ -35,7 +35,8 @@ final class Http(
     maxRetries: Int = Properties.getInt("http.max.retries"),
     retryDelay: FiniteDuration =
       Properties.getInt("http.retry.delay.ms").milliseconds,
-    persistCookies: Boolean = false
+    persistCookies: Boolean = false,
+    userAgent: Option[String] = None
 )(using httpConnection: HttpConnection):
 
   def getHtml(
@@ -131,7 +132,8 @@ final class Http(
                 sensitiveHeaders =
                   if Logging.isDebug then Set.empty
                   else HeaderNames.SensitiveHeaders
-              )
+              ),
+              customUserAgent = userAgent
             ),
             semaphore
           ),
