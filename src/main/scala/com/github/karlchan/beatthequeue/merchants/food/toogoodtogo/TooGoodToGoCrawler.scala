@@ -1,6 +1,8 @@
 package com.github.karlchan.beatthequeue.merchants.food.toogoodtogo
 
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 import cats.effect.IO
@@ -14,6 +16,7 @@ import io.circe.generic.auto.deriveDecoder
 import io.circe.generic.auto.deriveEncoder
 import sttp.model.Uri
 import sttp.model.Uri.UriContext
+
 final class TooGoodToGoCrawler extends EventFinder[TooGoodToGo]:
   private val http =
     Http(
@@ -29,11 +32,10 @@ final class TooGoodToGoCrawler extends EventFinder[TooGoodToGo]:
       interval <- Stream.fromOption(item.pickup_interval)
     } yield TooGoodToGoEvent(
       name = item.display_name,
-      time = LocalDateTime
-        .parse(
-          interval.start,
-          DateTimeFormatter.ISO_OFFSET_DATE_TIME
-        )
+      time = OffsetDateTime
+        .parse(interval.start, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        .atZoneSameInstant(ZoneId.of("Europe/London"))
+        .toLocalDateTime
     )
 
   final case class Info(
