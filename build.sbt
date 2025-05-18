@@ -1,4 +1,4 @@
-val scala3Version = "3.3.0"
+val scala3Version = "3.4.1"
 
 val circeVersion = "0.14.3"
 val emilVersion = "0.13.0"
@@ -12,7 +12,6 @@ lazy val root = project
     name := "Beat the Queue",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
-    scalaVersion := "3.3.0",
     semanticdbEnabled := true,
     libraryDependencies ++= Seq(
       // java dependencies
@@ -25,7 +24,7 @@ lazy val root = project
       "com.github.eikek" %% "emil-javamail" % emilVersion,
       "com.github.jwt-scala" %% "jwt-circe" % "9.1.2",
       "com.softwaremill.quicklens" %% "quicklens" % "1.9.0",
-      "com.softwaremill.sttp.client3" %% "armeria-backend-cats" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "cats" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "circe" % sttpVersion,
       "com.softwaremill.sttp.client3" %% "core" % sttpVersion,

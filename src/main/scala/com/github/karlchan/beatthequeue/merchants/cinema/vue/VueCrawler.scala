@@ -9,7 +9,7 @@ import scala.concurrent.duration.DurationInt
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.EventFinder
 import com.github.karlchan.beatthequeue.util.Http
@@ -17,9 +17,9 @@ import com.github.karlchan.beatthequeue.util.Properties
 import com.github.karlchan.beatthequeue.util.given_HttpConnection
 import com.github.karlchan.beatthequeue.util.mapOrTrue
 import fs2.Stream
-import io.circe.generic.auto._
-import io.circe.syntax._
-import sttp.client3._
+import io.circe.generic.auto.*
+import io.circe.syntax.*
+import sttp.client3.*
 import sttp.model.Uri
 import sttp.model.headers.CookieWithMeta
 
@@ -30,9 +30,6 @@ final class VueCrawler(
     untilDate: LocalDate = LocalDate.now.plus(Period.ofYears(1))
 ) extends EventFinder[Vue]:
   private val http = Http()
-
-  private val cachedToken: IO[Token] =
-    getToken().memoize.unsafeRunSync()
 
   override def run(): Stream[IO, VueEvent] =
     for {
@@ -56,7 +53,9 @@ final class VueCrawler(
       name = name,
       time = time,
       venue = cinema.cinemaName,
-      screenTypes = screenTypes
+      screenTypes = screenTypes,
+      screenName = session.screenName.trim
+        .replaceAll("\\s+", " ") // Remove duplicate whitespace
     )
 
   final case class Info(
@@ -77,7 +76,7 @@ final class VueCrawler(
 
   private[vue] def getCinemas(): IO[Seq[CinemasResponse.Cinema]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <- http.get[CinemasResponse.Body](
         uri"https://www.myvue.com/api/microservice/showings/cinemas",
         cookies = token.cookies
@@ -88,7 +87,7 @@ final class VueCrawler(
 
   private[vue] def getFilms(): IO[Seq[FilmsResponse.Film]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[FilmsResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/films",
@@ -100,7 +99,7 @@ final class VueCrawler(
       cinemaId: String
   ): IO[Seq[ShowingsResponse.Result]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[ShowingsResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/cinemas/${cinemaId}/films?minEmbargoLevel=3&includesSession=true&includeSessionAttributes=true",
@@ -110,17 +109,18 @@ final class VueCrawler(
 
   private[vue] def getAttributes(): IO[Seq[String]] =
     for {
-      token <- cachedToken
+      token <- getToken()
       body <-
         http.get[AttributesResponse.Body](
           uri"https://www.myvue.com/api/microservice/showings/attributes/showingAttributeGroups",
           cookies = token.cookies
         )
-    } yield body.result
+    } yield (body.result
       .find(_.name == "Filter By Screening Type")
       .get
       .showingAttributes
       .map(_.name)
+      ++ Attributes).distinct
 
   private[vue] def getToken(): IO[Token] = {
     for {
@@ -172,7 +172,8 @@ private[vue] object ShowingsResponse:
   )
   final case class Session(
       attributes: Seq[Attribute],
-      showTimeWithTimeZone: String // YYYY-MM-DDTHH:mm:ssZ
+      showTimeWithTimeZone: String, // YYYY-MM-DDTHH:mm:ssZ
+      screenName: String // Screen N
   )
   final case class Attribute(
       name: String
@@ -199,3 +200,6 @@ private[vue] object TokenResponse:
       name: String,
       value: String
   )
+
+// Hardcode attributes not shown on website
+private val Attributes = Vector("VueXtreme")

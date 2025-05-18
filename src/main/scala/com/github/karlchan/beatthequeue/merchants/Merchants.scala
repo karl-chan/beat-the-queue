@@ -8,6 +8,7 @@ import com.github.karlchan.beatthequeue.merchants.cinema.picturehouse.Picturehou
 import com.github.karlchan.beatthequeue.merchants.cinema.sciencemuseum.ScienceMuseum
 import com.github.karlchan.beatthequeue.merchants.cinema.thecinema.TheCinema
 import com.github.karlchan.beatthequeue.merchants.cinema.vue.Vue
+import com.github.karlchan.beatthequeue.merchants.food.toogoodtogo.TooGoodToGo
 import com.github.karlchan.beatthequeue.merchants.haircut.lsb.LSB
 
 private type Category = String
@@ -25,6 +26,9 @@ object Merchants:
       ScienceMuseum(),
       TheCinema(),
       Vue()
+    ),
+    "Food" -> Seq(
+      TooGoodToGo()
     ),
     "Haircut" -> Seq(
       LSB()

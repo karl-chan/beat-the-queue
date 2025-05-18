@@ -30,7 +30,7 @@ private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =
 
 private def cleanup(users: Seq[Models.User])(using
     db: Db
-): IO[_] =
+): IO[?] =
   users.parTraverse(user =>
     db.updateUser(user._id.toString(), deleteExpiredNotifications)
   )

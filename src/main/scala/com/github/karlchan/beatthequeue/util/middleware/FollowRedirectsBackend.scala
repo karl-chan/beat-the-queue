@@ -42,7 +42,7 @@ class FollowRedirectsBackend[P](
       FollowRedirectsBackend.DefaultUriTransform
     )
 
-  type PE = P with Effect[IO]
+  type PE = P & Effect[IO]
 
   override def send[T, R >: PE](request: Request[T, R]): IO[Response[T]] = {
     sendWithCounter(request, 0, Seq.empty)

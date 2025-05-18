@@ -19,12 +19,12 @@ final class RetryingBackend[P](
     retryDelay: FiniteDuration
 ) extends DelegateSttpBackend[IO, P](delegate):
 
-  override def send[T, R >: P with Effect[IO]](
+  override def send[T, R >: P & Effect[IO]](
       request: Request[T, R]
   ): IO[Response[T]] =
     sendWithRetryCounter(request, 0)
 
-  private def sendWithRetryCounter[T, R >: P with Effect[IO]](
+  private def sendWithRetryCounter[T, R >: P & Effect[IO]](
       request: Request[T, R],
       retries: Int
   ): IO[Response[T]] = {

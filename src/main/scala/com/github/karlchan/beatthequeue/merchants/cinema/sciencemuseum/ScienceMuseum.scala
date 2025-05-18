@@ -14,6 +14,7 @@ final class ScienceMuseum
   override val eventFinder = ScienceMuseumCrawler()
   override val criteriaFactory = () => ScienceMuseumCriteria()
   override val renderer = ScienceMuseumRenderer()
+  override val enabled = false // Disable until WAF is fixed
 
 object ScienceMuseum:
   val Name = "Science Museum"

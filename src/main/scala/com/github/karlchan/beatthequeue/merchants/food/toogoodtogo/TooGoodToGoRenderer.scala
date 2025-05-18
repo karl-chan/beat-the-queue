@@ -1,4 +1,4 @@
-package com.github.karlchan.beatthequeue.merchants.cinema.vue
+package com.github.karlchan.beatthequeue.merchants.food.toogoodtogo
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
@@ -15,35 +15,32 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DayOf
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiAutocompleteInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
-import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiStringInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.TimeInputField
 
-class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
+class TooGoodToGoRenderer
+    extends Renderer[TooGoodToGo, TooGoodToGoCriteria, TooGoodToGoEvent]:
 
-  private val cachedInfo: IO[VueCrawler#Info] =
-    VueCrawler().getInfo().memoize.unsafeRunSync()
+  private val cachedInfo: IO[TooGoodToGoCrawler#Info] =
+    TooGoodToGoCrawler().getInfo().memoize.unsafeRunSync()
 
-  override def toFields(criteria: VueCriteria) = Seq(
-    MultiStringField(label = "Film names", value = criteria.filmNames),
+  override def toFields(criteria: TooGoodToGoCriteria) = Seq(
+    MultiStringField(label = "Names", value = criteria.names),
     DateField(label = "Start date", value = criteria.startDate),
     DateField(label = "End date", value = criteria.endDate),
     TimeField(label = "Start time", value = criteria.startTime),
     TimeField(label = "End time", value = criteria.endTime),
-    DayOfWeekField(label = "Days of week", value = criteria.daysOfWeek),
-    MultiStringField(label = "Venues", value = criteria.venues),
-    MultiStringField(label = "Screen types", value = criteria.screenTypes),
-    MultiStringField(label = "Screen names", value = criteria.screenNames)
+    DayOfWeekField(label = "Days of week", value = criteria.daysOfWeek)
   )
 
-  override def toInputFields(criteria: VueCriteria) =
+  override def toInputFields(criteria: TooGoodToGoCriteria) =
     for {
       info <- cachedInfo
     } yield Seq(
       MultiAutocompleteInputField(
-        label = "Film names",
-        name = "filmNames",
+        label = "Names",
+        name = "names",
         options = info.names,
-        value = criteria.filmNames
+        value = criteria.names
       ),
       DateInputField(
         label = "Start date",
@@ -69,30 +66,10 @@ class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
         label = "Days of week",
         name = "daysOfWeek",
         value = criteria.daysOfWeek
-      ),
-      MultiSelectInputField(
-        label = "Venues",
-        name = "venues",
-        options = info.venues,
-        value = criteria.venues
-      ),
-      MultiSelectInputField(
-        label = "Screen types",
-        name = "screenTypes",
-        options = info.screenTypes,
-        value = criteria.screenTypes
-      ),
-      MultiStringInputField(
-        label = "Screen names",
-        name = "screenNames",
-        value = criteria.screenNames
       )
     )
 
-  override def toFields(event: VueEvent) = Seq(
-    StringField(label = "Film name", value = Some(event.name)),
-    DateTimeField(label = "Time", value = Some(event.time)),
-    StringField(label = "Venue", value = Some(event.venue)),
-    MultiStringField(label = "Screen type", value = event.screenTypes),
-    StringField(label = "Screen name", value = Some(event.screenName))
+  override def toFields(event: TooGoodToGoEvent) = Seq(
+    StringField(label = "Name", value = Some(event.name)),
+    DateTimeField(label = "Time", value = Some(event.time))
   )

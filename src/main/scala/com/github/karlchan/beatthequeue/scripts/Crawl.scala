@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import cats.effect.ExitCode
 import cats.effect.IO
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.github.karlchan.beatthequeue.merchants.Criteria
 import com.github.karlchan.beatthequeue.merchants.Event
 import com.github.karlchan.beatthequeue.merchants.Merchant
@@ -53,7 +53,12 @@ private def streamAllEvents(): Stream[IO, Event[?]] =
   Stream
     .emits(Merchants.AllList)
     .filter(_.enabled)
-    .map(_.eventFinder.run().handleErrorWith(logError))
+    .map(merchant =>
+      Stream
+        .eval(IO(merchant.eventFinder.run()))
+        .flatten
+        .handleErrorWith(logError)
+    )
     .parJoin(5)
 
 private def getAllUsers()(using db: Db): IO[Seq[Models.User]] =

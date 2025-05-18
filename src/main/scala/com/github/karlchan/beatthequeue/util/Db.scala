@@ -86,7 +86,7 @@ object Models:
       _id: ObjectId,
       username: String,
       hash: String,
-      criteria: Seq[Criteria[_]] = Seq.empty,
+      criteria: Seq[Criteria[?]] = Seq.empty,
       notificationSettings: NotificationSettings = NotificationSettings(),
       notifications: Seq[Notification] = Seq.empty
   )
@@ -109,7 +109,7 @@ object Models:
 
   final case class Notification(
       id: String = UUID.randomUUID.toString,
-      event: Event[_],
+      event: Event[?],
       published: LocalDateTime,
       hidden: Boolean = false
   )

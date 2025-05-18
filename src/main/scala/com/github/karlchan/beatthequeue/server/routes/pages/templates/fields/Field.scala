@@ -6,8 +6,8 @@ sealed trait Field:
   val label: String
   def render: Html
 
-private[this] trait SingleField[V] extends Field:
+private trait SingleField[V] extends Field:
   val value: Option[V]
 
-private[this] trait MultiField[V] extends Field:
+private trait MultiField[V] extends Field:
   val value: Seq[V]

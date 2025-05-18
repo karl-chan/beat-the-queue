@@ -1,28 +1,22 @@
 package com.github.karlchan.beatthequeue.util
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 
 import cats.effect.IO
 import cats.effect.std.Semaphore
 import cats.effect.unsafe.implicits.global
-import cats.syntax.all._
-import com.github.karlchan.beatthequeue.util.middleware.FollowRedirectsBackend
-import com.github.karlchan.beatthequeue.util.middleware.RetryingBackend
-import com.github.karlchan.beatthequeue.util.middleware.ThrottleBackend
-import com.github.karlchan.beatthequeue.util.middleware.UserAgentBackend
-import com.linecorp.armeria.client.ClientFactory
-import com.linecorp.armeria.client.WebClient
-import com.linecorp.armeria.client.encoding.DecodingClient
+import cats.syntax.all.*
+import com.github.karlchan.beatthequeue.util.middleware.*
 import io.circe.Decoder
+import io.circe.Encoder
 import sttp.client3.Request
 import sttp.client3.Response
 import sttp.client3.ResponseAs
-import sttp.client3.armeria.cats.ArmeriaCatsBackend
 import sttp.client3.asStringAlways
+import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import sttp.client3.basicRequest
-import sttp.client3.circe.asJson
+import sttp.client3.circe.*
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
 import sttp.model.HeaderNames
 import sttp.model.Uri
@@ -33,7 +27,8 @@ final class Http(
     maxRetries: Int = Properties.getInt("http.max.retries"),
     retryDelay: FiniteDuration =
       Properties.getInt("http.retry.delay.ms").milliseconds,
-    persistCookies: Boolean = false
+    persistCookies: Boolean = false,
+    userAgent: Option[String] = None
 )(using httpConnection: HttpConnection):
 
   def getHtml(
@@ -50,14 +45,11 @@ final class Http(
       uri: Uri,
       headers: Map[String, String] = Map.empty,
       cookies: Seq[CookieWithMeta] = Seq.empty
-  )(using
-      d: Decoder[R]
-  ): IO[R] =
+  )(using d: Decoder[R]): IO[R] =
     request(
       basicRequest.get(uri).headers(headers).cookies(cookies),
       asJson[R].getRight
-    )
-      .map(_.body)
+    ).map(_.body)
 
   def getFullResponse(
       uri: Uri,
@@ -78,19 +70,30 @@ final class Http(
     request(
       basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
       asStringAlways
-    )
-      .map(_.body)
+    ).map(_.body)
 
   def post[R](
       uri: Uri,
       body: Map[String, String] = Map.empty,
       headers: Map[String, String] = Map.empty,
       cookies: Seq[CookieWithMeta] = Seq.empty
+  )(using d: Decoder[R]): IO[R] =
+    request(
+      basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
+      asJson[R].getRight
+    ).map(_.body)
+
+  def postJson[J, R](
+      uri: Uri,
+      json: J = None,
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[CookieWithMeta] = Seq.empty
   )(using
+      e: Encoder[J],
       d: Decoder[R]
   ): IO[R] =
     request(
-      basicRequest.post(uri).body(body).headers(headers).cookies(cookies),
+      basicRequest.post(uri).body(json).headers(headers).cookies(cookies),
       asJson[R].getRight
     ).map(_.body)
 
@@ -107,12 +110,16 @@ final class Http(
             UserAgentBackend(
               Slf4jLoggingBackend(
                 httpConnection.backend,
+                beforeCurlInsteadOfShow = Logging.isDebug,
+                logRequestHeaders = Logging.isDebug,
                 logRequestBody = Logging.isDebug,
+                logResponseHeaders = Logging.isDebug,
                 logResponseBody = Logging.isDebug,
                 sensitiveHeaders =
                   if Logging.isDebug then Set.empty
                   else HeaderNames.SensitiveHeaders
-              )
+              ),
+              customUserAgent = userAgent
             ),
             semaphore
           ),
@@ -121,7 +128,7 @@ final class Http(
         )
       )
 
-    var res = req
+    val res = req
       .cookies(cookies)
       .response(decodeFn)
       .send(backendWithMiddleware)
@@ -140,19 +147,8 @@ final class Http(
   private var cookies: Seq[CookieWithMeta] = Seq.empty
 
 given HttpConnection = HttpConnection()
+
 final class HttpConnection:
-  val backend = ArmeriaCatsBackend.usingClient[IO](
-    WebClient
-      .builder()
-      .decorator(
-        DecodingClient
-          .builder()
-          .autoFillAcceptEncoding(false)
-          .strictContentEncoding(true)
-          .newDecorator()
-      )
-      .factory(ClientFactory.insecure())
-      .build()
-  )
+  val backend = AsyncHttpClientCatsBackend[IO]().unsafeRunSync()
 
   def close(): IO[Unit] = backend.close()

@@ -31,7 +31,8 @@ final class ScienceMuseumCrawler(
       performance <- Stream.emits(productionSeason.performances)
     } yield ScienceMuseumEvent(
       name = performance.performanceTitle,
-      time = LocalDateTime.parse(performance.iso8601DateString),
+      // Strip out .0000000+00:00 suffix
+      time = LocalDateTime.parse(performance.iso8601DateString.take(19)),
       productTypeId = performance.productTypeId.toString
     )
 
@@ -60,16 +61,15 @@ final class ScienceMuseumCrawler(
   ): IO[Seq[Response.ProductionSeason]] =
     for {
       token <- getToken()
-      body <- http.post[Seq[Response.ProductionSeason]](
-        uri"https://my.sciencemuseum.org.uk/api/products/productionseasons",
-        Map(
-          "startDate" -> startDate
-            .format(DateTimeFormatter.ISO_LOCAL_DATE),
-          "endDate" -> endDate
-            .format(DateTimeFormatter.ISO_LOCAL_DATE)
-        ),
-        cookies = token.cookies
-      )
+      body <- http
+        .postJson[Request.ProductionSeason, Seq[Response.ProductionSeason]](
+          uri"https://my.sciencemuseum.org.uk/api/products/productionseasons",
+          Request.ProductionSeason(
+            startDate = startDate,
+            endDate = endDate
+          ),
+          cookies = token.cookies
+        )
     } yield body
 
   private[sciencemuseum] def getToken(): IO[Token] = {
@@ -92,6 +92,12 @@ private[sciencemuseum] object TokenResponse:
   final case class NameValuePair(
       name: String,
       value: String
+  )
+
+private[sciencemuseum] object Request:
+  final case class ProductionSeason(
+      startDate: LocalDate,
+      endDate: LocalDate
   )
 
 private[sciencemuseum] object Response:
