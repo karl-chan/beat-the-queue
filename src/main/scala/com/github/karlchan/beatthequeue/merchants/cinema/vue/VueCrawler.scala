@@ -53,7 +53,9 @@ final class VueCrawler(
       name = name,
       time = time,
       venue = cinema.cinemaName,
-      screenTypes = screenTypes
+      screenTypes = screenTypes,
+      screenName = session.screenName.trim
+        .replaceAll("\\s+", " ") // Remove duplicate whitespace
     )
 
   final case class Info(
@@ -170,7 +172,8 @@ private[vue] object ShowingsResponse:
   )
   final case class Session(
       attributes: Seq[Attribute],
-      showTimeWithTimeZone: String // YYYY-MM-DDTHH:mm:ssZ
+      showTimeWithTimeZone: String, // YYYY-MM-DDTHH:mm:ssZ
+      screenName: String // Screen N
   )
   final case class Attribute(
       name: String

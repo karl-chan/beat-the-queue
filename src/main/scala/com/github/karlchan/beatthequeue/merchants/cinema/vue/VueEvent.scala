@@ -9,5 +9,6 @@ final case class VueEvent(
     override val name: String,
     override val time: LocalDateTime,
     venue: String,
-    screenTypes: Seq[String]
+    screenTypes: Seq[String],
+    screenName: String
 ) extends Event[Vue]

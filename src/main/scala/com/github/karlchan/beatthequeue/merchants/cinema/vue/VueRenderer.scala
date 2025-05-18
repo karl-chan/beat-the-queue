@@ -15,6 +15,7 @@ import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.DayOf
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.InputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiAutocompleteInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiSelectInputField
+import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.MultiStringInputField
 import com.github.karlchan.beatthequeue.server.routes.pages.templates.form.TimeInputField
 
 class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
@@ -30,7 +31,8 @@ class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
     TimeField(label = "End time", value = criteria.endTime),
     DayOfWeekField(label = "Days of week", value = criteria.daysOfWeek),
     MultiStringField(label = "Venues", value = criteria.venues),
-    MultiStringField(label = "Screen types", value = criteria.screenTypes)
+    MultiStringField(label = "Screen types", value = criteria.screenTypes),
+    MultiStringField(label = "Screen names", value = criteria.screenNames)
   )
 
   override def toInputFields(criteria: VueCriteria) =
@@ -79,6 +81,11 @@ class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
         name = "screenTypes",
         options = info.screenTypes,
         value = criteria.screenTypes
+      ),
+      MultiStringInputField(
+        label = "Screen names",
+        name = "screenNames",
+        value = criteria.screenNames
       )
     )
 
@@ -86,5 +93,6 @@ class VueRenderer extends Renderer[Vue, VueCriteria, VueEvent]:
     StringField(label = "Film name", value = Some(event.name)),
     DateTimeField(label = "Time", value = Some(event.time)),
     StringField(label = "Venue", value = Some(event.venue)),
-    MultiStringField(label = "Screen type", value = event.screenTypes)
+    MultiStringField(label = "Screen type", value = event.screenTypes),
+    StringField(label = "Screen name", value = Some(event.screenName))
   )

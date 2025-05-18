@@ -25,10 +25,11 @@ final case class VueCriteria(
     endTime: Option[LocalTime] = None,
     daysOfWeek: Seq[DayOfWeek] = Seq.empty,
     venues: Seq[String] = Seq.empty,
-    screenTypes: Seq[String] = Seq.empty
+    screenTypes: Seq[String] = Seq.empty,
+    screenNames: Seq[String] = Seq.empty
 ) extends Criteria[Vue]:
   def matches(event: Event[Vue]) =
-    val VueEvent(_, name, time, venue, eventScreenTypes) =
+    val VueEvent(_, name, time, venue, eventScreenTypes, eventScreenName) =
       event.asInstanceOf[VueEvent]
 
     filmNames.any(name.containsIgnoreCase(_)) &&
@@ -40,7 +41,8 @@ final case class VueCriteria(
     venues.any(_ == venue) &&
     (screenTypes.isEmpty || !screenTypes.toSet
       .intersect(eventScreenTypes.toSet)
-      .isEmpty)
+      .isEmpty) &&
+    screenNames.any(eventScreenName.containsIgnoreCase(_))
 
 given Encoder[DayOfWeek] = dayOfWeekEncoder
 given Decoder[DayOfWeek] = dayOfWeekDecoder
