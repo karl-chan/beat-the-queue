@@ -25,6 +25,7 @@ final class TooGoodToGoCrawler extends EventFinder[TooGoodToGo]:
     for {
       token <- Stream.eval(getToken())
       item <- Stream.evalSeq(getFavourites(token))
+      if item.items_available > 0
       interval <- Stream.fromOption(item.pickup_interval)
     } yield TooGoodToGoEvent(
       name = item.display_name,
@@ -116,7 +117,8 @@ private[toogoodtogo] object FavouriteResponse:
 
   final case class Item(
       display_name: String,
-      pickup_interval: Option[PickupInterval]
+      pickup_interval: Option[PickupInterval],
+      items_available: Int
   )
 
   final case class PickupInterval(
